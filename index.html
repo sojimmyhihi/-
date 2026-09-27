@@ -12,32 +12,32 @@
 <body class="bg-slate-50 text-slate-800 min-h-screen pb-12">
 
   <!-- 頂部資訊列 -->
-  <!-- 將原本的 <header> ... </header> 整段替換為以下代碼 -->
-<header class="relative overflow-hidden text-white pt-6 pb-7 px-5 shadow-xl rounded-b-3xl bg-cover bg-center border-b border-stone-800"
-  style="background-image: url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=1200&q=80');">
-  <!-- 暗調大理石紋理遮罩 -->
-  <div class="absolute inset-0 bg-stone-950/60 backdrop-blur-[1px]"></div>
+ <!-- 將原本的 <header> ... </header> 整段替換為以下代碼 -->
+<header class="relative overflow-hidden text-slate-800 pt-6 pb-7 px-5 shadow-md rounded-b-3xl border-b border-stone-200/80 bg-cover bg-center"
+  style="background-image: url('https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1200&q=80');">
+  <!-- 大理石微光遮罩：確保大理石紋理清晰，文字又易讀 -->
+  <div class="absolute inset-0 bg-white/70 backdrop-blur-[1px]"></div>
 
   <div class="relative z-10 max-w-md mx-auto flex items-center justify-between">
     <div class="space-y-0.5">
       <div class="flex items-center gap-2">
-        <span class="inline-block w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-        <h1 class="text-xl font-bold tracking-wider text-stone-100 font-serif">教室預約系統</h1>
+        <span class="inline-block w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)]"></span>
+        <h1 class="text-xl font-black tracking-wider text-stone-900 font-serif">教室預約系統</h1>
       </div>
-      <p class="text-[10px] text-stone-400 font-light tracking-[0.25em] uppercase font-sans">
+      <p class="text-[10px] text-stone-500 font-medium tracking-[0.2em] uppercase font-sans">
         Studio Space & Schedule
       </p>
     </div>
 
-    <!-- 右側標籤 -->
+    <!-- 右側身分膠囊標籤（大理石風半透明白玉卡） -->
     <div class="flex flex-col items-end gap-1">
-      <div class="flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 text-xs">
-        <svg class="w-3.5 h-3.5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="flex items-center gap-1.5 bg-white/85 backdrop-blur-md px-3 py-1 rounded-full border border-stone-300/80 shadow-sm text-xs">
+        <svg class="w-3.5 h-3.5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
         </svg>
-        <span id="user-display" class="font-medium text-stone-200 max-w-[100px] truncate">載入中...</span>
+        <span id="user-display" class="font-semibold text-stone-700 max-w-[100px] truncate">載入中...</span>
       </div>
-      <span id="admin-badge" class="hidden text-[10px] bg-amber-400 text-stone-900 px-2 py-0.5 rounded-full font-bold shadow-sm">
+      <span id="admin-badge" class="hidden text-[10px] bg-gradient-to-r from-amber-500 to-yellow-600 text-white px-2 py-0.5 rounded-full font-bold shadow-sm">
         管理者
       </span>
     </div>
