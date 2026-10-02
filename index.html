@@ -1,5 +1,157 @@
-const LIFF_ID = '2011761541-hL5HCl1Q'; 
-    const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbyImSgZWu7YAcTO5I8uJf0BggB6cx8Obji_rx4lh8OqTBm83k-nVH8lLqLnxrUUrkD6Pw/exec';
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>舞的店 - 教室即時空檔預約</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- LINE LIFF SDK -->
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+  <style>
+    /* 擬真純卡拉拉白大理石紋理 */
+    .marble-bg {
+      background-color: #f7f8fa;
+      background-image: 
+        radial-gradient(at 15% 25%, rgba(195, 203, 214, 0.5) 0px, transparent 55%),
+        radial-gradient(at 85% 75%, rgba(210, 215, 222, 0.55) 0px, transparent 55%),
+        linear-gradient(115deg, transparent 40%, rgba(175, 185, 200, 0.35) 46%, rgba(150, 160, 175, 0.5) 48%, rgba(255, 255, 255, 0.85) 50%, transparent 54%),
+        linear-gradient(245deg, transparent 60%, rgba(185, 195, 205, 0.3) 64%, rgba(165, 175, 190, 0.45) 66%, transparent 70%),
+        radial-gradient(circle at 50% 50%, #ffffff 0%, #edf1f5 100%);
+      background-size: 100% 100%, 100% 100%, 260px 100%, 320px 100%, 100% 100%;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen pb-12">
+
+  <!-- 頂部：大理石花紋區塊 -->
+  <header class="marble-bg text-slate-800 pt-5 pb-6 px-5 shadow-sm rounded-b-3xl border-b border-slate-300/80 relative overflow-hidden">
+    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200"></div>
+
+    <div class="max-w-md mx-auto flex items-center justify-between">
+      <div class="space-y-0.5">
+        <div class="flex items-center gap-2">
+          <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
+          <h1 class="text-xl font-black tracking-wide text-slate-900 font-serif">教室預約系統</h1>
+        </div>
+        <p class="text-[10px] text-slate-500 font-bold tracking-[0.22em] uppercase font-sans">
+          Studio Available Slots
+        </p>
+      </div>
+
+      <!-- 右側：會員實名認證狀態與編輯 -->
+      <button id="open-profile-btn" class="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-300 shadow-sm active:scale-95 transition">
+        <img id="user-avatar" src="https://via.placeholder.com/28" class="w-6 h-6 rounded-full object-cover hidden border border-slate-200">
+        <div class="text-left">
+          <span id="user-display" class="block text-xs font-bold text-slate-800 max-w-[90px] truncate">LINE 登錄中...</span>
+          <span id="verify-badge" class="block text-[9px] text-amber-600 font-semibold">未實名認證</span>
+        </div>
+      </button>
+    </div>
+  </header>
+
+  <main class="max-w-md mx-auto p-4 space-y-4">
+    <!-- 選擇教室 -->
+    <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200">
+      <label class="block text-xs font-bold text-slate-400 mb-1">選擇教室空間</label>
+      <select id="classroom-select" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        <option value="">讀取教室中...</option>
+      </select>
+    </div>
+
+    <!-- 週次切換與週一至週日選單 -->
+    <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200">
+      <div class="flex justify-between items-center mb-3 px-1">
+        <button id="prev-week" class="px-3 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-bold">← 上一週</button>
+        <span id="week-range-text" class="text-xs font-black text-slate-700">-- / --</span>
+        <button id="next-week" class="px-3 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-bold">下一週 →</button>
+      </div>
+      <div id="weekday-tabs" class="grid grid-cols-7 gap-1 text-center"></div>
+    </div>
+
+    <!-- 時段狀態一覽（僅顯示空檔） -->
+    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+      <div class="flex justify-between items-center mb-3">
+        <h2 id="current-date-title" class="font-extrabold text-sm text-slate-800">可借用時段一覽</h2>
+        <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">僅顯示空檔</span>
+      </div>
+      <div id="slot-container" class="space-y-2.5">
+        <p class="text-center text-slate-400 text-xs py-8">載入中...</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- 實名制登記 / 編輯彈窗 -->
+  <div id="profile-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
+      <div class="border-b pb-2">
+        <h3 class="font-bold text-base text-slate-800">實名制身分登記</h3>
+        <p class="text-xs text-slate-500 mt-1">為保障空間使用安全，租借請填寫真實姓名與手機。</p>
+      </div>
+      <div class="space-y-3 text-xs font-bold text-slate-600">
+        <div>
+          <label class="block mb-1">真實姓名 <span class="text-rose-500">*</span></label>
+          <input type="text" id="reg-name" placeholder="請輸入本名（如：王小明）" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+        <div>
+          <label class="block mb-1">聯絡手機 <span class="text-rose-500">*</span></label>
+          <input type="tel" id="reg-phone" placeholder="例如：0912345678" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+      </div>
+      <div class="flex gap-2 pt-2">
+        <button id="close-profile-btn" class="flex-1 py-2.5 text-sm rounded-xl bg-slate-100 hover:bg-slate-200 font-bold text-slate-600">暫時關閉</button>
+        <button id="save-profile-btn" class="flex-1 py-2.5 text-sm rounded-xl bg-indigo-600 hover:bg-indigo-700 font-bold text-white shadow-md">儲存認證</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 借用確認彈窗（個人 vs 團體包場） -->
+  <div id="booking-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-5 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b pb-2">
+        <h3 class="font-bold text-base text-slate-800">確認預約時段</h3>
+        <button id="close-booking-modal" class="text-slate-400 hover:text-slate-600 text-2xl font-bold">&times;</button>
+      </div>
+
+      <div class="text-xs space-y-1.5 text-slate-600 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+        <p><strong>空間：</strong><span id="modal-room-name">--</span></p>
+        <p><strong>日期：</strong><span id="modal-date">--</span></p>
+        <p><strong>時段：</strong><span id="modal-time" class="font-bold text-indigo-600">--</span></p>
+        <p><strong>承租人：</strong><span id="modal-user-info" class="font-bold text-slate-800">--</span></p>
+      </div>
+
+      <!-- 租借型態單選按鈕 -->
+      <div>
+        <label class="block text-xs font-bold text-slate-600 mb-1.5">租借型態 <span class="text-rose-500">*</span></label>
+        <div class="grid grid-cols-2 gap-2 text-xs font-bold">
+          <label class="flex items-center justify-center p-2.5 border rounded-xl cursor-pointer hover:bg-slate-50 has-[:checked]:border-indigo-600 has-[:checked]:text-indigo-600 has-[:checked]:bg-indigo-50">
+            <input type="radio" name="booking-type" value="個人練習" checked class="hidden">
+            <span>👤 個人自主練習</span>
+          </label>
+          <label class="flex items-center justify-center p-2.5 border rounded-xl cursor-pointer hover:bg-slate-50 has-[:checked]:border-indigo-600 has-[:checked]:text-indigo-600 has-[:checked]:bg-indigo-50">
+            <input type="radio" name="booking-type" value="團體包場" class="hidden">
+            <span>👥 團體/開課包場</span>
+          </label>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-500 mb-1">使用用途 / 備註（選填）</label>
+        <input type="text" id="booking-purpose" placeholder="例如：自主練習、舞曲排練" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+      </div>
+
+      <div class="flex gap-2 pt-1">
+        <button id="cancel-booking-btn" class="flex-1 py-2.5 text-sm rounded-xl bg-slate-100 hover:bg-slate-200 font-bold text-slate-600">取消</button>
+        <button id="submit-booking-btn" class="flex-1 py-2.5 text-sm rounded-xl bg-indigo-600 hover:bg-indigo-700 font-bold text-white shadow-md">確認預約</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 核心 JavaScript -->
+  <script>
+    const LIFF_ID = '2011761541-hL5HCl1Q'; 
+    const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzz6XpZz-o8X6w0f2tK4g_U9b_G-y3-nVH8lLqLnxrUUrkD6Pw/exec';
 
     let currentUser = {
       userId: 'guest_user',
@@ -37,7 +189,6 @@ const LIFF_ID = '2011761541-hL5HCl1Q';
       await initApp();
     });
 
-    // 一次性完成登入 + 初始化資料載入 (大幅提升載入速度)
     async function initApp() {
       try {
         await liff.init({ liffId: LIFF_ID });
@@ -58,7 +209,6 @@ const LIFF_ID = '2011761541-hL5HCl1Q';
         console.warn('LIFF 載入失敗或不在 LINE 中：', err);
       }
 
-      // 單一 API 請求：同時載入教室列表、實名制身分、當日課表
       await loadInitialData();
     }
 
@@ -74,7 +224,6 @@ const LIFF_ID = '2011761541-hL5HCl1Q';
         const res = await fetch(url);
         const data = await res.json();
 
-        // 1. 會員狀態更新
         if (data.member && data.member.registered) {
           currentUser.isRegistered = true;
           currentUser.realName = data.member.real_name;
@@ -84,7 +233,6 @@ const LIFF_ID = '2011761541-hL5HCl1Q';
           document.getElementById('verify-badge').className = 'block text-[9px] text-emerald-600 font-semibold';
         }
 
-        // 2. 教室下拉選單
         if (data.classrooms && data.classrooms.length > 0) {
           classrooms = data.classrooms;
           const select = document.getElementById('classroom-select');
@@ -99,14 +247,12 @@ const LIFF_ID = '2011761541-hL5HCl1Q';
           if (!selectedRoomId) selectedRoomId = classrooms[0].id;
         }
 
-        // 3. 渲染時段
         renderAvailableSlots(data.bookings || [], data.recurrings || []);
       } catch (e) {
-        container.innerHTML = '<p class="text-center text-red-500 text-xs py-8">載入失敗，請點此重新整理</p>';
+        container.innerHTML = '<p class="text-center text-red-500 text-xs py-8">載入失敗，請重新整理</p>';
       }
     }
 
-    // 換日或切換教室時只需抓課表
     async function fetchAndRenderSlots() {
       const container = document.getElementById('slot-container');
       container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">更新狀態中...</p>';
@@ -124,7 +270,6 @@ const LIFF_ID = '2011761541-hL5HCl1Q';
       }
     }
 
-    // 精準比對時段並消失已被租用者
     function renderAvailableSlots(bookings, recurrings) {
       const container = document.getElementById('slot-container');
       container.innerHTML = '';
@@ -135,7 +280,6 @@ const LIFF_ID = '2011761541-hL5HCl1Q';
         return (h || 0) * 60 + (m || 0);
       }
 
-      // 嚴格過濾：轉換成分鐘數比對，防止字串長短差異造成比對漏失
       const availableSlots = TIME_SLOTS.filter(slot => {
         const slotStart = toMinutes(slot.start);
         const slotEnd = toMinutes(slot.end);
@@ -379,3 +523,6 @@ const LIFF_ID = '2011761541-hL5HCl1Q';
       });
       document.getElementById('submit-booking-btn').addEventListener('click', submitBooking);
     }
+  </script>
+</body>
+</html>
