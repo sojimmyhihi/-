@@ -3,14 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>舞的店 - 教室即時空檔預約</title>
-  <!-- Tailwind CSS -->
+  <title>舞的店 - 教室租借與預約管理</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- LINE LIFF SDK -->
   <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
   <style>
-    /* 擬真純卡拉拉白大理石紋理 */
     .marble-bg {
       background-color: #f7f8fa;
       background-image: 
@@ -23,9 +20,9 @@
     }
   </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen pb-12">
+<body class="bg-slate-100 text-slate-800 min-h-screen pb-28">
 
-  <!-- 頂部：大理石花紋區塊 -->
+  <!-- 頂部：白大理石紋理與身分資訊 -->
   <header class="marble-bg text-slate-800 pt-5 pb-6 px-5 shadow-sm rounded-b-3xl border-b border-slate-300/80 relative overflow-hidden">
     <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200"></div>
 
@@ -33,18 +30,17 @@
       <div class="space-y-0.5">
         <div class="flex items-center gap-2">
           <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
-          <h1 class="text-xl font-black tracking-wide text-slate-900 font-serif">教室預約系統</h1>
+          <h1 class="text-xl font-black tracking-wide text-slate-900 font-serif">舞的店 預約系統</h1>
         </div>
         <p class="text-[10px] text-slate-500 font-bold tracking-[0.22em] uppercase font-sans">
-          Studio Available Slots
+          Studio Booking & Management
         </p>
       </div>
 
-      <!-- 右側：會員實名認證狀態與編輯 -->
       <button id="open-profile-btn" class="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-300 shadow-sm active:scale-95 transition">
         <img id="user-avatar" src="https://via.placeholder.com/28" class="w-6 h-6 rounded-full object-cover hidden border border-slate-200">
         <div class="text-left">
-          <span id="user-display" class="block text-xs font-bold text-slate-800 max-w-[90px] truncate">LINE 登錄中...</span>
+          <span id="user-display" class="block text-xs font-bold text-slate-800 max-w-[85px] truncate">LINE 登錄中...</span>
           <span id="verify-badge" class="block text-[9px] text-amber-600 font-semibold">未實名認證</span>
         </div>
       </button>
@@ -52,37 +48,116 @@
   </header>
 
   <main class="max-w-md mx-auto p-4 space-y-4">
-    <!-- 選擇教室 -->
-    <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200">
-      <label class="block text-xs font-bold text-slate-400 mb-1">選擇教室空間</label>
-      <select id="classroom-select" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-        <option value="">讀取教室中...</option>
-      </select>
+    <!-- 主導覽分頁切換 -->
+    <div class="flex bg-slate-200/80 p-1 rounded-2xl text-xs font-black">
+      <button id="tab-booking-view" class="flex-1 py-2 rounded-xl bg-white text-indigo-600 shadow-sm transition">
+        📅 預約空間
+      </button>
+      <button id="tab-my-records" class="flex-1 py-2 rounded-xl text-slate-600 hover:text-indigo-600 transition">
+        📋 我的紀錄
+      </button>
+      <button id="tab-admin-panel" class="flex-1 py-2 rounded-xl text-amber-800 hover:text-amber-900 transition hidden bg-amber-100/70 border border-amber-200">
+        ⚙️ 管理後台
+      </button>
     </div>
 
-    <!-- 週次切換與週一至週日選單 -->
-    <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200">
-      <div class="flex justify-between items-center mb-3 px-1">
-        <button id="prev-week" class="px-3 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-bold">← 上一週</button>
-        <span id="week-range-text" class="text-xs font-black text-slate-700">-- / --</span>
-        <button id="next-week" class="px-3 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-bold">下一週 →</button>
+    <!-- ==================== 分頁 1：租借時段一覽 ==================== -->
+    <div id="booking-section" class="space-y-4">
+      <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200">
+        <label class="block text-xs font-bold text-slate-400 mb-1">選擇教室空間</label>
+        <select id="classroom-select" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <option value="">讀取教室中...</option>
+        </select>
       </div>
-      <div id="weekday-tabs" class="grid grid-cols-7 gap-1 text-center"></div>
+
+      <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200">
+        <div class="flex justify-between items-center mb-3 px-1">
+          <button id="prev-week" class="px-3 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-bold">← 上一週</button>
+          <span id="week-range-text" class="text-xs font-black text-slate-700">-- / --</span>
+          <button id="next-week" class="px-3 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-bold">下一週 →</button>
+        </div>
+        <div id="weekday-tabs" class="grid grid-cols-7 gap-1 text-center"></div>
+      </div>
+
+      <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+        <div class="flex justify-between items-center">
+          <div>
+            <h2 id="current-date-title" class="font-extrabold text-sm text-slate-800">可借用時段一覽</h2>
+            <p class="text-[11px] text-slate-400">點擊勾選時段，支援連續多選時段</p>
+          </div>
+          <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">僅顯示空檔</span>
+        </div>
+        
+        <!-- 早/中/晚 分段時段容器 -->
+        <div id="slot-container" class="space-y-4">
+          <p class="text-center text-slate-400 text-xs py-8">載入空檔中...</p>
+        </div>
+      </div>
     </div>
 
-    <!-- 時段狀態一覽（僅顯示空檔） -->
-    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
-      <div class="flex justify-between items-center mb-3">
-        <h2 id="current-date-title" class="font-extrabold text-sm text-slate-800">可借用時段一覽</h2>
-        <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">僅顯示空檔</span>
+    <!-- ==================== 分頁 2：個人預約紀錄 ==================== -->
+    <div id="records-section" class="space-y-3 hidden">
+      <div class="flex justify-between items-center px-1">
+        <h2 class="font-extrabold text-sm text-slate-800">我的預約申請紀錄</h2>
+        <button id="refresh-records-btn" class="text-xs text-indigo-600 font-bold bg-indigo-50 px-2.5 py-1 rounded-lg">🔄 重新整理</button>
       </div>
-      <div id="slot-container" class="space-y-2.5">
-        <p class="text-center text-slate-400 text-xs py-8">載入中...</p>
+      <div id="records-container" class="space-y-3">
+        <p class="text-center text-slate-400 text-xs py-8">正在載入紀錄...</p>
+      </div>
+    </div>
+
+    <!-- ==================== 分頁 3：管理者行動審核後台 ==================== -->
+    <div id="admin-section" class="space-y-4 hidden">
+      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+        <h3 class="font-extrabold text-sm text-slate-800 flex items-center justify-between">
+          <span>🛠️ 快速臨時鎖定時段（清潔/自用）</span>
+        </h3>
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div>
+            <label class="block text-slate-500 font-bold mb-1">日期</label>
+            <input type="date" id="admin-lock-date" class="w-full border rounded-xl p-2 bg-slate-50">
+          </div>
+          <div>
+            <label class="block text-slate-500 font-bold mb-1">起始時間</label>
+            <select id="admin-lock-start" class="w-full border rounded-xl p-2 bg-slate-50 font-bold"></select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500 font-bold mb-1">鎖定原因備註</label>
+          <input type="text" id="admin-lock-reason" placeholder="例如：地板打蠟、內部排練" class="w-full border rounded-xl p-2 text-xs bg-slate-50">
+        </div>
+        <button id="admin-submit-lock-btn" class="w-full py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold">
+          鎖定該時段（不對外開放）
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        <div class="flex justify-between items-center px-1">
+          <h3 class="font-extrabold text-sm text-slate-800">全部申請審核清單</h3>
+          <button id="refresh-admin-btn" class="text-xs text-indigo-600 font-bold bg-indigo-50 px-2.5 py-1 rounded-lg">🔄 整理清單</button>
+        </div>
+        <div id="admin-list-container" class="space-y-3">
+          <p class="text-center text-slate-400 text-xs py-8">載入審核名單中...</p>
+        </div>
       </div>
     </div>
   </main>
 
-  <!-- 實名制登記 / 編輯彈窗 -->
+  <!-- 底部多選懸浮購物車條 -->
+  <div id="cart-bar" class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-3.5 shadow-2xl z-40 hidden">
+    <div class="max-w-md mx-auto flex items-center justify-between">
+      <div>
+        <div class="text-xs text-slate-500">已選擇 <span id="cart-count" class="font-black text-indigo-600 text-sm">0</span> 個時段</div>
+        <div class="text-xs font-black text-slate-800">試算預估：<span id="cart-price" class="text-rose-600 text-sm">NT$ 0</span></div>
+      </div>
+      <div class="flex gap-2">
+        <button id="cart-clear-btn" class="px-3 py-2 text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl">清空</button>
+        <button id="cart-checkout-btn" class="px-5 py-2 text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-xl shadow-md">立即申請</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 實名制登記彈窗 -->
   <div id="profile-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
       <div class="border-b pb-2">
@@ -106,28 +181,28 @@
     </div>
   </div>
 
-  <!-- 借用確認彈窗（個人 vs 團體包場） -->
+  <!-- 批次借用確認彈窗 -->
   <div id="booking-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl max-w-sm w-full p-5 space-y-4 shadow-2xl">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b pb-2">
-        <h3 class="font-bold text-base text-slate-800">確認預約時段</h3>
+        <h3 class="font-bold text-base text-slate-800">確認預約申請</h3>
         <button id="close-booking-modal" class="text-slate-400 hover:text-slate-600 text-2xl font-bold">&times;</button>
       </div>
 
       <div class="text-xs space-y-1.5 text-slate-600 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
-        <p><strong>空間：</strong><span id="modal-room-name">--</span></p>
+        <p><strong>教室：</strong><span id="modal-room-name">--</span></p>
         <p><strong>日期：</strong><span id="modal-date">--</span></p>
-        <p><strong>時段：</strong><span id="modal-time" class="font-bold text-indigo-600">--</span></p>
-        <p><strong>承租人：</strong><span id="modal-user-info" class="font-bold text-slate-800">--</span></p>
+        <p><strong>所選時段：</strong><span id="modal-slots-text" class="font-bold text-indigo-600">--</span></p>
+        <p><strong>預約人：</strong><span id="modal-user-info" class="font-bold text-slate-800">--</span></p>
       </div>
 
-      <!-- 租借型態單選按鈕 -->
+      <!-- 租借型態 -->
       <div>
         <label class="block text-xs font-bold text-slate-600 mb-1.5">租借型態 <span class="text-rose-500">*</span></label>
         <div class="grid grid-cols-2 gap-2 text-xs font-bold">
           <label class="flex items-center justify-center p-2.5 border rounded-xl cursor-pointer hover:bg-slate-50 has-[:checked]:border-indigo-600 has-[:checked]:text-indigo-600 has-[:checked]:bg-indigo-50">
             <input type="radio" name="booking-type" value="個人練習" checked class="hidden">
-            <span>👤 個人自主練習</span>
+            <span>👤 個人練習</span>
           </label>
           <label class="flex items-center justify-center p-2.5 border rounded-xl cursor-pointer hover:bg-slate-50 has-[:checked]:border-indigo-600 has-[:checked]:text-indigo-600 has-[:checked]:bg-indigo-50">
             <input type="radio" name="booking-type" value="團體包場" class="hidden">
@@ -136,22 +211,35 @@
         </div>
       </div>
 
+      <!-- 金額試算與醒目提示語 -->
+      <div class="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-3.5 space-y-2">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-bold text-amber-900">金額試算（共 <span id="modal-hour-count">0</span> 小時）</span>
+          <span id="modal-total-price" class="text-base font-black text-rose-600">NT$ 0</span>
+        </div>
+        <p class="text-[11px] font-semibold text-amber-800 leading-relaxed bg-white/70 p-2.5 rounded-xl border border-amber-200">
+          ⚠️ <strong>注意事項：</strong><br>
+          本系統僅提供借用申請與查詢，請於申請提出的六小時內與負責人匯款並確認呦。
+        </p>
+      </div>
+
       <div>
-        <label class="block text-xs font-bold text-slate-500 mb-1">使用用途 / 備註（選填）</label>
-        <input type="text" id="booking-purpose" placeholder="例如：自主練習、舞曲排練" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+        <label class="block text-xs font-bold text-slate-500 mb-1">使用用途 / 舞風備註（選填）</label>
+        <input type="text" id="booking-purpose" placeholder="例如：國標練舞、自修排練" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
       </div>
 
       <div class="flex gap-2 pt-1">
         <button id="cancel-booking-btn" class="flex-1 py-2.5 text-sm rounded-xl bg-slate-100 hover:bg-slate-200 font-bold text-slate-600">取消</button>
-        <button id="submit-booking-btn" class="flex-1 py-2.5 text-sm rounded-xl bg-indigo-600 hover:bg-indigo-700 font-bold text-white shadow-md">確認預約</button>
+        <button id="submit-booking-btn" class="flex-1 py-2.5 text-sm rounded-xl bg-indigo-600 hover:bg-indigo-700 font-bold text-white shadow-md">送出申請</button>
       </div>
     </div>
   </div>
 
   <!-- 核心 JavaScript -->
   <script>
+    // 注入已指定的 Apps Script 網址與 LIFF ID
     const LIFF_ID = '2011761541-hL5HCl1Q'; 
-    const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbxq9PatTxSRvY11kUZfSij3lUxToi6TAI02flXyAryjnsWL8bK-S5UyD_aBALX35dtLHg/exec';
+    const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbxj18umpEUU8FFzPXjXERwp-QZ-8fOiiLUEthb-6gb_vtCT3roZE9URfdMiUPmNxdrPqg/exec';
 
     let currentUser = {
       userId: 'guest_user',
@@ -159,7 +247,8 @@
       pictureUrl: '',
       realName: '',
       phone: '',
-      isRegistered: false
+      isRegistered: false,
+      isAdmin: false
     };
 
     let classrooms = [];
@@ -167,27 +256,42 @@
     let currentMonday = getMonday(new Date());
     let selectedDate = formatDate(new Date());
 
+    let selectedSlots = [];
+
     const TIME_SLOTS = [
-      { start: '10:00', end: '11:00' },
-      { start: '11:00', end: '12:00' },
-      { start: '12:00', end: '13:00' },
-      { start: '13:00', end: '14:00' },
-      { start: '14:00', end: '15:00' },
-      { start: '15:00', end: '16:00' },
-      { start: '16:00', end: '17:00' },
-      { start: '17:00', end: '18:00' },
-      { start: '18:00', end: '19:00' },
-      { start: '19:00', end: '20:00' },
-      { start: '20:00', end: '21:00' },
-      { start: '21:00', end: '22:00' },
-      { start: '22:00', end: '23:00' }
+      { start: '10:00', end: '11:00', period: 'morning' },
+      { start: '11:00', end: '12:00', period: 'morning' },
+      { start: '12:00', end: '13:00', period: 'afternoon' },
+      { start: '13:00', end: '14:00', period: 'afternoon' },
+      { start: '14:00', end: '15:00', period: 'afternoon' },
+      { start: '15:00', end: '16:00', period: 'afternoon' },
+      { start: '16:00', end: '17:00', period: 'afternoon' },
+      { start: '17:00', end: '18:00', period: 'afternoon' },
+      { start: '18:00', end: '19:00', period: 'evening' },
+      { start: '19:00', end: '20:00', period: 'evening' },
+      { start: '20:00', end: '21:00', period: 'evening' },
+      { start: '21:00', end: '22:00', period: 'evening' },
+      { start: '22:00', end: '23:00', period: 'evening' }
     ];
 
     window.addEventListener('DOMContentLoaded', async () => {
+      initTimeOptionsSelect();
       renderWeekdayTabs();
       bindEvents();
       await initApp();
     });
+
+    function initTimeOptionsSelect() {
+      const select = document.getElementById('admin-lock-start');
+      select.innerHTML = '';
+      TIME_SLOTS.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.start;
+        opt.textContent = `${s.start} - ${s.end}`;
+        select.appendChild(opt);
+      });
+      document.getElementById('admin-lock-date').value = selectedDate;
+    }
 
     async function initApp() {
       try {
@@ -206,9 +310,8 @@
           }
         }
       } catch (err) {
-        console.warn('LIFF 載入失敗或不在 LINE 中：', err);
+        console.warn('非 LINE 環境運作：', err);
       }
-
       await loadInitialData();
     }
 
@@ -228,9 +331,14 @@
           currentUser.isRegistered = true;
           currentUser.realName = data.member.real_name;
           currentUser.phone = data.member.phone;
+          currentUser.isAdmin = data.member.isAdmin || false;
           document.getElementById('user-display').textContent = data.member.real_name;
           document.getElementById('verify-badge').textContent = '已實名認證';
           document.getElementById('verify-badge').className = 'block text-[9px] text-emerald-600 font-semibold';
+
+          if (currentUser.isAdmin) {
+            document.getElementById('tab-admin-panel').classList.remove('hidden');
+          }
         }
 
         if (data.classrooms && data.classrooms.length > 0) {
@@ -240,14 +348,14 @@
           classrooms.forEach(room => {
             const opt = document.createElement('option');
             opt.value = room.id;
-            opt.textContent = room.name;
+            opt.textContent = `${room.name} (個人 $${room.personal_rate}/h, 包場 $${room.group_rate}/h)`;
             if (String(room.id) === String(selectedRoomId)) opt.selected = true;
             select.appendChild(opt);
           });
           if (!selectedRoomId) selectedRoomId = classrooms[0].id;
         }
 
-        renderAvailableSlots(data.bookings || [], data.recurrings || []);
+        renderGroupedAvailableSlots(data.bookings || [], data.recurrings || []);
       } catch (e) {
         container.innerHTML = '<p class="text-center text-red-500 text-xs py-8">載入失敗，請重新整理</p>';
       }
@@ -264,13 +372,13 @@
       try {
         const res = await fetch(`${GAS_API_URL}?action=getSchedule&roomId=${selectedRoomId}&date=${selectedDate}&dayOfWeek=${dayOfWeek}`);
         const data = await res.json();
-        renderAvailableSlots(data.bookings || [], data.recurrings || []);
+        renderGroupedAvailableSlots(data.bookings || [], data.recurrings || []);
       } catch (err) {
         container.innerHTML = '<p class="text-center text-red-500 text-xs py-8">讀取失敗，請稍後再試</p>';
       }
     }
 
-    function renderAvailableSlots(bookings, recurrings) {
+    function renderGroupedAvailableSlots(bookings, recurrings) {
       const container = document.getElementById('slot-container');
       container.innerHTML = '';
 
@@ -306,111 +414,143 @@
             <p class="text-xs text-slate-400 mt-1">請點選上方其他日期查看空檔</p>
           </div>
         `;
+        updateCartBar();
         return;
       }
 
-      availableSlots.forEach(slot => {
-        const slotCard = document.createElement('div');
-        slotCard.className = 'flex items-center justify-between p-3.5 rounded-xl border border-emerald-200 bg-white hover:border-emerald-400 hover:shadow-sm transition cursor-pointer';
-        slotCard.innerHTML = `
-          <div class="flex items-center space-x-2">
-            <span class="font-extrabold text-slate-800 text-sm">${slot.start} - ${slot.end}</span>
-            <span class="text-xs px-2 py-0.5 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-md font-bold">可借用</span>
-          </div>
-          <button class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3.5 py-1.5 rounded-lg shadow-sm">借用</button>
-        `;
-        slotCard.onclick = () => openBookingModal(slot);
-        container.appendChild(slotCard);
+      const groups = [
+        { key: 'morning', label: '☀️ 上午時段 (10:00 - 12:00)', slots: [] },
+        { key: 'afternoon', label: '🌤️ 下午時段 (12:00 - 18:00)', slots: [] },
+        { key: 'evening', label: '🌙 晚間熱門時段 (18:00 - 23:00)', slots: [] }
+      ];
+
+      availableSlots.forEach(s => {
+        const g = groups.find(item => item.key === s.period);
+        if (g) g.slots.push(s);
       });
+
+      groups.forEach(g => {
+        if (g.slots.length > 0) {
+          const gDiv = document.createElement('div');
+          gDiv.className = 'space-y-2';
+          gDiv.innerHTML = `<h3 class="text-xs font-black text-slate-500 bg-slate-50 px-3 py-1.5 rounded-lg">${g.label}</h3>`;
+
+          const slotGrid = document.createElement('div');
+          slotGrid.className = 'space-y-2';
+
+          g.slots.forEach(slot => {
+            const isSelected = selectedSlots.some(s => s.start === slot.start && s.date === selectedDate);
+            const slotCard = document.createElement('div');
+            slotCard.className = `flex items-center justify-between p-3 rounded-xl border text-sm transition cursor-pointer ${
+              isSelected 
+                ? 'bg-indigo-50 border-indigo-600 shadow-sm' 
+                : 'bg-white border-emerald-200 hover:border-emerald-400'
+            }`;
+
+            slotCard.innerHTML = `
+              <div class="flex items-center space-x-2">
+                <input type="checkbox" ${isSelected ? 'checked' : ''} class="w-4 h-4 rounded text-indigo-600 focus:ring-0">
+                <span class="font-extrabold ${isSelected ? 'text-indigo-900' : 'text-slate-800'}">${slot.start} - ${slot.end}</span>
+              </div>
+              <span class="text-xs font-bold px-2 py-0.5 rounded-md ${
+                isSelected ? 'bg-indigo-600 text-white' : 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+              }">${isSelected ? '已選取' : '可選'}</span>
+            `;
+
+            slotCard.onclick = () => {
+              toggleSlotSelection(slot);
+              renderGroupedAvailableSlots(bookings, recurrings);
+            };
+
+            slotGrid.appendChild(slotCard);
+          });
+
+          gDiv.appendChild(slotGrid);
+          container.appendChild(gDiv);
+        }
+      });
+
+      updateCartBar();
     }
 
-    function getMonday(d) {
-      const date = new Date(d);
-      const day = date.getDay();
-      const diff = date.getDate() - day + (day === 0 ? -6 : 1);
-      return new Date(date.setDate(diff));
-    }
-
-    function formatDate(date) {
-      const y = date.getFullYear();
-      const m = String(date.getMonth() + 1).padStart(2, '0');
-      const d = String(date.getDate()).padStart(2, '0');
-      return `${y}-${m}-${d}`;
-    }
-
-    function renderWeekdayTabs() {
-      const container = document.getElementById('weekday-tabs');
-      container.innerHTML = '';
-      const dayLabels = ['一', '二', '三', '四', '五', '六', '日'];
-
-      const endSunday = new Date(currentMonday);
-      endSunday.setDate(endSunday.getDate() + 6);
-      document.getElementById('week-range-text').textContent = 
-        `${currentMonday.getMonth() + 1}/${currentMonday.getDate()} - ${endSunday.getMonth() + 1}/${endSunday.getDate()}`;
-
-      for (let i = 0; i < 7; i++) {
-        const loopDate = new Date(currentMonday);
-        loopDate.setDate(loopDate.getDate() + i);
-        const loopDateStr = formatDate(loopDate);
-        const isSelected = (loopDateStr === selectedDate);
-
-        const tab = document.createElement('button');
-        tab.className = `p-2 rounded-xl flex flex-col items-center justify-center transition-all ${
-          isSelected ? 'bg-indigo-600 text-white font-bold shadow-md' : 'bg-slate-50 hover:bg-slate-100 text-slate-700'
-        }`;
-        tab.innerHTML = `
-          <span class="text-[11px] font-medium">週${dayLabels[i]}</span>
-          <span class="text-xs mt-0.5 font-bold">${loopDate.getDate()}</span>
-        `;
-        tab.onclick = () => {
-          selectedDate = loopDateStr;
-          renderWeekdayTabs();
-          fetchAndRenderSlots();
-        };
-        container.appendChild(tab);
+    function toggleSlotSelection(slot) {
+      const idx = selectedSlots.findIndex(s => s.start === slot.start && s.date === selectedDate);
+      if (idx > -1) {
+        selectedSlots.splice(idx, 1);
+      } else {
+        selectedSlots.push({ ...slot, date: selectedDate });
       }
+      selectedSlots.sort((a, b) => a.start.localeCompare(b.start));
+      updateCartBar();
     }
 
-    let targetSlot = null;
+    function updateCartBar() {
+      const bar = document.getElementById('cart-bar');
+      const countEl = document.getElementById('cart-count');
+      const priceEl = document.getElementById('cart-price');
 
-    function openBookingModal(slot) {
+      if (selectedSlots.length === 0) {
+        bar.classList.add('hidden');
+        return;
+      }
+
+      bar.classList.remove('hidden');
+      countEl.textContent = selectedSlots.length;
+
+      const currentRoom = classrooms.find(r => String(r.id) === String(selectedRoomId));
+      const rate = currentRoom ? currentRoom.personal_rate : 250;
+      priceEl.textContent = `NT$ ${selectedSlots.length * rate}`;
+    }
+
+    function openCheckoutModal() {
       if (!currentUser.isRegistered) {
         alert('請先完成實名制登記才能進行預約！');
         openProfileModal();
         return;
       }
+      if (selectedSlots.length === 0) return;
 
-      targetSlot = slot;
       const room = classrooms.find(r => String(r.id) === String(selectedRoomId));
-      document.getElementById('modal-room-name').textContent = room ? room.name : '--';
+      document.getElementById('modal-room-name').textContent = room ? room.name : '東榮教室';
       document.getElementById('modal-date').textContent = selectedDate;
-      document.getElementById('modal-time').textContent = `${slot.start} - ${slot.end}`;
+
+      const slotsSummary = selectedSlots.map(s => `${s.start}-${s.end}`).join(', ');
+      document.getElementById('modal-slots-text').textContent = slotsSummary;
       document.getElementById('modal-user-info').textContent = `${currentUser.realName} (${currentUser.phone})`;
-      document.getElementById('booking-purpose').value = '';
+      document.getElementById('modal-hour-count').textContent = selectedSlots.length;
+      
+      calculateModalPrice();
       document.getElementById('booking-modal').classList.remove('hidden');
     }
 
-    async function submitBooking() {
-      if (!targetSlot) return;
+    function calculateModalPrice() {
+      const type = document.querySelector('input[name="booking-type"]:checked').value;
+      const room = classrooms.find(r => String(r.id) === String(selectedRoomId));
+      const rate = type === '個人練習' ? (room?.personal_rate || 250) : (room?.group_rate || 600);
+      const total = selectedSlots.length * rate;
+      document.getElementById('modal-total-price').textContent = `NT$ ${total}`;
+    }
+
+    async function submitBatchBooking() {
+      if (selectedSlots.length === 0) return;
 
       const bookingType = document.querySelector('input[name="booking-type"]:checked').value;
       const purpose = document.getElementById('booking-purpose').value.trim() || bookingType;
       const submitBtn = document.getElementById('submit-booking-btn');
 
       submitBtn.disabled = true;
-      submitBtn.textContent = '預約中...';
+      submitBtn.textContent = '送出中...';
 
       try {
         const payload = {
-          action: 'createBooking',
+          action: 'createBatchBooking',
           classroom_id: selectedRoomId,
           line_user_id: currentUser.userId,
           user_name: currentUser.realName,
           phone: currentUser.phone,
           booking_type: bookingType,
           booking_date: selectedDate,
-          start_time: targetSlot.start,
-          end_time: targetSlot.end,
+          slots: selectedSlots,
           purpose: purpose
         };
 
@@ -421,8 +561,10 @@
         const result = await res.json();
 
         if (result.success) {
-          alert(`【${bookingType}】預約成功！時段已為您保留。`);
+          alert(`【${bookingType}】預約申請已送出！\n\n⚠ 提醒您：本系統僅提供借用申請與查詢，請於申請提出的六小時內與負責人匯款並確認呦。`);
+          selectedSlots = [];
           document.getElementById('booking-modal').classList.add('hidden');
+          updateCartBar();
           await fetchAndRenderSlots();
         } else {
           throw new Error(result.error);
@@ -431,7 +573,183 @@
         alert('預約失敗：' + err.message);
       } finally {
         submitBtn.disabled = false;
-        submitBtn.textContent = '確認預約';
+        submitBtn.textContent = '送出申請';
+      }
+    }
+
+    async function loadMyRecords() {
+      const container = document.getElementById('records-container');
+      container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">載入紀錄中...</p>';
+
+      if (!currentUser.userId || currentUser.userId === 'guest_user') {
+        container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">請於 LINE 內開啟檢視個人紀錄</p>';
+        return;
+      }
+
+      try {
+        const res = await fetch(`${GAS_API_URL}?action=getMyBookings&lineUserId=${currentUser.userId}`);
+        const records = await res.json();
+
+        if (!records || records.length === 0) {
+          container.innerHTML = `
+            <div class="text-center py-10 bg-white rounded-2xl border border-slate-200">
+              <p class="text-sm font-bold text-slate-400">目前尚無預約紀錄</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = '';
+        records.forEach(r => {
+          let badgeHtml = '';
+          let actionBtn = '';
+
+          if (r.status === '申請成功') {
+            badgeHtml = '<span class="text-xs px-2.5 py-1 bg-emerald-100 text-emerald-700 rounded-lg font-black border border-emerald-200">✓ 申請成功</span>';
+          } else if (r.status === '未付款請重新申請') {
+            badgeHtml = '<span class="text-xs px-2.5 py-1 bg-rose-100 text-rose-700 rounded-lg font-black border border-rose-200">✕ 未付款請重新申請</span>';
+            actionBtn = `
+              <div class="pt-2 border-t flex justify-end">
+                <button onclick="reapplyBooking('${r.classroom_id}', '${r.booking_date}', '${r.start_time}', '${r.end_time}')" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-black px-3 py-1.5 rounded-lg border border-indigo-200">
+                  🔄 重新申請此時段
+                </button>
+              </div>
+            `;
+          } else {
+            badgeHtml = '<span class="text-xs px-2.5 py-1 bg-amber-100 text-amber-800 rounded-lg font-black border border-amber-200">⏳ 審核中</span>';
+          }
+
+          const card = document.createElement('div');
+          card.className = 'bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-2';
+          card.innerHTML = `
+            <div class="flex justify-between items-start">
+              <div>
+                <span class="text-[11px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">${r.booking_type || '一般租借'}</span>
+                <h3 class="font-black text-slate-800 text-sm mt-1">${r.room_name}</h3>
+              </div>
+              ${badgeHtml}
+            </div>
+            <div class="text-xs text-slate-500 space-y-0.5 pt-1 border-t border-slate-100">
+              <p><strong>日期：</strong>${r.booking_date}</p>
+              <p><strong>時段：</strong>${r.start_time} - ${r.end_time}</p>
+              ${r.purpose ? `<p><strong>備註：</strong>${r.purpose}</p>` : ''}
+            </div>
+            ${actionBtn}
+          `;
+          container.appendChild(card);
+        });
+      } catch (err) {
+        container.innerHTML = '<p class="text-center text-red-500 text-xs py-8">讀取失敗，請重試</p>';
+      }
+    }
+
+    window.reapplyBooking = function(roomId, date, start, end) {
+      selectedRoomId = roomId;
+      selectedDate = date;
+      selectedSlots = [{ start: start, end: end, date: date }];
+      document.getElementById('tab-booking-view').click();
+      fetchAndRenderSlots();
+      setTimeout(openCheckoutModal, 300);
+    };
+
+    // 管理員後台名單
+    async function loadAdminBookings() {
+      const container = document.getElementById('admin-list-container');
+      container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">載入審核名單中...</p>';
+
+      try {
+        const res = await fetch(`${GAS_API_URL}?action=getAllBookingsAdmin`);
+        const list = await res.json();
+
+        if (!list || list.length === 0) {
+          container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">目前無預約紀錄</p>';
+          return;
+        }
+
+        container.innerHTML = '';
+        list.slice(0, 30).forEach(b => {
+          const card = document.createElement('div');
+          card.className = 'bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm space-y-2';
+          
+          let statusBadge = `<span class="text-[11px] font-bold px-2 py-0.5 rounded-md ${
+            b.status === '申請成功' ? 'bg-emerald-100 text-emerald-700' :
+            b.status === '未付款請重新申請' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-800'
+          }">${b.status}</span>`;
+
+          card.innerHTML = `
+            <div class="flex justify-between items-start">
+              <div>
+                <span class="text-xs font-black text-slate-800">${b.user_name}</span>
+                <span class="text-xs text-slate-400">（${b.phone}）</span>
+              </div>
+              ${statusBadge}
+            </div>
+            <div class="text-xs text-slate-600">
+              <p><strong>空間：</strong>${b.room_name} | <strong>型態：</strong>${b.booking_type}</p>
+              <p><strong>時間：</strong>${b.booking_date} ${b.start_time} - ${b.end_time}</p>
+              ${b.purpose ? `<p><strong>用途：</strong>${b.purpose}</p>` : ''}
+            </div>
+            <div class="flex gap-2 pt-2 border-t">
+              <button onclick="updateStatus(${b.rowIndex}, '申請成功')" class="flex-1 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold">
+                ✓ 核准 (成功)
+              </button>
+              <button onclick="updateStatus(${b.rowIndex}, '未付款請重新申請')" class="flex-1 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-xs font-bold border border-rose-200">
+                ✕ 未付款退回
+              </button>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      } catch (e) {
+        container.innerHTML = '<p class="text-center text-red-500 text-xs py-8">載入管理名單失敗</p>';
+      }
+    }
+
+    window.updateStatus = async function(rowIndex, newStatus) {
+      if (!confirm(`確定要將此預約改為【${newStatus}】嗎？`)) return;
+      try {
+        const res = await fetch(GAS_API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'updateBookingStatus', rowIndex: rowIndex, newStatus: newStatus })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('狀態已更新！');
+          loadAdminBookings();
+        }
+      } catch (e) {
+        alert('更新失敗：' + e.message);
+      }
+    };
+
+    async function submitAdminLock() {
+      const lockDate = document.getElementById('admin-lock-date').value;
+      const lockStart = document.getElementById('admin-lock-start').value;
+      const reason = document.getElementById('admin-lock-reason').value.trim() || '場地維護清潔';
+      const slot = TIME_SLOTS.find(s => s.start === lockStart);
+      const lockEnd = slot ? slot.end : '23:00';
+
+      if (!confirm(`確定要在 ${lockDate} ${lockStart}-${lockEnd} 臨時封閉場地嗎？`)) return;
+
+      try {
+        const res = await fetch(GAS_API_URL, {
+          method: 'POST',
+          body: JSON.stringify({
+            action: 'lockSlotAdmin',
+            classroom_id: selectedRoomId,
+            booking_date: lockDate,
+            start_time: lockStart,
+            end_time: lockEnd,
+            reason: reason
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('時段已成功封閉！');
+          loadAdminBookings();
+        }
+      } catch (e) {
+        alert('封閉失敗：' + e.message);
       }
     }
 
@@ -489,7 +807,100 @@
       }
     }
 
+    function getMonday(d) {
+      const date = new Date(d);
+      const day = date.getDay();
+      const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+      return new Date(date.setDate(diff));
+    }
+
+    function formatDate(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function renderWeekdayTabs() {
+      const container = document.getElementById('weekday-tabs');
+      container.innerHTML = '';
+      const dayLabels = ['一', '二', '三', '四', '五', '六', '日'];
+
+      const endSunday = new Date(currentMonday);
+      endSunday.setDate(endSunday.getDate() + 6);
+      document.getElementById('week-range-text').textContent = 
+        `${currentMonday.getMonth() + 1}/${currentMonday.getDate()} - ${endSunday.getMonth() + 1}/${endSunday.getDate()}`;
+
+      for (let i = 0; i < 7; i++) {
+        const loopDate = new Date(currentMonday);
+        loopDate.setDate(loopDate.getDate() + i);
+        const loopDateStr = formatDate(loopDate);
+        const isSelected = (loopDateStr === selectedDate);
+
+        const tab = document.createElement('button');
+        tab.className = `p-2 rounded-xl flex flex-col items-center justify-center transition-all ${
+          isSelected ? 'bg-indigo-600 text-white font-bold shadow-md' : 'bg-slate-50 hover:bg-slate-100 text-slate-700'
+        }`;
+        tab.innerHTML = `
+          <span class="text-[11px] font-medium">週${dayLabels[i]}</span>
+          <span class="text-xs mt-0.5 font-bold">${loopDate.getDate()}</span>
+        `;
+        tab.onclick = () => {
+          selectedDate = loopDateStr;
+          selectedSlots = [];
+          updateCartBar();
+          renderWeekdayTabs();
+          fetchAndRenderSlots();
+        };
+        container.appendChild(tab);
+      }
+    }
+
     function bindEvents() {
+      document.getElementById('tab-booking-view').addEventListener('click', () => {
+        document.getElementById('booking-section').classList.remove('hidden');
+        document.getElementById('records-section').classList.add('hidden');
+        document.getElementById('admin-section').classList.add('hidden');
+        document.getElementById('tab-booking-view').className = 'flex-1 py-2 rounded-xl bg-white text-indigo-600 shadow-sm transition';
+        document.getElementById('tab-my-records').className = 'flex-1 py-2 rounded-xl text-slate-600 hover:text-indigo-600 transition';
+        document.getElementById('tab-admin-panel').className = 'flex-1 py-2 rounded-xl text-amber-800 hover:text-amber-900 transition bg-amber-100/70 border border-amber-200';
+      });
+
+      document.getElementById('tab-my-records').addEventListener('click', () => {
+        document.getElementById('booking-section').classList.add('hidden');
+        document.getElementById('records-section').classList.remove('hidden');
+        document.getElementById('admin-section').classList.add('hidden');
+        document.getElementById('tab-my-records').className = 'flex-1 py-2 rounded-xl bg-white text-indigo-600 shadow-sm transition';
+        document.getElementById('tab-booking-view').className = 'flex-1 py-2 rounded-xl text-slate-600 hover:text-indigo-600 transition';
+        document.getElementById('tab-admin-panel').className = 'flex-1 py-2 rounded-xl text-amber-800 hover:text-amber-900 transition bg-amber-100/70 border border-amber-200';
+        loadMyRecords();
+      });
+
+      document.getElementById('tab-admin-panel').addEventListener('click', () => {
+        document.getElementById('booking-section').classList.add('hidden');
+        document.getElementById('records-section').classList.add('hidden');
+        document.getElementById('admin-section').classList.remove('hidden');
+        document.getElementById('tab-admin-panel').className = 'flex-1 py-2 rounded-xl bg-amber-600 text-white shadow-sm transition';
+        document.getElementById('tab-booking-view').className = 'flex-1 py-2 rounded-xl text-slate-600 hover:text-indigo-600 transition';
+        document.getElementById('tab-my-records').className = 'flex-1 py-2 rounded-xl text-slate-600 hover:text-indigo-600 transition';
+        loadAdminBookings();
+      });
+
+      document.getElementById('refresh-records-btn').addEventListener('click', loadMyRecords);
+      document.getElementById('refresh-admin-btn').addEventListener('click', loadAdminBookings);
+      document.getElementById('admin-submit-lock-btn').addEventListener('click', submitAdminLock);
+
+      document.getElementById('cart-clear-btn').addEventListener('click', () => {
+        selectedSlots = [];
+        updateCartBar();
+        fetchAndRenderSlots();
+      });
+      document.getElementById('cart-checkout-btn').addEventListener('click', openCheckoutModal);
+
+      document.querySelectorAll('input[name="booking-type"]').forEach(radio => {
+        radio.addEventListener('change', calculateModalPrice);
+      });
+
       document.getElementById('open-profile-btn').addEventListener('click', openProfileModal);
       document.getElementById('close-profile-btn').addEventListener('click', () => {
         document.getElementById('profile-modal').classList.add('hidden');
@@ -498,12 +909,16 @@
 
       document.getElementById('classroom-select').addEventListener('change', (e) => {
         selectedRoomId = e.target.value;
+        selectedSlots = [];
+        updateCartBar();
         fetchAndRenderSlots();
       });
 
       document.getElementById('prev-week').addEventListener('click', () => {
         currentMonday.setDate(currentMonday.getDate() - 7);
         selectedDate = formatDate(currentMonday);
+        selectedSlots = [];
+        updateCartBar();
         renderWeekdayTabs();
         fetchAndRenderSlots();
       });
@@ -511,6 +926,8 @@
       document.getElementById('next-week').addEventListener('click', () => {
         currentMonday.setDate(currentMonday.getDate() + 7);
         selectedDate = formatDate(currentMonday);
+        selectedSlots = [];
+        updateCartBar();
         renderWeekdayTabs();
         fetchAndRenderSlots();
       });
@@ -521,7 +938,7 @@
       document.getElementById('cancel-booking-btn').addEventListener('click', () => {
         document.getElementById('booking-modal').classList.add('hidden');
       });
-      document.getElementById('submit-booking-btn').addEventListener('click', submitBooking);
+      document.getElementById('submit-booking-btn').addEventListener('click', submitBatchBooking);
     }
   </script>
 </body>
