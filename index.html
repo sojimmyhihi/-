@@ -3,326 +3,319 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>教室即時課表與租借</title>
-  <!-- Tailwind CSS CDN -->
+  <title>舞的店 - 教室即時空檔預約</title>
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- LINE LIFF SDK -->
   <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+  <style>
+    /* 擬真純卡拉拉白大理石紋理 (純CSS，防破圖) */
+    .marble-bg {
+      background-color: #f7f8fa;
+      background-image: 
+        radial-gradient(at 15% 25%, rgba(195, 203, 214, 0.5) 0px, transparent 55%),
+        radial-gradient(at 85% 75%, rgba(210, 215, 222, 0.55) 0px, transparent 55%),
+        linear-gradient(115deg, transparent 40%, rgba(175, 185, 200, 0.35) 46%, rgba(150, 160, 175, 0.5) 48%, rgba(255, 255, 255, 0.85) 50%, transparent 54%),
+        linear-gradient(245deg, transparent 60%, rgba(185, 195, 205, 0.3) 64%, rgba(165, 175, 190, 0.45) 66%, transparent 70%),
+        radial-gradient(circle at 50% 50%, #ffffff 0%, #edf1f5 100%);
+      background-size: 100% 100%, 100% 100%, 260px 100%, 320px 100%, 100% 100%;
+    }
+  </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen pb-12">
+<body class="bg-slate-100 text-slate-800 min-h-screen pb-12">
 
-  <!-- 頂部資訊列 -->
- <!-- 將原本的 <header> ... </header> 整段替換為以下代碼 -->
-<header class="relative overflow-hidden text-slate-800 pt-6 pb-7 px-5 shadow-md rounded-b-3xl border-b border-stone-200/80 bg-cover bg-center"
-  style="background-image: url('https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1200&q=80');">
-  <!-- 大理石微光遮罩：確保大理石紋理清晰，文字又易讀 -->
-  <div class="absolute inset-0 bg-white/70 backdrop-blur-[1px]"></div>
+  <!-- 頂部：高質感白大理石區塊 -->
+  <header class="marble-bg text-slate-800 pt-5 pb-6 px-5 shadow-sm rounded-b-3xl border-b border-slate-300/80 relative overflow-hidden">
+    <!-- 香檳金流光飾條 -->
+    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200"></div>
 
-  <div class="relative z-10 max-w-md mx-auto flex items-center justify-between">
-    <div class="space-y-0.5">
-      <div class="flex items-center gap-2">
-        <span class="inline-block w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)]"></span>
-        <h1 class="text-xl font-black tracking-wider text-stone-900 font-serif">教室預約系統</h1>
+    <div class="max-w-md mx-auto flex items-center justify-between">
+      <div class="space-y-0.5">
+        <div class="flex items-center gap-2">
+          <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
+          <h1 class="text-xl font-black tracking-wide text-slate-900 font-serif">教室預約系統</h1>
+        </div>
+        <p class="text-[10px] text-slate-500 font-bold tracking-[0.22em] uppercase font-sans">
+          Studio Available Slots
+        </p>
       </div>
-      <p class="text-[10px] text-stone-500 font-medium tracking-[0.2em] uppercase font-sans">
-        Studio Space & Schedule
-      </p>
-    </div>
 
-    <!-- 右側身分膠囊標籤（大理石風半透明白玉卡） -->
-    <div class="flex flex-col items-end gap-1">
-      <div class="flex items-center gap-1.5 bg-white/85 backdrop-blur-md px-3 py-1 rounded-full border border-stone-300/80 shadow-sm text-xs">
-        <svg class="w-3.5 h-3.5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-        </svg>
-        <span id="user-display" class="font-semibold text-stone-700 max-w-[100px] truncate">載入中...</span>
-      </div>
-      <span id="admin-badge" class="hidden text-[10px] bg-gradient-to-r from-amber-500 to-yellow-600 text-white px-2 py-0.5 rounded-full font-bold shadow-sm">
-        管理者
-      </span>
+      <!-- 右側：會員實名認證狀態與點擊修改個資 -->
+      <button id="open-profile-btn" class="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-300 shadow-sm active:scale-95 transition">
+        <img id="user-avatar" src="https://via.placeholder.com/28" class="w-6 h-6 rounded-full object-cover hidden border border-slate-200">
+        <div class="text-left">
+          <span id="user-display" class="block text-xs font-bold text-slate-800 max-w-[90px] truncate">LINE 登錄中...</span>
+          <span id="verify-badge" class="block text-[9px] text-amber-600 font-semibold">未實名認證</span>
+        </div>
+      </button>
     </div>
-  </div>
-</header>
+  </header>
 
   <main class="max-w-md mx-auto p-4 space-y-4">
-    <!-- 教室切換選單 -->
-    <div class="bg-white p-3 rounded-xl shadow-sm border border-slate-200">
-      <label class="block text-xs font-semibold text-slate-500 mb-1">選擇教室空間</label>
-      <select id="classroom-select" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-        <option value="">載入教室中...</option>
+    <!-- 選擇教室空間（支援未來擴充） -->
+    <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200">
+      <label class="block text-xs font-bold text-slate-400 mb-1">選擇教室空間</label>
+      <select id="classroom-select" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        <option value="">讀取教室中...</option>
       </select>
     </div>
 
-    <!-- 週次切換與週一至週日導覽 -->
-    <div class="bg-white p-3 rounded-xl shadow-sm border border-slate-200">
-      <div class="flex justify-between items-center mb-3">
-        <button id="prev-week" class="px-2.5 py-1 text-xs bg-slate-100 hover:bg-slate-200 rounded font-medium">← 上一週</button>
-        <span id="week-range-text" class="text-xs font-bold text-slate-600">-- / --</span>
-        <button id="next-week" class="px-2.5 py-1 text-xs bg-slate-100 hover:bg-slate-200 rounded font-medium">下一週 →</button>
+    <!-- 週次切換與週一至週日選單 -->
+    <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200">
+      <div class="flex justify-between items-center mb-3 px-1">
+        <button id="prev-week" class="px-3 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-bold">← 上一週</button>
+        <span id="week-range-text" class="text-xs font-black text-slate-700">-- / --</span>
+        <button id="next-week" class="px-3 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-bold">下一週 →</button>
       </div>
-      <!-- 週一到週日按鈕列 -->
       <div id="weekday-tabs" class="grid grid-cols-7 gap-1 text-center"></div>
     </div>
 
-    <!-- 即時時段一覽 -->
-    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+    <!-- 時段狀態一覽（僅顯示可借用空檔） -->
+    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
       <div class="flex justify-between items-center mb-3">
-        <h2 id="current-date-title" class="font-bold text-sm text-slate-700">課表與時段狀態</h2>
-        <span class="text-xs text-slate-400">時段單位：1 小時</span>
+        <h2 id="current-date-title" class="font-extrabold text-sm text-slate-800">可借用時段一覽</h2>
+        <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">僅顯示空檔</span>
       </div>
-      <div id="slot-container" class="space-y-2">
-        <p class="text-center text-slate-400 text-xs py-6">載入中...</p>
+      <div id="slot-container" class="space-y-2.5">
+        <p class="text-center text-slate-400 text-xs py-8">載入中...</p>
       </div>
     </div>
   </main>
 
-  <!-- 預約表單彈窗 Modal -->
-  <div id="booking-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-2xl max-w-sm w-full p-5 space-y-4 shadow-xl">
-      <div class="flex justify-between items-center border-b pb-2">
-        <h3 class="font-bold text-base">確認借用時段</h3>
-        <button id="close-modal" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+  <!-- 1. 實名制登記 / 編輯彈窗 -->
+  <div id="profile-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
+      <div class="border-b pb-2">
+        <h3 class="font-bold text-base text-slate-800">實名制身分登記</h3>
+        <p class="text-xs text-slate-500 mt-1">為保障空間安全與設備使用，租借請填寫真實姓名與聯絡手機。</p>
       </div>
-      <div class="text-xs space-y-1 text-slate-600 bg-slate-50 p-3 rounded-lg border">
-        <p><strong>教室：</strong><span id="modal-room-name">--</span></p>
-        <p><strong>日期：</strong><span id="modal-date">--</span></p>
-        <p><strong>時段：</strong><span id="modal-time">--</span></p>
-      </div>
-      <div class="space-y-3">
+      <div class="space-y-3 text-xs font-bold text-slate-600">
         <div>
-          <label class="block text-xs font-semibold text-slate-500 mb-1">使用人姓名 / 稱呼</label>
-          <input type="text" id="booking-user-name" placeholder="請輸入姓名" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <label class="block mb-1">真實姓名 <span class="text-rose-500">*</span></label>
+          <input type="text" id="reg-name" placeholder="請輸入本名（如：王小明）" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-500 mb-1">聯絡電話</label>
-          <input type="tel" id="booking-phone" placeholder="例：0912345678" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-500 mb-1">使用用途 / 備註</label>
-          <input type="text" id="booking-purpose" placeholder="例：個人練習、團體課程" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <label class="block mb-1">聯絡手機 <span class="text-rose-500">*</span></label>
+          <input type="tel" id="reg-phone" placeholder="例如：0912345678" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none">
         </div>
       </div>
       <div class="flex gap-2 pt-2">
-        <button id="cancel-booking-btn" class="flex-1 py-2 text-sm rounded-lg bg-slate-100 hover:bg-slate-200 font-semibold text-slate-600">取消</button>
-        <button id="submit-booking-btn" class="flex-1 py-2 text-sm rounded-lg bg-indigo-600 hover:bg-indigo-700 font-semibold text-white">確認送出</button>
+        <button id="close-profile-btn" class="flex-1 py-2.5 text-sm rounded-xl bg-slate-100 hover:bg-slate-200 font-bold text-slate-600">暫時關閉</button>
+        <button id="save-profile-btn" class="flex-1 py-2.5 text-sm rounded-xl bg-indigo-600 hover:bg-indigo-700 font-bold text-white shadow-md">儲存認證</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. 借用確認彈窗（個人 vs 團體包場） -->
+  <div id="booking-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-5 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b pb-2">
+        <h3 class="font-bold text-base text-slate-800">確認預約時段</h3>
+        <button id="close-booking-modal" class="text-slate-400 hover:text-slate-600 text-2xl font-bold">&times;</button>
+      </div>
+
+      <div class="text-xs space-y-1.5 text-slate-600 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+        <p><strong>空間：</strong><span id="modal-room-name">--</span></p>
+        <p><strong>日期：</strong><span id="modal-date">--</span></p>
+        <p><strong>時段：</strong><span id="modal-time" class="font-bold text-indigo-600">--</span></p>
+        <p><strong>承租人：</strong><span id="modal-user-info" class="font-bold text-slate-800">--</span></p>
+      </div>
+
+      <!-- 租借型態單選按鈕 -->
+      <div>
+        <label class="block text-xs font-bold text-slate-600 mb-1.5">租借型態 <span class="text-rose-500">*</span></label>
+        <div class="grid grid-cols-2 gap-2 text-xs font-bold">
+          <label class="flex items-center justify-center p-2.5 border rounded-xl cursor-pointer hover:bg-slate-50 has-[:checked]:border-indigo-600 has-[:checked]:text-indigo-600 has-[:checked]:bg-indigo-50">
+            <input type="radio" name="booking-type" value="個人練習" checked class="hidden">
+            <span>👤 個人自主練習</span>
+          </label>
+          <label class="flex items-center justify-center p-2.5 border rounded-xl cursor-pointer hover:bg-slate-50 has-[:checked]:border-indigo-600 has-[:checked]:text-indigo-600 has-[:checked]:bg-indigo-50">
+            <input type="radio" name="booking-type" value="團體包場" class="hidden">
+            <span>👥 團體/開課包場</span>
+          </label>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-500 mb-1">使用用途 / 舞風備註（選填）</label>
+        <input type="text" id="booking-purpose" placeholder="例如：自主練習、舞展排練" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+      </div>
+
+      <div class="flex gap-2 pt-1">
+        <button id="cancel-booking-btn" class="flex-1 py-2.5 text-sm rounded-xl bg-slate-100 hover:bg-slate-200 font-bold text-slate-600">取消</button>
+        <button id="submit-booking-btn" class="flex-1 py-2.5 text-sm rounded-xl bg-indigo-600 hover:bg-indigo-700 font-bold text-white shadow-md">確認預約</button>
       </div>
     </div>
   </div>
 
   <script>
-    // ==========================================
-    // 1. 設定區域（請將網址替換為剛才測試成功的網址）
-    // ==========================================
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw3axiV2orJCqeO1ej-0xnFamrfyWm0YljUysz6tVW-huHjVwZFx0kHzcyCZV2oTjTseQ/exec';
-    const LIFF_ID = '2011761541-hL5HCl1Q'; // 若有 LIFF ID 可填入，暫時留空系統也不會報錯中斷
+    // =========================================================================
+    // 請替換為您的環境資訊：
+    // =========================================================================
+    const LIFF_ID = '2011761541-hL5HCl1Q'; // 填入 LINE Developers 的 LIFF ID
+    const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbyImSgZWu7YAcTO5I8uJf0BggB6cx8Obji_rx4lh8OqTBm83k-nVH8lLqLnxrUUrkD6Pw/exec'; // 填入 Apps Script 部署後的 Web App 網址
 
-    // ==========================================
-    // 2. 全域狀態
-    // ==========================================
-    let currentUser = { userId: '', displayName: '訪客' };
+    let currentUser = {
+      userId: 'guest_user',
+      lineName: '訪客',
+      pictureUrl: '',
+      realName: '',
+      phone: '',
+      isRegistered: false
+    };
+
     let classrooms = [];
     let selectedRoomId = null;
     let currentMonday = getMonday(new Date());
     let selectedDate = formatDate(new Date());
+
+    // 10:00 至 23:00 時段劃分（每小時一檔）
     const TIME_SLOTS = [
-      { start: '09:00', end: '10:00' },
       { start: '10:00', end: '11:00' },
       { start: '11:00', end: '12:00' },
+      { start: '12:00', end: '13:00' },
       { start: '13:00', end: '14:00' },
       { start: '14:00', end: '15:00' },
       { start: '15:00', end: '16:00' },
       { start: '16:00', end: '17:00' },
+      { start: '17:00', end: '18:00' },
       { start: '18:00', end: '19:00' },
       { start: '19:00', end: '20:00' },
       { start: '20:00', end: '21:00' },
-      { start: '21:00', end: '22:00' }
+      { start: '21:00', end: '22:00' },
+      { start: '22:00', end: '23:00' }
     ];
 
-    // ==========================================
-    // 3. 頁面初始化
-    // ==========================================
     window.addEventListener('DOMContentLoaded', async () => {
-      renderWeekdayTabs();
-      bindEvents();
-
-      // 安全載入 LIFF，即使失敗也不影響教室資料呈現
-      if (typeof liff !== 'undefined' && LIFF_ID) {
-        try {
-          await liff.init({ liffId: LIFF_ID });
-          if (liff.isLoggedIn()) {
-            const profile = await liff.getProfile();
-            currentUser.userId = profile.userId;
-            currentUser.displayName = profile.displayName;
-            document.getElementById('user-display').textContent = `你好，${profile.displayName}`;
-            document.getElementById('booking-user-name').value = profile.displayName;
-          } else {
-            document.getElementById('user-display').textContent = '未登入 LINE (訪客)';
-          }
-        } catch (err) {
-          console.warn('LIFF 載入略過:', err);
-          document.getElementById('user-display').textContent = '一般瀏覽器模式';
-        }
-      } else {
-        document.getElementById('user-display').textContent = '線上借用系統';
-      }
-
-      // 載入教室與時段
+      await initLiffAuth();
       await fetchClassrooms();
+      renderWeekdayTabs();
+      await fetchAndRenderSlots();
+      bindEvents();
     });
 
-    // ==========================================
-    // 4. API 串接：教室與時段狀態
-    // ==========================================
-    async function fetchClassrooms() {
-      const select = document.getElementById('classroom-select');
-      select.innerHTML = '<option value="">載入教室中...</option>';
-
+    // 1. LIFF 初始化與實名驗證檢查
+    async function initLiffAuth() {
       try {
-        const res = await fetch(`${GOOGLE_SCRIPT_URL}?action=getClassrooms`, { redirect: 'follow' });
-        const result = await res.json();
+        await liff.init({ liffId: LIFF_ID });
+        if (!liff.isLoggedIn()) {
+          liff.login();
+          return;
+        }
 
-        if (result.status === 'success' && result.data && result.data.length > 0) {
-          classrooms = result.data;
-          selectedRoomId = classrooms[0].id;
-          select.innerHTML = '';
-          classrooms.forEach(room => {
-            const opt = document.createElement('option');
-            opt.value = room.id;
-            opt.textContent = `${room.name} (${room.note || '容納 ' + room.capacity + ' 人'})`;
-            select.appendChild(opt);
-          });
-          await fetchAndRenderSlots();
+        const profile = await liff.getProfile();
+        currentUser.userId = profile.userId;
+        currentUser.lineName = profile.displayName;
+        currentUser.pictureUrl = profile.pictureUrl;
+
+        document.getElementById('user-display').textContent = profile.displayName;
+        if (profile.pictureUrl) {
+          const img = document.getElementById('user-avatar');
+          img.src = profile.pictureUrl;
+          img.classList.remove('hidden');
+        }
+
+        // 查詢 Google Sheets members 表
+        const res = await fetch(`${GAS_API_URL}?action=checkMember&lineUserId=${profile.userId}`);
+        const data = await res.json();
+
+        if (data.registered) {
+          currentUser.isRegistered = true;
+          currentUser.realName = data.real_name;
+          currentUser.phone = data.phone;
+          document.getElementById('user-display').textContent = data.real_name;
+          document.getElementById('verify-badge').textContent = '已實名認證';
+          document.getElementById('verify-badge').className = 'block text-[9px] text-emerald-600 font-semibold';
         } else {
-          select.innerHTML = '<option value="">目前無開放借用的教室</option>';
+          // 首次未註冊主動提示登記
+          openProfileModal();
         }
       } catch (err) {
-        console.error('教室載入錯誤:', err);
-        select.innerHTML = `<option value="">連線錯誤，請確認網址</option>`;
+        console.warn('非 LINE 容器環境或 LIFF 尚未啟動：', err);
+        document.getElementById('user-display').textContent = '本機訪客';
       }
     }
 
-    async function fetchAndRenderSlots() {
-      const container = document.getElementById('slot-container');
-      container.innerHTML = '<p class="text-center text-slate-400 text-xs py-6">正在查詢時段狀態...</p>';
-      document.getElementById('current-date-title').textContent = `${selectedDate} 時段一覽`;
+    function openProfileModal() {
+      document.getElementById('reg-name').value = currentUser.realName || '';
+      document.getElementById('reg-phone').value = currentUser.phone || '';
+      document.getElementById('profile-modal').classList.remove('hidden');
+    }
 
-      if (!selectedRoomId) return;
+    async function saveProfile() {
+      const name = document.getElementById('reg-name').value.trim();
+      const phone = document.getElementById('reg-phone').value.trim();
 
-      try {
-        const res = await fetch(`${GOOGLE_SCRIPT_URL}?action=getBookings&roomId=${encodeURIComponent(selectedRoomId)}&date=${selectedDate}`, { redirect: 'follow' });
-        const result = await res.json();
-        const bookings = result.data || [];
-
-        container.innerHTML = '';
-
-        TIME_SLOTS.forEach(slot => {
-          const matched = bookings.find(b => {
-            const bStart = b.start_time.length === 4 ? '0' + b.start_time : b.start_time;
-            const bEnd = b.end_time.length === 4 ? '0' + b.end_time : b.end_time;
-            return (slot.start >= bStart && slot.start < bEnd);
-          });
-
-          const slotCard = document.createElement('div');
-          slotCard.className = 'flex items-center justify-between p-3 rounded-lg border text-sm transition-all';
-
-          if (matched) {
-            slotCard.classList.add('bg-slate-100', 'border-slate-200', 'text-slate-400');
-            slotCard.innerHTML = `
-              <div class="flex items-center space-x-2">
-                <span class="font-semibold text-slate-500">${slot.start} - ${slot.end}</span>
-                <span class="text-xs px-2 py-0.5 bg-slate-200 text-slate-600 rounded">已佔用</span>
-              </div>
-              <span class="text-xs text-slate-400 font-medium truncate max-w-[120px]">${matched.purpose || '已被借用'}</span>
-            `;
-          } else {
-            slotCard.classList.add('bg-white', 'border-emerald-200', 'text-slate-700', 'hover:border-emerald-500', 'cursor-pointer');
-            slotCard.innerHTML = `
-              <div class="flex items-center space-x-2">
-                <span class="font-semibold text-slate-800">${slot.start} - ${slot.end}</span>
-                <span class="text-xs px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded font-medium">可借用</span>
-              </div>
-              <button class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-bold px-3 py-1.5 rounded-md">借用</button>
-            `;
-            slotCard.onclick = () => openBookingModal(slot);
-          }
-          container.appendChild(slotCard);
-        });
-      } catch (err) {
-        console.error('時段讀取失敗:', err);
-        container.innerHTML = '<p class="text-center text-red-500 text-xs py-6">載入時段失敗，請重新整理</p>';
+      if (!name || !phone) {
+        alert('請完整輸入姓名與聯絡電話！');
+        return;
       }
-    }
 
-    // ==========================================
-    // 5. 預約對話框與寫入 Google 表格
-    // ==========================================
-    let targetSlot = null;
-
-    function openBookingModal(slot) {
-      targetSlot = slot;
-      const room = classrooms.find(r => r.id === selectedRoomId);
-      document.getElementById('modal-room-name').textContent = room ? room.name : '--';
-      document.getElementById('modal-date').textContent = selectedDate;
-      document.getElementById('modal-time').textContent = `${slot.start} - ${slot.end}`;
-      document.getElementById('booking-purpose').value = '';
-      document.getElementById('booking-modal').classList.remove('hidden');
-    }
-
-    function closeModal() {
-      document.getElementById('booking-modal').classList.add('hidden');
-      targetSlot = null;
-    }
-
-    async function submitBooking() {
-      if (!targetSlot) return;
-      const userName = document.getElementById('booking-user-name').value.trim() || currentUser.displayName;
-      const phone = document.getElementById('booking-phone').value.trim();
-      const purpose = document.getElementById('booking-purpose').value.trim() || '自主租借';
-
-      const submitBtn = document.getElementById('submit-booking-btn');
-      submitBtn.disabled = true;
-      submitBtn.textContent = '送出中...';
+      const saveBtn = document.getElementById('save-profile-btn');
+      saveBtn.disabled = true;
+      saveBtn.textContent = '認證中...';
 
       try {
         const payload = {
-          roomId: selectedRoomId,
-          date: selectedDate,
-          startTime: targetSlot.start,
-          endTime: targetSlot.end,
-          userName: userName,
-          userId: currentUser.userId,
-          phone: phone,
-          purpose: purpose
+          action: 'registerMember',
+          line_user_id: currentUser.userId,
+          line_name: currentUser.lineName,
+          real_name: name,
+          phone: phone
         };
 
-        const res = await fetch(GOOGLE_SCRIPT_URL, {
+        const res = await fetch(GAS_API_URL, {
           method: 'POST',
           body: JSON.stringify(payload)
         });
         const result = await res.json();
 
-        if (result.status === 'conflict') {
-          alert('該時段剛剛已被他人預約，請選擇其他時段！');
-        } else if (result.status === 'success') {
-          alert(`預約成功！預約編號：${result.bookingId}`);
-          closeModal();
-          await fetchAndRenderSlots();
+        if (result.success) {
+          currentUser.realName = name;
+          currentUser.phone = phone;
+          currentUser.isRegistered = true;
+          document.getElementById('user-display').textContent = name;
+          document.getElementById('verify-badge').textContent = '已實名認證';
+          document.getElementById('verify-badge').className = 'block text-[9px] text-emerald-600 font-semibold';
+          alert('實名制登記成功！');
+          document.getElementById('profile-modal').classList.add('hidden');
         } else {
-          alert('預約失敗：' + result.message);
+          throw new Error(result.error);
         }
-      } catch (err) {
-        alert('預約成功送出！請重新整理確認。');
-        closeModal();
-        await fetchAndRenderSlots();
+      } catch (e) {
+        alert('儲存失敗：' + e.message);
       } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = '確認送出';
+        saveBtn.disabled = false;
+        saveBtn.textContent = '儲存認證';
       }
     }
 
-    // ==========================================
-    // 6. 週一至週日切換邏輯
-    // ==========================================
+    // 2. 教室空間讀取
+    async function fetchClassrooms() {
+      try {
+        const res = await fetch(`${GAS_API_URL}?action=getClassrooms`);
+        const data = await res.json();
+        const select = document.getElementById('classroom-select');
+        select.innerHTML = '';
+
+        if (!data || data.length === 0) {
+          select.innerHTML = '<option value="">無開放教室</option>';
+          return;
+        }
+        classrooms = data;
+        selectedRoomId = classrooms[0].id;
+        data.forEach(room => {
+          const opt = document.createElement('option');
+          opt.value = room.id;
+          opt.textContent = room.name;
+          select.appendChild(opt);
+        });
+      } catch (e) {
+        console.error('讀取教室失敗：', e);
+      }
+    }
+
     function getMonday(d) {
       const date = new Date(d);
       const day = date.getDay();
@@ -354,12 +347,12 @@
         const isSelected = (loopDateStr === selectedDate);
 
         const tab = document.createElement('button');
-        tab.className = `p-2 rounded-lg flex flex-col items-center justify-center transition-all ${
-          isSelected ? 'bg-indigo-600 text-white font-bold shadow-sm' : 'bg-slate-50 hover:bg-slate-100 text-slate-700'
+        tab.className = `p-2 rounded-xl flex flex-col items-center justify-center transition-all ${
+          isSelected ? 'bg-indigo-600 text-white font-bold shadow-md' : 'bg-slate-50 hover:bg-slate-100 text-slate-700'
         }`;
         tab.innerHTML = `
-          <span class="text-xs font-medium">週${dayLabels[i]}</span>
-          <span class="text-xs mt-0.5">${loopDate.getDate()}</span>
+          <span class="text-[11px] font-medium">週${dayLabels[i]}</span>
+          <span class="text-xs mt-0.5 font-bold">${loopDate.getDate()}</span>
         `;
         tab.onclick = () => {
           selectedDate = loopDateStr;
@@ -370,7 +363,134 @@
       }
     }
 
+    // 3. 渲染時段：過濾佔用時段，僅顯示空檔
+    async function fetchAndRenderSlots() {
+      const container = document.getElementById('slot-container');
+      container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">更新狀態中...</p>';
+      document.getElementById('current-date-title').textContent = `${selectedDate} 可借用時段`;
+
+      if (!selectedRoomId) return;
+
+      const dateObj = new Date(selectedDate);
+      const dayOfWeek = dateObj.getDay() === 0 ? 7 : dateObj.getDay();
+
+      try {
+        const res = await fetch(`${GAS_API_URL}?action=getSchedule&roomId=${selectedRoomId}&date=${selectedDate}&dayOfWeek=${dayOfWeek}`);
+        const data = await res.json();
+        const bookings = data.bookings || [];
+        const recurrings = data.recurrings || [];
+
+        container.innerHTML = '';
+
+        // 僅保留未被佔用的時段
+        const availableSlots = TIME_SLOTS.filter(slot => {
+          const isBooked = bookings.some(b => slot.start >= b.start_time && slot.start < b.end_time);
+          const isRecurring = recurrings.some(r => slot.start >= r.start_time && slot.start < r.end_time);
+          return !isBooked && !isRecurring;
+        });
+
+        // 當日全滿的提示
+        if (availableSlots.length === 0) {
+          container.innerHTML = `
+            <div class="text-center py-10 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+              <p class="text-sm font-bold text-slate-400">本日所有時段皆已被借用</p>
+              <p class="text-xs text-slate-400 mt-1">請點選上方其他日期查看空檔</p>
+            </div>
+          `;
+          return;
+        }
+
+        // 渲染純可借用按鈕
+        availableSlots.forEach(slot => {
+          const slotCard = document.createElement('div');
+          slotCard.className = 'flex items-center justify-between p-3.5 rounded-xl border border-emerald-200 bg-white hover:border-emerald-400 hover:shadow-sm transition cursor-pointer';
+          slotCard.innerHTML = `
+            <div class="flex items-center space-x-2">
+              <span class="font-extrabold text-slate-800 text-sm">${slot.start} - ${slot.end}</span>
+              <span class="text-xs px-2 py-0.5 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-md font-bold">可借用</span>
+            </div>
+            <button class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3.5 py-1.5 rounded-lg shadow-sm">借用</button>
+          `;
+          slotCard.onclick = () => openBookingModal(slot);
+          container.appendChild(slotCard);
+        });
+      } catch (err) {
+        container.innerHTML = '<p class="text-center text-red-500 text-xs py-8">讀取資料失敗，請稍後再試</p>';
+      }
+    }
+
+    // 4. 預約對話框與送出
+    let targetSlot = null;
+
+    function openBookingModal(slot) {
+      if (!currentUser.isRegistered) {
+        alert('請先完成實名制登記才能進行預約！');
+        openProfileModal();
+        return;
+      }
+
+      targetSlot = slot;
+      const room = classrooms.find(r => String(r.id) === String(selectedRoomId));
+      document.getElementById('modal-room-name').textContent = room ? room.name : '--';
+      document.getElementById('modal-date').textContent = selectedDate;
+      document.getElementById('modal-time').textContent = `${slot.start} - ${slot.end}`;
+      document.getElementById('modal-user-info').textContent = `${currentUser.realName} (${currentUser.phone})`;
+      document.getElementById('booking-purpose').value = '';
+      document.getElementById('booking-modal').classList.remove('hidden');
+    }
+
+    async function submitBooking() {
+      if (!targetSlot) return;
+
+      const bookingType = document.querySelector('input[name="booking-type"]:checked').value;
+      const purpose = document.getElementById('booking-purpose').value.trim() || bookingType;
+      const submitBtn = document.getElementById('submit-booking-btn');
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = '預約中...';
+
+      try {
+        const payload = {
+          action: 'createBooking',
+          classroom_id: selectedRoomId,
+          line_user_id: currentUser.userId,
+          user_name: currentUser.realName,
+          phone: currentUser.phone,
+          booking_type: bookingType,
+          booking_date: selectedDate,
+          start_time: targetSlot.start,
+          end_time: targetSlot.end,
+          purpose: purpose
+        };
+
+        const res = await fetch(GAS_API_URL, {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+
+        if (result.success) {
+          alert(`【${bookingType}】預約成功！時段已為您保留。`);
+          document.getElementById('booking-modal').classList.add('hidden');
+          await fetchAndRenderSlots();
+        } else {
+          throw new Error(result.error);
+        }
+      } catch (err) {
+        alert('預約失敗：' + err.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '確認預約';
+      }
+    }
+
     function bindEvents() {
+      document.getElementById('open-profile-btn').addEventListener('click', openProfileModal);
+      document.getElementById('close-profile-btn').addEventListener('click', () => {
+        document.getElementById('profile-modal').classList.add('hidden');
+      });
+      document.getElementById('save-profile-btn').addEventListener('click', saveProfile);
+
       document.getElementById('classroom-select').addEventListener('change', (e) => {
         selectedRoomId = e.target.value;
         fetchAndRenderSlots();
@@ -390,8 +510,12 @@
         fetchAndRenderSlots();
       });
 
-      document.getElementById('close-modal').addEventListener('click', closeModal);
-      document.getElementById('cancel-booking-btn').addEventListener('click', closeModal);
+      document.getElementById('close-booking-modal').addEventListener('click', () => {
+        document.getElementById('booking-modal').classList.add('hidden');
+      });
+      document.getElementById('cancel-booking-btn').addEventListener('click', () => {
+        document.getElementById('booking-modal').classList.add('hidden');
+      });
       document.getElementById('submit-booking-btn').addEventListener('click', submitBooking);
     }
   </script>
