@@ -274,7 +274,7 @@
       }
     }
 
-    async function loadInitialData() {
+async function loadInitialData() {
       const container = document.getElementById('slot-container');
       container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">正在載入即時空檔...</p>';
       
@@ -282,11 +282,13 @@
       const dayOfWeek = dateObj.getDay() === 0 ? 7 : dateObj.getDay();
 
       try {
-        const url = `${GAS_API_URL}?action=getInitialData&date=${selectedDate}&dayOfWeek=${dayOfWeek}&lineUserId=${encodeURIComponent(currentUser.userId)}&roomId=${selectedRoomId || ''}`;
+        // 加入時間戳記避免 LINE 瀏覽器快取舊資料
+        const t = new Date().getTime();
+        const url = `${GAS_API_URL}?action=getInitialData&date=${selectedDate}&dayOfWeek=${dayOfWeek}&lineUserId=${encodeURIComponent(currentUser.userId)}&roomId=${selectedRoomId || ''}&_t=${t}`;
         const res = await fetch(url);
         const data = await res.json();
 
-        // 身分判斷
+        // 1. 會員身分判斷
         if (data.member && data.member.registered) {
           currentUser.isRegistered = true;
           currentUser.realName = data.member.real_name;
@@ -298,7 +300,7 @@
           openProfileModal();
         }
 
-        // 管理員後台按鈕顯示判斷（非管理員嚴格隱藏）
+        // 2. 管理員權限
         if (data.member && data.member.is_admin === true) {
           currentUser.isAdmin = true;
           document.getElementById('tab-admin-view').classList.remove('hidden');
@@ -307,27 +309,35 @@
           document.getElementById('tab-admin-view').classList.add('hidden');
         }
 
+        // 3. 教室清單初始化（確保 selectedRoomId 一定有明確值）
         if (data.classrooms && data.classrooms.length > 0) {
           classrooms = data.classrooms;
           const select = document.getElementById('classroom-select');
           select.innerHTML = '';
+          
+          if (!selectedRoomId) {
+            selectedRoomId = String(classrooms[0].id).trim();
+          }
+
           classrooms.forEach(room => {
             const opt = document.createElement('option');
             opt.value = room.id;
             opt.textContent = room.name;
-            if (String(room.id) === String(selectedRoomId)) opt.selected = true;
+            if (String(room.id).trim() === String(selectedRoomId).trim()) opt.selected = true;
             select.appendChild(opt);
           });
-          if (!selectedRoomId) selectedRoomId = classrooms[0].id;
         }
 
-        renderAvailableSlots(data.bookings || [], data.recurrings || []);
+        // 重新確認一次：如果當初傳空 roomId，這裡用確定設定好的 selectedRoomId 重拉一次最新狀態
+        await fetchAndRenderSlots();
+
       } catch (e) {
         container.innerHTML = '<p class="text-center text-red-500 text-xs py-8">載入失敗，請重新整理</p>';
       }
     }
 
     async function fetchAndRenderSlots() {
+      if (!selectedRoomId) return;
       const container = document.getElementById('slot-container');
       container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">更新狀態中...</p>';
       document.getElementById('current-date-title').textContent = `${selectedDate} 可借用時段`;
@@ -338,7 +348,8 @@
       const dayOfWeek = dateObj.getDay() === 0 ? 7 : dateObj.getDay();
 
       try {
-        const res = await fetch(`${GAS_API_URL}?action=getSchedule&roomId=${selectedRoomId}&date=${targetDate}&dayOfWeek=${dayOfWeek}`);
+        const t = new Date().getTime();
+        const res = await fetch(`${GAS_API_URL}?action=getSchedule&roomId=${encodeURIComponent(selectedRoomId)}&date=${targetDate}&dayOfWeek=${dayOfWeek}&_t=${t}`);
         const data = await res.json();
 
         // 防競態覆蓋
