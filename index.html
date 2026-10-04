@@ -56,6 +56,7 @@
       <button id="tab-my-records" class="flex-1 py-2 rounded-xl text-slate-600 hover:text-indigo-600 transition">
         📋 我的紀錄
       </button>
+      <!-- 管理者後台預設隱藏，僅管理員可見 -->
       <button id="tab-admin-panel" class="flex-1 py-2 rounded-xl text-amber-800 hover:text-amber-900 transition hidden bg-amber-100/70 border border-amber-200">
         ⚙️ 管理後台
       </button>
@@ -88,7 +89,6 @@
           <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">僅顯示空檔</span>
         </div>
         
-        <!-- 早/中/晚 分段時段容器 -->
         <div id="slot-container" class="space-y-4">
           <p class="text-center text-slate-400 text-xs py-8">載入空檔中...</p>
         </div>
@@ -108,17 +108,16 @@
 
     <!-- ==================== 分頁 3：管理者行動審核後台 ==================== -->
     <div id="admin-section" class="space-y-4 hidden">
+      <!-- 快速臨時鎖定時段 -->
       <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-        <h3 class="font-extrabold text-sm text-slate-800 flex items-center justify-between">
-          <span>🛠️ 快速臨時鎖定時段（清潔/自用）</span>
-        </h3>
+        <h3 class="font-extrabold text-sm text-slate-800">🛠️ 快速臨時鎖定時段（清潔/自用）</h3>
         <div class="grid grid-cols-2 gap-2 text-xs">
           <div>
             <label class="block text-slate-500 font-bold mb-1">日期</label>
             <input type="date" id="admin-lock-date" class="w-full border rounded-xl p-2 bg-slate-50">
           </div>
           <div>
-            <label class="block text-slate-500 font-bold mb-1">起始時間</label>
+            <label class="block text-slate-500 font-bold mb-1">時段</label>
             <select id="admin-lock-start" class="w-full border rounded-xl p-2 bg-slate-50 font-bold"></select>
           </div>
         </div>
@@ -131,6 +130,7 @@
         </button>
       </div>
 
+      <!-- 審核名單列表 -->
       <div class="space-y-3">
         <div class="flex justify-between items-center px-1">
           <h3 class="font-extrabold text-sm text-slate-800">全部申請審核清單</h3>
@@ -143,7 +143,7 @@
     </div>
   </main>
 
-  <!-- 底部多選懸浮購物車條 -->
+  <!-- 底部多選懸浮條 -->
   <div id="cart-bar" class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-3.5 shadow-2xl z-40 hidden">
     <div class="max-w-md mx-auto flex items-center justify-between">
       <div>
@@ -181,7 +181,7 @@
     </div>
   </div>
 
-  <!-- 批次借用確認彈窗 -->
+  <!-- 借用確認彈窗 -->
   <div id="booking-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl max-w-sm w-full p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b pb-2">
@@ -196,22 +196,22 @@
         <p><strong>預約人：</strong><span id="modal-user-info" class="font-bold text-slate-800">--</span></p>
       </div>
 
-      <!-- 租借型態 -->
+      <!-- 租借型態單選按鈕 -->
       <div>
         <label class="block text-xs font-bold text-slate-600 mb-1.5">租借型態 <span class="text-rose-500">*</span></label>
         <div class="grid grid-cols-2 gap-2 text-xs font-bold">
           <label class="flex items-center justify-center p-2.5 border rounded-xl cursor-pointer hover:bg-slate-50 has-[:checked]:border-indigo-600 has-[:checked]:text-indigo-600 has-[:checked]:bg-indigo-50">
             <input type="radio" name="booking-type" value="個人練習" checked class="hidden">
-            <span>👤 個人練習</span>
+            <span>👤 個人練習 (350/hr)</span>
           </label>
           <label class="flex items-center justify-center p-2.5 border rounded-xl cursor-pointer hover:bg-slate-50 has-[:checked]:border-indigo-600 has-[:checked]:text-indigo-600 has-[:checked]:bg-indigo-50">
             <input type="radio" name="booking-type" value="團體包場" class="hidden">
-            <span>👥 團體/開課包場</span>
+            <span>👥 團體包場 (450/hr)</span>
           </label>
         </div>
       </div>
 
-      <!-- 金額試算與醒目提示語 -->
+      <!-- 金額試算與注意事項 -->
       <div class="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-3.5 space-y-2">
         <div class="flex justify-between items-center">
           <span class="text-xs font-bold text-amber-900">金額試算（共 <span id="modal-hour-count">0</span> 小時）</span>
@@ -239,9 +239,6 @@
   <script>
     const LIFF_ID = '2011761541-hL5HCl1Q'; 
     const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbx8ySUMkEYlrFwj7PUlNFKxDwRXRDgJAO4s7Z_fawmFZDajPMxY7qx97C-EkCJaMoMesg/exec';
-    
-    // 可填寫管理者 LINE ID (或讓後台自動比對)
-    const ADMIN_LINE_ID = ''; 
 
     let currentUser = {
       userId: 'guest_user',
@@ -257,9 +254,8 @@
     let selectedRoomId = null;
     let currentMonday = getMonday(new Date());
     let selectedDate = formatDate(new Date());
-    let selectedSlots = []; // 多選時段陣列
+    let selectedSlots = [];
 
-    // 每小時收費設定（個人練習 350 元，團體包場 450 元）
     const PRICE_PER_HOUR = {
       '個人練習': 350,
       '團體包場': 450
@@ -309,11 +305,6 @@
             img.src = profile.pictureUrl;
             img.classList.remove('hidden');
           }
-
-          if (ADMIN_LINE_ID && profile.userId === ADMIN_LINE_ID) {
-            currentUser.isAdmin = true;
-            document.getElementById('tab-admin-panel').classList.remove('hidden');
-          }
         }
       } catch (err) {
         console.warn('LINE LIFF 驗證異常：', err);
@@ -332,6 +323,7 @@
         const res = await fetch(url);
         const data = await res.json();
 
+        // 會員與管理員身分判定
         if (data.member && data.member.registered) {
           currentUser.isRegistered = true;
           currentUser.realName = data.member.real_name;
@@ -339,6 +331,11 @@
           document.getElementById('user-display').textContent = data.member.real_name;
           document.getElementById('verify-badge').textContent = '已實名認證';
           document.getElementById('verify-badge').className = 'block text-[9px] text-emerald-600 font-semibold';
+
+          if (data.member.is_admin) {
+            currentUser.isAdmin = true;
+            document.getElementById('tab-admin-panel').classList.remove('hidden');
+          }
         } else {
           if (currentUser.userId !== 'guest_user') {
             openProfileModal();
@@ -382,7 +379,6 @@
       }
     }
 
-    // 依「上午 / 下午 / 晚上」分區渲染可選空檔
     function renderAvailableSlots(bookings, recurrings) {
       const container = document.getElementById('slot-container');
       container.innerHTML = '';
@@ -397,20 +393,8 @@
 
       const availableSlots = TIME_SLOTS.filter(slot => {
         const slotStart = toMinutes(slot.start);
-        const slotEnd = toMinutes(slot.end);
-
-        const isBooked = bookings.some(b => {
-          const bStart = toMinutes(b.start_time);
-          const bEnd = toMinutes(b.end_time);
-          return slotStart >= bStart && slotStart < bEnd;
-        });
-
-        const isRecurring = recurrings.some(r => {
-          const rStart = toMinutes(r.start_time);
-          const rEnd = toMinutes(r.end_time);
-          return slotStart >= rStart && slotStart < rEnd;
-        });
-
+        const isBooked = bookings.some(b => slotStart >= toMinutes(b.start_time) && slotStart < toMinutes(b.end_time));
+        const isRecurring = recurrings.some(r => slotStart >= toMinutes(r.start_time) && slotStart < toMinutes(r.end_time));
         return !isBooked && !isRecurring;
       });
 
@@ -502,7 +486,6 @@
 
       cartBar.classList.remove('hidden');
       countSpan.textContent = selectedSlots.length;
-
       const rate = PRICE_PER_HOUR['個人練習'];
       priceSpan.textContent = `NT$ ${selectedSlots.length * rate}`;
     }
@@ -535,6 +518,7 @@
       document.getElementById('modal-total-price').textContent = `NT$ ${selectedSlots.length * rate}`;
     }
 
+    // 批次單次請求送出所有預約
     async function submitBooking() {
       if (selectedSlots.length === 0) return;
 
@@ -546,28 +530,25 @@
       submitBtn.textContent = '申請送出中...';
 
       try {
-        for (const slot of selectedSlots) {
-          const payload = {
-            action: 'createBooking',
-            classroom_id: selectedRoomId,
-            line_user_id: currentUser.userId,
-            user_name: currentUser.realName,
-            phone: currentUser.phone,
-            booking_type: bookingType,
-            booking_date: selectedDate,
-            start_time: slot.start,
-            end_time: slot.end,
-            purpose: purpose
-          };
+        const payload = {
+          action: 'createBooking',
+          classroom_id: selectedRoomId,
+          line_user_id: currentUser.userId,
+          user_name: currentUser.realName,
+          phone: currentUser.phone,
+          booking_type: bookingType,
+          booking_date: selectedDate,
+          slots: selectedSlots,
+          purpose: purpose
+        };
 
-          const res = await fetch(GAS_API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify(payload)
-          });
-          const result = await res.json();
-          if (!result.success) throw new Error(result.error);
-        }
+        const res = await fetch(GAS_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+        if (!result.success) throw new Error(result.error);
 
         alert(`【${bookingType}】已送出 ${selectedSlots.length} 個時段申請！\n請記得於 6 小時內完成匯款確認。`);
         document.getElementById('booking-modal').classList.add('hidden');
@@ -638,6 +619,93 @@
       }
     }
 
+    // 實作管理員審核清單讀取與按鈕切換
+    async function loadAdminList() {
+      const container = document.getElementById('admin-list-container');
+      container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">正在載入審核名單...</p>';
+
+      try {
+        const res = await fetch(`${GAS_API_URL}?action=getAllBookings`);
+        const list = await res.json();
+
+        if (!list || list.length === 0) {
+          container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">目前無任何預約紀錄</p>';
+          return;
+        }
+
+        container.innerHTML = '';
+        list.forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm space-y-2 text-xs';
+          
+          let statusBadge = `<span class="px-2 py-0.5 rounded-md font-bold text-[10px] ${
+            item.status === '申請成功' ? 'bg-emerald-100 text-emerald-700' :
+            item.status === '未付款請重新申請' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-800'
+          }">${item.status}</span>`;
+
+          card.innerHTML = `
+            <div class="flex justify-between items-start">
+              <div>
+                <span class="font-bold text-slate-800 text-sm">${item.user_name}</span>
+                <span class="text-slate-400 text-xs ml-1">(${item.phone})</span>
+                <div class="text-[11px] text-indigo-600 font-semibold mt-0.5">${item.room_name} ‧ ${item.booking_type}</div>
+              </div>
+              ${statusBadge}
+            </div>
+            <div class="bg-slate-50 p-2 rounded-xl text-slate-600 text-[11px] space-y-0.5">
+              <p>📅 <strong>時段：</strong>${item.booking_date} ${item.start_time}-${item.end_time}</p>
+              <p>📝 <strong>備註：</strong>${item.purpose || '無'}</p>
+            </div>
+            <div class="flex gap-2 pt-1">
+              <button onclick="updateBookingStatus(${item.id}, '申請成功', '${item.line_user_id}', '${item.booking_date}', '${item.start_time}', '${item.end_time}')" class="flex-1 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-xs">
+                ✓ 核准 (成功)
+              </button>
+              <button onclick="updateBookingStatus(${item.id}, '未付款請重新申請', '${item.line_user_id}', '${item.booking_date}', '${item.start_time}', '${item.end_time}')" class="flex-1 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-lg font-bold text-xs">
+                ✕ 未付款退件
+              </button>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      } catch (e) {
+        container.innerHTML = '<p class="text-center text-red-500 text-xs py-8">載入審核名單失敗</p>';
+      }
+    }
+
+    // 管理員一鍵更新審核狀態
+    window.updateBookingStatus = async function(id, newStatus, lineUserId, bDate, sTime, eTime) {
+      if (!confirm(`確定將此筆預約標記為「${newStatus}」嗎？`)) return;
+
+      try {
+        const payload = {
+          action: 'updateBookingStatus',
+          booking_id: id,
+          new_status: newStatus,
+          line_user_id: lineUserId,
+          booking_date: bDate,
+          start_time: sTime,
+          end_time: eTime
+        };
+
+        const res = await fetch(GAS_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+
+        if (result.success) {
+          alert('狀態已更新，並已同步推播結果給申請人！');
+          loadAdminList();
+          fetchAndRenderSlots();
+        } else {
+          alert('更新失敗：' + result.error);
+        }
+      } catch (err) {
+        alert('網路錯誤：' + err.message);
+      }
+    };
+
     function initAdminFormOptions() {
       const select = document.getElementById('admin-lock-start');
       select.innerHTML = '';
@@ -674,8 +742,7 @@
           phone: '-',
           booking_type: '場地鎖定',
           booking_date: date,
-          start_time: start,
-          end_time: end,
+          slots: [{ start: start, end: end }],
           purpose: reason
         };
 
@@ -824,6 +891,7 @@
         document.getElementById('records-section').classList.add('hidden');
         document.getElementById('admin-section').classList.remove('hidden');
         setTabActive('tab-admin-panel');
+        loadAdminList(); // 切換時自動載入審核清單
       });
 
       function setTabActive(activeId) {
@@ -858,6 +926,7 @@
 
       document.getElementById('cart-checkout-btn').addEventListener('click', openBatchBookingModal);
       document.getElementById('refresh-records-btn').addEventListener('click', loadMyRecords);
+      document.getElementById('refresh-admin-btn').addEventListener('click', loadAdminList);
       document.getElementById('admin-submit-lock-btn').addEventListener('click', submitAdminLock);
 
       document.getElementById('open-profile-btn').addEventListener('click', openProfileModal);
