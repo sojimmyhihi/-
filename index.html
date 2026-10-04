@@ -259,10 +259,10 @@
     let selectedDate = formatDate(new Date());
     let selectedSlots = []; // 多選時段陣列
 
-    // 每小時收費設定 (試算用，可自行調整)
+    // 每小時收費設定（個人練習 350 元，團體包場 450 元）
     const PRICE_PER_HOUR = {
-      '個人練習': 200,
-      '團體包場': 500
+      '個人練習': 350,
+      '團體包場': 450
     };
 
     const TIME_SLOTS = [
@@ -397,6 +397,8 @@
 
       const availableSlots = TIME_SLOTS.filter(slot => {
         const slotStart = toMinutes(slot.start);
+        const slotEnd = toMinutes(slot.end);
+
         const isBooked = bookings.some(b => {
           const bStart = toMinutes(b.start_time);
           const bEnd = toMinutes(b.end_time);
@@ -529,7 +531,7 @@
 
     function updateModalPrice() {
       const type = document.querySelector('input[name="booking-type"]:checked')?.value || '個人練習';
-      const rate = PRICE_PER_HOUR[type] || 200;
+      const rate = PRICE_PER_HOUR[type] || 350;
       document.getElementById('modal-total-price').textContent = `NT$ ${selectedSlots.length * rate}`;
     }
 
@@ -558,7 +560,6 @@
             purpose: purpose
           };
 
-          // 使用 text/plain 避免 CORS preflight (OPTIONS) 錯誤
           const res = await fetch(GAS_API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -803,7 +804,6 @@
     }
 
     function bindEvents() {
-      // 分頁切換
       document.getElementById('tab-booking-view').addEventListener('click', () => {
         document.getElementById('booking-section').classList.remove('hidden');
         document.getElementById('records-section').classList.add('hidden');
