@@ -279,6 +279,14 @@
       await loadInitialData();
     });
 
+    // 避開手機時區誤差，精確計算星期 (1-7)
+    function getDayOfWeekFromDateStr(dateStr) {
+      const parts = dateStr.split('-');
+      const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+      const day = d.getDay();
+      return day === 0 ? 7 : day;
+    }
+
     async function initLineAuth() {
       try {
         await liff.init({ liffId: LIFF_ID });
@@ -309,14 +317,16 @@
       const container = document.getElementById('slot-container');
       container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">正在載入即時空檔...</p>';
       
-      const dateObj = new Date(selectedDate);
-      const dayOfWeek = dateObj.getDay() === 0 ? 7 : dateObj.getDay();
+      const thisRequestId = ++currentRequestId;
+      const targetDate = selectedDate;
+      const dayOfWeek = getDayOfWeekFromDateStr(targetDate);
 
       try {
-        const url = `${GAS_API_URL}?action=getInitialData&date=${selectedDate}&dayOfWeek=${dayOfWeek}&lineUserId=${encodeURIComponent(currentUser.userId)}&roomId=${selectedRoomId || ''}`;
+        const url = `${GAS_API_URL}?action=getInitialData&date=${targetDate}&dayOfWeek=${dayOfWeek}&lineUserId=${encodeURIComponent(currentUser.userId)}&roomId=${selectedRoomId || ''}`;
         const res = await fetch(url);
         const data = await res.json();
 
+        // 綁定會員與管理員狀態
         if (data.member && data.member.registered) {
           currentUser.isRegistered = true;
           currentUser.realName = data.member.real_name;
@@ -340,6 +350,7 @@
           }
         }
 
+        // 綁定教室
         if (data.classrooms && data.classrooms.length > 0) {
           classrooms = data.classrooms;
           const select = document.getElementById('classroom-select');
@@ -351,12 +362,19 @@
             if (String(room.id) === String(selectedRoomId)) opt.selected = true;
             select.appendChild(opt);
           });
-          if (!selectedRoomId) selectedRoomId = classrooms[0].id;
+          if (!selectedRoomId) {
+            selectedRoomId = classrooms[0].id;
+          }
         }
+
+        // 若使用者在載入完成前切換了日期，放棄這筆過期結果
+        if (thisRequestId !== currentRequestId || targetDate !== selectedDate) return;
 
         renderAvailableSlots(data.bookings || [], data.recurrings || []);
       } catch (e) {
-        container.innerHTML = '<p class="text-center text-red-500 text-xs py-8">載入失敗，請重新整理</p>';
+        if (thisRequestId === currentRequestId) {
+          container.innerHTML = '<p class="text-center text-red-500 text-xs py-8">載入失敗，請重新整理</p>';
+        }
       }
     }
 
@@ -367,15 +385,19 @@
 
       const thisRequestId = ++currentRequestId;
       const targetDate = selectedDate;
-      const dateObj = new Date(targetDate);
-      const dayOfWeek = dateObj.getDay() === 0 ? 7 : dateObj.getDay();
+      const dayOfWeek = getDayOfWeekFromDateStr(targetDate);
+      const targetRoom = (selectedRoomId && selectedRoomId !== 'null') ? selectedRoomId : '';
 
       try {
-        const res = await fetch(`${GAS_API_URL}?action=getSchedule&roomId=${selectedRoomId}&date=${targetDate}&dayOfWeek=${dayOfWeek}`);
+        const res = await fetch(`${GAS_API_URL}?action=getSchedule&roomId=${targetRoom}&date=${targetDate}&dayOfWeek=${dayOfWeek}`);
         const data = await res.json();
 
-        // 僅接受最新的那次請求，防止快速點擊產生的資料撞車
+        // 嚴格比對請求序號與目標日期，絕不讓過期回傳覆蓋畫面
         if (thisRequestId !== currentRequestId || targetDate !== selectedDate) return;
+
+        if (data.roomId && !selectedRoomId) {
+          selectedRoomId = data.roomId;
+        }
 
         renderAvailableSlots(data.bookings || [], data.recurrings || []);
       } catch (err) {
@@ -516,7 +538,7 @@
       if (selectedSlots.length === 0) return;
 
       const room = classrooms.find(r => String(r.id) === String(selectedRoomId));
-      document.getElementById('modal-room-name').textContent = room ? room.name : '--';
+      document.getElementById('modal-room-name').textContent = room ? room.name : (classrooms[0] ? classrooms[0].name : '--');
       document.getElementById('modal-date').textContent = selectedDate;
       
       const slotsSummary = selectedSlots.map(s => `${s.start}-${s.end}`).join(', ');
@@ -551,7 +573,7 @@
       try {
         const payload = {
           action: 'createBooking',
-          classroom_id: selectedRoomId,
+          classroom_id: selectedRoomId || (classrooms[0] ? classrooms[0].id : '1'),
           line_user_id: currentUser.userId,
           user_name: currentUser.realName,
           phone: currentUser.phone,
@@ -747,7 +769,7 @@
       try {
         const payload = {
           action: 'createBooking',
-          classroom_id: selectedRoomId,
+          classroom_id: selectedRoomId || (classrooms[0] ? classrooms[0].id : '1'),
           line_user_id: 'ADMIN_LOCK',
           user_name: '管理員',
           phone: '-',
