@@ -261,7 +261,12 @@
       '團體包場': 450
     };
 
+    // 擴充自 06:00 起的完整時段區間
     const TIME_SLOTS = [
+      { start: '06:00', end: '07:00', period: 'early' },
+      { start: '07:00', end: '08:00', period: 'early' },
+      { start: '08:00', end: '09:00', period: 'early' },
+      { start: '09:00', end: '10:00', period: 'early' },
       { start: '10:00', end: '11:00', period: 'morning' },
       { start: '11:00', end: '12:00', period: 'morning' },
       { start: '12:00', end: '13:00', period: 'afternoon' },
@@ -332,7 +337,7 @@
           document.getElementById('verify-badge').textContent = '已實名認證';
           document.getElementById('verify-badge').className = 'block text-[9px] text-emerald-600 font-semibold';
 
-          if (data.member.is_admin) {
+          if (data.member.is_admin === true) {
             currentUser.isAdmin = true;
             document.getElementById('tab-admin-panel').classList.remove('hidden');
           } else {
@@ -414,7 +419,8 @@
       }
 
       const groups = [
-        { id: 'morning', label: '🌤️ 上午時段 (10:00 - 12:00)', slots: [] },
+        { id: 'early', label: '🌅 晨間時段 (06:00 - 10:00)', slots: [] },
+        { id: 'morning', label: '🌤️️ 上午時段 (10:00 - 12:00)', slots: [] },
         { id: 'afternoon', label: '☀️ 下午時段 (12:00 - 18:00)', slots: [] },
         { id: 'evening', label: '🌙 晚間時段 (18:00 - 23:00)', slots: [] }
       ];
@@ -523,7 +529,6 @@
       document.getElementById('modal-total-price').textContent = `NT$ ${selectedSlots.length * rate}`;
     }
 
-    // 支援單一或連續時段送出，包含狀態反饋
     async function submitBooking() {
       if (selectedSlots.length === 0) return;
 
@@ -558,15 +563,15 @@
           body: JSON.stringify(payload)
         });
         const result = await res.json();
-        if (!result.success) throw new Error(result.error);
+        if (!result.success) throw new Error(result.error || '預約失敗');
 
-        alert(`【${bookingType}】已送出 ${selectedSlots.length} 個時段申請！\n管理員通知狀態：${result.mail_debug || '已送出'}\n請記得於 6 小時內完成匯款確認。`);
+        alert(`【${bookingType}】已成功送出 ${selectedSlots.length} 個時段申請！\n\n請記得於 6 小時內完成匯款確認。\n您可隨時至「我的紀錄」查看審核狀態。`);
         document.getElementById('booking-modal').classList.add('hidden');
         selectedSlots = [];
         updateCartBar();
         await fetchAndRenderSlots();
       } catch (err) {
-        alert('預約失敗：' + err.message);
+        alert('預約送出失敗：' + err.message);
       } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = '送出申請';
@@ -907,16 +912,18 @@
       function setTabActive(activeId) {
         ['tab-booking-view', 'tab-my-records', 'tab-admin-panel'].forEach(id => {
           const el = document.getElementById(id);
-          const isCurrentlyHidden = el.classList.contains('hidden') || (!currentUser.isAdmin && id === 'tab-admin-panel');
-          
+          const shouldHide = (id === 'tab-admin-panel' && !currentUser.isAdmin);
+
           if (id === activeId) {
             el.className = 'flex-1 py-2 rounded-xl bg-white text-indigo-600 shadow-sm transition';
           } else {
             el.className = 'flex-1 py-2 rounded-xl text-slate-600 hover:text-indigo-600 transition';
           }
 
-          if (isCurrentlyHidden) {
+          if (shouldHide) {
             el.classList.add('hidden');
+          } else if (id === 'tab-admin-panel' && currentUser.isAdmin) {
+            el.classList.remove('hidden');
           }
         });
       }
