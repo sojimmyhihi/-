@@ -126,7 +126,7 @@
           <label class="block text-xs text-slate-500 font-bold mb-1">鎖定原因備註</label>
           <input type="text" id="admin-lock-reason" placeholder="例如：地板打蠟、內部排練" class="w-full border rounded-xl p-2 text-xs bg-slate-50">
         </div>
-        <button id="admin-submit-lock-btn" class="w-full py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold">
+        <button id="admin-submit-lock-btn" class="w-full py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold shadow-sm">
           鎖定該時段（不對外開放）
         </button>
       </div>
@@ -235,10 +235,13 @@
     </div>
   </div>
 
- <!-- 核心 JavaScript -->
+  <!-- 核心 JavaScript -->
   <script>
     const LIFF_ID = '2011761541-hL5HCl1Q'; 
     const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzz6XpZz-o8X6w0f2tK4g_U9b_G-y3-nVH8lLqLnxrUUrkD6Pw/exec';
+    
+    // 可填寫管理者 LINE ID (或讓後台自動比對)
+    const ADMIN_LINE_ID = ''; 
 
     let currentUser = {
       userId: 'guest_user',
@@ -246,50 +249,54 @@
       pictureUrl: '',
       realName: '',
       phone: '',
-      isRegistered: false
+      isRegistered: false,
+      isAdmin: false
     };
 
     let classrooms = [];
     let selectedRoomId = null;
     let currentMonday = getMonday(new Date());
     let selectedDate = formatDate(new Date());
+    let selectedSlots = []; // 多選時段陣列
+
+    // 每小時收費設定 (試算用，可自行調整)
+    const PRICE_PER_HOUR = {
+      '個人練習': 200,
+      '團體包場': 500
+    };
 
     const TIME_SLOTS = [
-      { start: '10:00', end: '11:00' },
-      { start: '11:00', end: '12:00' },
-      { start: '12:00', end: '13:00' },
-      { start: '13:00', end: '14:00' },
-      { start: '14:00', end: '15:00' },
-      { start: '15:00', end: '16:00' },
-      { start: '16:00', end: '17:00' },
-      { start: '17:00', end: '18:00' },
-      { start: '18:00', end: '19:00' },
-      { start: '19:00', end: '20:00' },
-      { start: '20:00', end: '21:00' },
-      { start: '21:00', end: '22:00' },
-      { start: '22:00', end: '23:00' }
+      { start: '10:00', end: '11:00', period: 'morning' },
+      { start: '11:00', end: '12:00', period: 'morning' },
+      { start: '12:00', end: '13:00', period: 'afternoon' },
+      { start: '13:00', end: '14:00', period: 'afternoon' },
+      { start: '14:00', end: '15:00', period: 'afternoon' },
+      { start: '15:00', end: '16:00', period: 'afternoon' },
+      { start: '16:00', end: '17:00', period: 'afternoon' },
+      { start: '17:00', end: '18:00', period: 'afternoon' },
+      { start: '18:00', end: '19:00', period: 'evening' },
+      { start: '19:00', end: '20:00', period: 'evening' },
+      { start: '20:00', end: '21:00', period: 'evening' },
+      { start: '21:00', end: '22:00', period: 'evening' },
+      { start: '22:00', end: '23:00', period: 'evening' }
     ];
 
     window.addEventListener('DOMContentLoaded', async () => {
       renderWeekdayTabs();
+      initAdminFormOptions();
       bindEvents();
-      // 確保先完全拿到 LINE 真實身分，再載入試算表資料
       await initLineAuth();
       await loadInitialData();
     });
 
-    // 嚴格等待 LINE 驗證完成
     async function initLineAuth() {
       try {
         await liff.init({ liffId: LIFF_ID });
-        
-        // 若在外部瀏覽器打開且未登入，引導登入
         if (!liff.isLoggedIn()) {
           liff.login();
           return;
         }
 
-        // 取得真實 LINE Profile
         const profile = await liff.getProfile();
         if (profile && profile.userId) {
           currentUser.userId = profile.userId;
@@ -301,6 +308,11 @@
             const img = document.getElementById('user-avatar');
             img.src = profile.pictureUrl;
             img.classList.remove('hidden');
+          }
+
+          if (ADMIN_LINE_ID && profile.userId === ADMIN_LINE_ID) {
+            currentUser.isAdmin = true;
+            document.getElementById('tab-admin-panel').classList.remove('hidden');
           }
         }
       } catch (err) {
@@ -328,7 +340,6 @@
           document.getElementById('verify-badge').textContent = '已實名認證';
           document.getElementById('verify-badge').className = 'block text-[9px] text-emerald-600 font-semibold';
         } else {
-          // 未註冊實名制，且已取得真實 LINE ID 時彈出登記
           if (currentUser.userId !== 'guest_user') {
             openProfileModal();
           }
@@ -371,9 +382,12 @@
       }
     }
 
+    // 依「上午 / 下午 / 晚上」分區渲染可選空檔
     function renderAvailableSlots(bookings, recurrings) {
       const container = document.getElementById('slot-container');
       container.innerHTML = '';
+      selectedSlots = [];
+      updateCartBar();
 
       function toMinutes(timeStr) {
         if (!timeStr) return 0;
@@ -383,8 +397,6 @@
 
       const availableSlots = TIME_SLOTS.filter(slot => {
         const slotStart = toMinutes(slot.start);
-        const slotEnd = toMinutes(slot.end);
-
         const isBooked = bookings.some(b => {
           const bStart = toMinutes(b.start_time);
           const bEnd = toMinutes(b.end_time);
@@ -410,19 +422,163 @@
         return;
       }
 
-      availableSlots.forEach(slot => {
-        const slotCard = document.createElement('div');
-        slotCard.className = 'flex items-center justify-between p-3.5 rounded-xl border border-emerald-200 bg-white hover:border-emerald-400 hover:shadow-sm transition cursor-pointer';
-        slotCard.innerHTML = `
-          <div class="flex items-center space-x-2">
-            <span class="font-extrabold text-slate-800 text-sm">${slot.start} - ${slot.end}</span>
-            <span class="text-xs px-2 py-0.5 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-md font-bold">可借用</span>
-          </div>
-          <button class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3.5 py-1.5 rounded-lg shadow-sm">借用</button>
-        `;
-        slotCard.onclick = () => openBookingModal(slot);
-        container.appendChild(slotCard);
+      const groups = [
+        { id: 'morning', label: '🌤️ 上午時段 (10:00 - 12:00)', slots: [] },
+        { id: 'afternoon', label: '☀️ 下午時段 (12:00 - 18:00)', slots: [] },
+        { id: 'evening', label: '🌙 晚間時段 (18:00 - 23:00)', slots: [] }
+      ];
+
+      availableSlots.forEach(s => {
+        const g = groups.find(x => x.id === s.period);
+        if (g) g.slots.push(s);
       });
+
+      groups.forEach(g => {
+        if (g.slots.length === 0) return;
+
+        const groupDiv = document.createElement('div');
+        groupDiv.className = 'space-y-2';
+        groupDiv.innerHTML = `<h3 class="text-xs font-bold text-slate-500">${g.label}</h3>`;
+
+        const listDiv = document.createElement('div');
+        listDiv.className = 'space-y-2';
+
+        g.slots.forEach(slot => {
+          const slotCard = document.createElement('div');
+          slotCard.className = 'slot-card flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:border-indigo-400 cursor-pointer transition select-none';
+          slotCard.dataset.slot = `${slot.start}-${slot.end}`;
+          slotCard.innerHTML = `
+            <div class="flex items-center space-x-3">
+              <input type="checkbox" class="slot-checkbox w-4 h-4 text-indigo-600 rounded border-slate-300 pointer-events-none">
+              <span class="font-extrabold text-slate-800 text-sm">${slot.start} - ${slot.end}</span>
+            </div>
+            <span class="status-tag text-xs px-2.5 py-1 bg-slate-100 text-slate-500 rounded-md font-bold">可選</span>
+          `;
+
+          slotCard.onclick = () => toggleSelectSlot(slot, slotCard);
+          listDiv.appendChild(slotCard);
+        });
+
+        groupDiv.appendChild(listDiv);
+        container.appendChild(groupDiv);
+      });
+    }
+
+    function toggleSelectSlot(slot, cardElement) {
+      const slotKey = `${slot.start}-${slot.end}`;
+      const index = selectedSlots.findIndex(s => `${s.start}-${s.end}` === slotKey);
+      const checkbox = cardElement.querySelector('.slot-checkbox');
+      const tag = cardElement.querySelector('.status-tag');
+
+      if (index > -1) {
+        selectedSlots.splice(index, 1);
+        checkbox.checked = false;
+        cardElement.classList.remove('border-indigo-600', 'bg-indigo-50/40');
+        tag.textContent = '可選';
+        tag.className = 'status-tag text-xs px-2.5 py-1 bg-slate-100 text-slate-500 rounded-md font-bold';
+      } else {
+        selectedSlots.push(slot);
+        checkbox.checked = true;
+        cardElement.classList.add('border-indigo-600', 'bg-indigo-50/40');
+        tag.textContent = '已選';
+        tag.className = 'status-tag text-xs px-2.5 py-1 bg-indigo-600 text-white rounded-md font-bold';
+      }
+
+      selectedSlots.sort((a, b) => a.start.localeCompare(b.start));
+      updateCartBar();
+    }
+
+    function updateCartBar() {
+      const cartBar = document.getElementById('cart-bar');
+      const countSpan = document.getElementById('cart-count');
+      const priceSpan = document.getElementById('cart-price');
+
+      if (selectedSlots.length === 0) {
+        cartBar.classList.add('hidden');
+        return;
+      }
+
+      cartBar.classList.remove('hidden');
+      countSpan.textContent = selectedSlots.length;
+
+      const rate = PRICE_PER_HOUR['個人練習'];
+      priceSpan.textContent = `NT$ ${selectedSlots.length * rate}`;
+    }
+
+    function openBatchBookingModal() {
+      if (!currentUser.isRegistered) {
+        alert('請先完成實名制登記才能進行預約！');
+        openProfileModal();
+        return;
+      }
+      if (selectedSlots.length === 0) return;
+
+      const room = classrooms.find(r => String(r.id) === String(selectedRoomId));
+      document.getElementById('modal-room-name').textContent = room ? room.name : '--';
+      document.getElementById('modal-date').textContent = selectedDate;
+      
+      const slotsSummary = selectedSlots.map(s => `${s.start}-${s.end}`).join(', ');
+      document.getElementById('modal-slots-text').textContent = slotsSummary;
+      document.getElementById('modal-user-info').textContent = `${currentUser.realName} (${currentUser.phone})`;
+      document.getElementById('modal-hour-count').textContent = selectedSlots.length;
+
+      updateModalPrice();
+      document.getElementById('booking-purpose').value = '';
+      document.getElementById('booking-modal').classList.remove('hidden');
+    }
+
+    function updateModalPrice() {
+      const type = document.querySelector('input[name="booking-type"]:checked')?.value || '個人練習';
+      const rate = PRICE_PER_HOUR[type] || 200;
+      document.getElementById('modal-total-price').textContent = `NT$ ${selectedSlots.length * rate}`;
+    }
+
+    async function submitBooking() {
+      if (selectedSlots.length === 0) return;
+
+      const bookingType = document.querySelector('input[name="booking-type"]:checked').value;
+      const purpose = document.getElementById('booking-purpose').value.trim() || bookingType;
+      const submitBtn = document.getElementById('submit-booking-btn');
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = '申請送出中...';
+
+      try {
+        for (const slot of selectedSlots) {
+          const payload = {
+            action: 'createBooking',
+            classroom_id: selectedRoomId,
+            line_user_id: currentUser.userId,
+            user_name: currentUser.realName,
+            phone: currentUser.phone,
+            booking_type: bookingType,
+            booking_date: selectedDate,
+            start_time: slot.start,
+            end_time: slot.end,
+            purpose: purpose
+          };
+
+          // 使用 text/plain 避免 CORS preflight (OPTIONS) 錯誤
+          const res = await fetch(GAS_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+          });
+          const result = await res.json();
+          if (!result.success) throw new Error(result.error);
+        }
+
+        alert(`【${bookingType}】已送出 ${selectedSlots.length} 個時段申請！\n請記得於 6 小時內完成匯款確認。`);
+        document.getElementById('booking-modal').classList.add('hidden');
+        selectedSlots = [];
+        updateCartBar();
+        await fetchAndRenderSlots();
+      } catch (err) {
+        alert('預約失敗：' + err.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '送出申請';
+      }
     }
 
     async function loadMyRecords() {
@@ -463,7 +619,7 @@
           card.innerHTML = `
             <div class="flex justify-between items-start">
               <div>
-                <span class="text-[11px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">${r.booking_type || '一般租借'}</span>
+                <span class="text-[11px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">${r.booking_type || '個人練習'}</span>
                 <h3 class="font-black text-slate-800 text-sm mt-1">${r.room_name}</h3>
               </div>
               ${badgeHtml}
@@ -478,6 +634,124 @@
         });
       } catch (err) {
         container.innerHTML = '<p class="text-center text-red-500 text-xs py-8">讀取紀錄失敗，請重試</p>';
+      }
+    }
+
+    function initAdminFormOptions() {
+      const select = document.getElementById('admin-lock-start');
+      select.innerHTML = '';
+      TIME_SLOTS.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = `${s.start}-${s.end}`;
+        opt.textContent = `${s.start} - ${s.end}`;
+        select.appendChild(opt);
+      });
+      document.getElementById('admin-lock-date').value = selectedDate;
+    }
+
+    async function submitAdminLock() {
+      const date = document.getElementById('admin-lock-date').value;
+      const slotVal = document.getElementById('admin-lock-start').value;
+      const reason = document.getElementById('admin-lock-reason').value.trim() || '內部鎖定';
+
+      if (!date || !slotVal) {
+        alert('請選擇日期與時段！');
+        return;
+      }
+
+      const [start, end] = slotVal.split('-');
+      const btn = document.getElementById('admin-submit-lock-btn');
+      btn.disabled = true;
+      btn.textContent = '鎖定中...';
+
+      try {
+        const payload = {
+          action: 'createBooking',
+          classroom_id: selectedRoomId,
+          line_user_id: 'ADMIN_LOCK',
+          user_name: '管理員',
+          phone: '-',
+          booking_type: '場地鎖定',
+          booking_date: date,
+          start_time: start,
+          end_time: end,
+          purpose: reason
+        };
+
+        const res = await fetch(GAS_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+
+        if (result.success) {
+          alert(`時段 ${date} ${start}-${end} 已成功鎖定！`);
+          document.getElementById('admin-lock-reason').value = '';
+          await fetchAndRenderSlots();
+        } else {
+          throw new Error(result.error);
+        }
+      } catch (e) {
+        alert('鎖定失敗：' + e.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '鎖定該時段（不對外開放）';
+      }
+    }
+
+    function openProfileModal() {
+      document.getElementById('reg-name').value = currentUser.realName || '';
+      document.getElementById('reg-phone').value = currentUser.phone || '';
+      document.getElementById('profile-modal').classList.remove('hidden');
+    }
+
+    async function saveProfile() {
+      const name = document.getElementById('reg-name').value.trim();
+      const phone = document.getElementById('reg-phone').value.trim();
+
+      if (!name || !phone) {
+        alert('請完整輸入真實姓名與手機號碼！');
+        return;
+      }
+
+      const saveBtn = document.getElementById('save-profile-btn');
+      saveBtn.disabled = true;
+      saveBtn.textContent = '認證中...';
+
+      try {
+        const payload = {
+          action: 'registerMember',
+          line_user_id: currentUser.userId,
+          line_name: currentUser.lineName,
+          real_name: name,
+          phone: phone
+        };
+
+        const res = await fetch(GAS_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+
+        if (result.success) {
+          currentUser.realName = name;
+          currentUser.phone = phone;
+          currentUser.isRegistered = true;
+          document.getElementById('user-display').textContent = name;
+          document.getElementById('verify-badge').textContent = '已實名認證';
+          document.getElementById('verify-badge').className = 'block text-[9px] text-emerald-600 font-semibold';
+          alert('實名制登記成功！');
+          document.getElementById('profile-modal').classList.add('hidden');
+        } else {
+          throw new Error(result.error);
+        }
+      } catch (e) {
+        alert('儲存失敗：' + e.message);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = '儲存認證';
       }
     }
 
@@ -528,141 +802,63 @@
       }
     }
 
-    let targetSlot = null;
-
-    function openBookingModal(slot) {
-      if (!currentUser.isRegistered) {
-        alert('請先完成實名制登記才能進行預約！');
-        openProfileModal();
-        return;
-      }
-
-      targetSlot = slot;
-      const room = classrooms.find(r => String(r.id) === String(selectedRoomId));
-      document.getElementById('modal-room-name').textContent = room ? room.name : '--';
-      document.getElementById('modal-date').textContent = selectedDate;
-      document.getElementById('modal-time').textContent = `${slot.start} - ${slot.end}`;
-      document.getElementById('modal-user-info').textContent = `${currentUser.realName} (${currentUser.phone})`;
-      document.getElementById('booking-purpose').value = '';
-      document.getElementById('booking-modal').classList.remove('hidden');
-    }
-
-    async function submitBooking() {
-      if (!targetSlot) return;
-
-      const bookingType = document.querySelector('input[name="booking-type"]:checked').value;
-      const purpose = document.getElementById('booking-purpose').value.trim() || bookingType;
-      const submitBtn = document.getElementById('submit-booking-btn');
-
-      submitBtn.disabled = true;
-      submitBtn.textContent = '預約中...';
-
-      try {
-        const payload = {
-          action: 'createBooking',
-          classroom_id: selectedRoomId,
-          line_user_id: currentUser.userId,
-          user_name: currentUser.realName,
-          phone: currentUser.phone,
-          booking_type: bookingType,
-          booking_date: selectedDate,
-          start_time: targetSlot.start,
-          end_time: targetSlot.end,
-          purpose: purpose
-        };
-
-        const res = await fetch(GAS_API_URL, {
-          method: 'POST',
-          body: JSON.stringify(payload)
-        });
-        const result = await res.json();
-
-        if (result.success) {
-          alert(`【${bookingType}】已送出申請！審核進度可至「我的預約紀錄」查看。`);
-          document.getElementById('booking-modal').classList.add('hidden');
-          await fetchAndRenderSlots();
-        } else {
-          throw new Error(result.error);
-        }
-      } catch (err) {
-        alert('預約失敗：' + err.message);
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = '確認預約';
-      }
-    }
-
-    function openProfileModal() {
-      document.getElementById('reg-name').value = currentUser.realName || '';
-      document.getElementById('reg-phone').value = currentUser.phone || '';
-      document.getElementById('profile-modal').classList.remove('hidden');
-    }
-
-    async function saveProfile() {
-      const name = document.getElementById('reg-name').value.trim();
-      const phone = document.getElementById('reg-phone').value.trim();
-
-      if (!name || !phone) {
-        alert('請完整輸入真實姓名與手機號碼！');
-        return;
-      }
-
-      const saveBtn = document.getElementById('save-profile-btn');
-      saveBtn.disabled = true;
-      saveBtn.textContent = '認證中...';
-
-      try {
-        const payload = {
-          action: 'registerMember',
-          line_user_id: currentUser.userId,
-          line_name: currentUser.lineName,
-          real_name: name,
-          phone: phone
-        };
-
-        const res = await fetch(GAS_API_URL, {
-          method: 'POST',
-          body: JSON.stringify(payload)
-        });
-        const result = await res.json();
-
-        if (result.success) {
-          currentUser.realName = name;
-          currentUser.phone = phone;
-          currentUser.isRegistered = true;
-          document.getElementById('user-display').textContent = name;
-          document.getElementById('verify-badge').textContent = '已實名認證';
-          document.getElementById('verify-badge').className = 'block text-[9px] text-emerald-600 font-semibold';
-          alert('實名制登記成功！');
-          document.getElementById('profile-modal').classList.add('hidden');
-        } else {
-          throw new Error(result.error);
-        }
-      } catch (e) {
-        alert('儲存失敗：' + e.message);
-      } finally {
-        saveBtn.disabled = false;
-        saveBtn.textContent = '儲存認證';
-      }
-    }
-
     function bindEvents() {
+      // 分頁切換
       document.getElementById('tab-booking-view').addEventListener('click', () => {
         document.getElementById('booking-section').classList.remove('hidden');
         document.getElementById('records-section').classList.add('hidden');
-        document.getElementById('tab-booking-view').className = 'flex-1 py-2 text-xs font-black rounded-xl bg-white text-indigo-600 shadow-sm transition';
-        document.getElementById('tab-my-records').className = 'flex-1 py-2 text-xs font-black rounded-xl text-slate-600 hover:text-indigo-600 transition';
+        document.getElementById('admin-section').classList.add('hidden');
+        setTabActive('tab-booking-view');
       });
 
       document.getElementById('tab-my-records').addEventListener('click', () => {
         document.getElementById('booking-section').classList.add('hidden');
         document.getElementById('records-section').classList.remove('hidden');
-        document.getElementById('tab-my-records').className = 'flex-1 py-2 text-xs font-black rounded-xl bg-white text-indigo-600 shadow-sm transition';
-        document.getElementById('tab-booking-view').className = 'flex-1 py-2 text-xs font-black rounded-xl text-slate-600 hover:text-indigo-600 transition';
+        document.getElementById('admin-section').classList.add('hidden');
+        setTabActive('tab-my-records');
         loadMyRecords();
       });
 
+      document.getElementById('tab-admin-panel').addEventListener('click', () => {
+        document.getElementById('booking-section').classList.add('hidden');
+        document.getElementById('records-section').classList.add('hidden');
+        document.getElementById('admin-section').classList.remove('hidden');
+        setTabActive('tab-admin-panel');
+      });
+
+      function setTabActive(activeId) {
+        ['tab-booking-view', 'tab-my-records', 'tab-admin-panel'].forEach(id => {
+          const el = document.getElementById(id);
+          if (id === activeId) {
+            el.className = 'flex-1 py-2 rounded-xl bg-white text-indigo-600 shadow-sm transition';
+          } else {
+            el.className = 'flex-1 py-2 rounded-xl text-slate-600 hover:text-indigo-600 transition';
+          }
+        });
+      }
+
+      document.querySelectorAll('input[name="booking-type"]').forEach(r => {
+        r.addEventListener('change', updateModalPrice);
+      });
+
+      document.getElementById('cart-clear-btn').addEventListener('click', () => {
+        selectedSlots = [];
+        updateCartBar();
+        document.querySelectorAll('.slot-card').forEach(card => {
+          card.classList.remove('border-indigo-600', 'bg-indigo-50/40');
+          const cb = card.querySelector('.slot-checkbox');
+          if (cb) cb.checked = false;
+          const tag = card.querySelector('.status-tag');
+          if (tag) {
+            tag.textContent = '可選';
+            tag.className = 'status-tag text-xs px-2.5 py-1 bg-slate-100 text-slate-500 rounded-md font-bold';
+          }
+        });
+      });
+
+      document.getElementById('cart-checkout-btn').addEventListener('click', openBatchBookingModal);
       document.getElementById('refresh-records-btn').addEventListener('click', loadMyRecords);
+      document.getElementById('admin-submit-lock-btn').addEventListener('click', submitAdminLock);
 
       document.getElementById('open-profile-btn').addEventListener('click', openProfileModal);
       document.getElementById('close-profile-btn').addEventListener('click', () => {
