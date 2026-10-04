@@ -244,6 +244,7 @@
     let currentMonday = getMonday(new Date());
     let selectedDate = formatDate(new Date());
     let selectedSlots = [];
+    let currentRequestId = 0; // 競態鎖定器
 
     const PRICE_PER_HOUR = {
       '個人練習': 350,
@@ -364,19 +365,26 @@
       container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">更新狀態中...</p>';
       document.getElementById('current-date-title').textContent = `${selectedDate} 可借用時段`;
 
-      const dateObj = new Date(selectedDate);
+      const thisRequestId = ++currentRequestId;
+      const targetDate = selectedDate;
+      const dateObj = new Date(targetDate);
       const dayOfWeek = dateObj.getDay() === 0 ? 7 : dateObj.getDay();
 
       try {
-        const res = await fetch(`${GAS_API_URL}?action=getSchedule&roomId=${selectedRoomId}&date=${selectedDate}&dayOfWeek=${dayOfWeek}`);
+        const res = await fetch(`${GAS_API_URL}?action=getSchedule&roomId=${selectedRoomId}&date=${targetDate}&dayOfWeek=${dayOfWeek}`);
         const data = await res.json();
+
+        // 僅接受最新的那次請求，防止快速點擊產生的資料撞車
+        if (thisRequestId !== currentRequestId || targetDate !== selectedDate) return;
+
         renderAvailableSlots(data.bookings || [], data.recurrings || []);
       } catch (err) {
-        container.innerHTML = '<p class="text-center text-red-500 text-xs py-8">讀取失敗，請稍後再試</p>';
+        if (thisRequestId === currentRequestId) {
+          container.innerHTML = '<p class="text-center text-red-500 text-xs py-8">連線稍慢，請再次點選日期</p>';
+        }
       }
     }
 
-    // 左右到底單行整條渲染
     function renderAvailableSlots(bookings, recurrings) {
       const container = document.getElementById('slot-container');
       container.innerHTML = '';
@@ -391,8 +399,20 @@
 
       const availableSlots = TIME_SLOTS.filter(slot => {
         const slotStart = toMinutes(slot.start);
-        const isBooked = bookings.some(b => slotStart >= toMinutes(b.start_time) && slotStart < toMinutes(b.end_time));
-        const isRecurring = recurrings.some(r => slotStart >= toMinutes(r.start_time) && slotStart < toMinutes(r.end_time));
+        const slotEnd = toMinutes(slot.end);
+
+        const isBooked = bookings.some(b => {
+          const bStart = toMinutes(b.start_time);
+          const bEnd = toMinutes(b.end_time);
+          return Math.max(slotStart, bStart) < Math.min(slotEnd, bEnd);
+        });
+
+        const isRecurring = recurrings.some(r => {
+          const rStart = toMinutes(r.start_time);
+          const rEnd = toMinutes(r.end_time);
+          return Math.max(slotStart, rStart) < Math.min(slotEnd, rEnd);
+        });
+
         return !isBooked && !isRecurring;
       });
 
@@ -855,6 +875,7 @@
           <span class="text-xs mt-0.5 font-bold">${loopDate.getDate()}</span>
         `;
         tab.onclick = () => {
+          if (selectedDate === loopDateStr) return;
           selectedDate = loopDateStr;
           renderWeekdayTabs();
           fetchAndRenderSlots();
