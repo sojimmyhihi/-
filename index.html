@@ -57,7 +57,7 @@
         📋 我的紀錄
       </button>
       <!-- 管理者後台預設隱藏，僅管理員可見 -->
-      <button id="tab-admin-panel" class="flex-1 py-2 rounded-xl text-amber-800 hover:text-amber-900 transition hidden bg-amber-100/70 border border-amber-200">
+      <button id="tab-admin-panel" class="hidden flex-1 py-2 rounded-xl text-amber-800 hover:text-amber-900 transition bg-amber-100/70 border border-amber-200">
         ⚙️ 管理後台
       </button>
     </div>
@@ -110,7 +110,7 @@
     <div id="admin-section" class="space-y-4 hidden">
       <!-- 快速臨時鎖定時段 -->
       <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-        <h3 class="font-extrabold text-sm text-slate-800">🛠️ 快速臨時鎖定時段（清潔/自用）</h3>
+        <h3 class="font-extrabold text-sm text-slate-800">🛠️️ 快速臨時鎖定時段（清潔/自用）</h3>
         <div class="grid grid-cols-2 gap-2 text-xs">
           <div>
             <label class="block text-slate-500 font-bold mb-1">日期</label>
@@ -323,7 +323,7 @@
         const res = await fetch(url);
         const data = await res.json();
 
-        // 會員與管理員身分判定
+        // 判定身分與管理員權限
         if (data.member && data.member.registered) {
           currentUser.isRegistered = true;
           currentUser.realName = data.member.real_name;
@@ -335,8 +335,13 @@
           if (data.member.is_admin) {
             currentUser.isAdmin = true;
             document.getElementById('tab-admin-panel').classList.remove('hidden');
+          } else {
+            currentUser.isAdmin = false;
+            document.getElementById('tab-admin-panel').classList.add('hidden');
           }
         } else {
+          currentUser.isAdmin = false;
+          document.getElementById('tab-admin-panel').classList.add('hidden');
           if (currentUser.userId !== 'guest_user') {
             openProfileModal();
           }
@@ -518,13 +523,16 @@
       document.getElementById('modal-total-price').textContent = `NT$ ${selectedSlots.length * rate}`;
     }
 
-    // 批次單次請求送出所有預約
+    // 支援單一或連續時段送出，同時傳遞 start_time 與 end_time 保證後端完全相容
     async function submitBooking() {
       if (selectedSlots.length === 0) return;
 
       const bookingType = document.querySelector('input[name="booking-type"]:checked').value;
       const purpose = document.getElementById('booking-purpose').value.trim() || bookingType;
       const submitBtn = document.getElementById('submit-booking-btn');
+
+      const startTime = selectedSlots[0].start;
+      const endTime = selectedSlots[selectedSlots.length - 1].end;
 
       submitBtn.disabled = true;
       submitBtn.textContent = '申請送出中...';
@@ -538,6 +546,8 @@
           phone: currentUser.phone,
           booking_type: bookingType,
           booking_date: selectedDate,
+          start_time: startTime,
+          end_time: endTime,
           slots: selectedSlots,
           purpose: purpose
         };
@@ -619,7 +629,6 @@
       }
     }
 
-    // 實作管理員審核清單讀取與按鈕切換
     async function loadAdminList() {
       const container = document.getElementById('admin-list-container');
       container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">正在載入審核名單...</p>';
@@ -672,7 +681,6 @@
       }
     }
 
-    // 管理員一鍵更新審核狀態
     window.updateBookingStatus = async function(id, newStatus, lineUserId, bDate, sTime, eTime) {
       if (!confirm(`確定將此筆預約標記為「${newStatus}」嗎？`)) return;
 
@@ -742,6 +750,8 @@
           phone: '-',
           booking_type: '場地鎖定',
           booking_date: date,
+          start_time: start,
+          end_time: end,
           slots: [{ start: start, end: end }],
           purpose: reason
         };
@@ -891,16 +901,23 @@
         document.getElementById('records-section').classList.add('hidden');
         document.getElementById('admin-section').classList.remove('hidden');
         setTabActive('tab-admin-panel');
-        loadAdminList(); // 切換時自動載入審核清單
+        loadAdminList();
       });
 
+      // 嚴格保留 hidden 狀態的切換函式（不再誤把 hidden 洗掉）
       function setTabActive(activeId) {
         ['tab-booking-view', 'tab-my-records', 'tab-admin-panel'].forEach(id => {
           const el = document.getElementById(id);
+          const isCurrentlyHidden = el.classList.contains('hidden') || (!currentUser.isAdmin && id === 'tab-admin-panel');
+          
           if (id === activeId) {
             el.className = 'flex-1 py-2 rounded-xl bg-white text-indigo-600 shadow-sm transition';
           } else {
             el.className = 'flex-1 py-2 rounded-xl text-slate-600 hover:text-indigo-600 transition';
+          }
+
+          if (isCurrentlyHidden) {
+            el.classList.add('hidden');
           }
         });
       }
