@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>台南 舞的店 - 教室租借與預約管理</title>
+  <title>TheDanceHouse Tainan - 教室租借與空間預約</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
-  <!-- 引入典雅襯線字體 (Cinzel + Cormorant Garamond + 思源宋體) -->
+  <!-- 典雅襯線字體 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Noto+Serif+TC:wght@400;600;900&display=swap" rel="stylesheet">
@@ -29,7 +29,7 @@
     }
     @keyframes elegantPulse {
       0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.98); }
+      50% { opacity: 0.45; transform: scale(0.98); }
     }
     .pulse-touch {
       animation: elegantPulse 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
@@ -48,7 +48,7 @@
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen pb-16 antialiased selection:bg-amber-100">
 
-  <!-- 背景音樂音訊標籤 -->
+  <!-- 背景鋼琴音樂 -->
   <audio id="bg-music" loop preload="auto">
     <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=piano-moment-9835.mp3" type="audio/mp3">
   </audio>
@@ -62,11 +62,11 @@
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber-300/60 bg-amber-50/50 backdrop-blur-sm text-[11px] font-medium tracking-[0.25em] text-amber-800 uppercase font-eng-serif">
         Tainan Dance Studio
       </div>
-      <h1 class="text-4xl sm:text-5xl font-black text-slate-900 tracking-wider">
-        台南 舞的店
+      <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-wider">
+        TheDanceHouse<br><span class="text-2xl text-amber-900 font-normal">Tainan</span>
       </h1>
       <p class="text-xs text-slate-500 font-eng-serif tracking-[0.35em] uppercase">
-        Studio Booking & Management
+        Studio Booking & Space Rental
       </p>
       <div class="pt-2 flex justify-center">
         <span class="inline-block w-8 h-[1px] bg-slate-300"></span>
@@ -78,7 +78,7 @@
     </div>
   </div>
 
-  <!-- 2. 身分確認動畫過場 -->
+  <!-- 2. 身分確認過場動畫 -->
   <div id="auth-loading-screen" class="fixed inset-0 z-40 bg-white/95 backdrop-blur-md flex flex-col items-center justify-center p-6 space-y-5 fade-transition hidden">
     <div class="relative w-16 h-16">
       <div class="absolute inset-0 rounded-full border-2 border-amber-200 border-t-amber-600 animate-spin"></div>
@@ -86,11 +86,11 @@
     </div>
     <div class="text-center space-y-1">
       <p class="text-sm font-bold text-slate-800 tracking-wider">身分驗證中</p>
-      <p class="text-[10px] font-eng-serif text-slate-400 tracking-widest uppercase">Connecting to Studio...</p>
+      <p class="text-[10px] font-eng-serif text-slate-400 tracking-widest uppercase">Connecting to TheDanceHouse...</p>
     </div>
   </div>
 
-  <!-- 3. 右上角浮動音樂開關按鈕 -->
+  <!-- 3. 右上角浮動音樂切換按鈕 -->
   <div class="fixed top-4 right-4 z-30">
     <button id="toggle-music-btn" class="w-9 h-9 rounded-full bg-white/90 backdrop-blur-md shadow-md border border-slate-200 flex items-center justify-center text-slate-600 hover:text-amber-600 active:scale-90 transition">
       <span id="music-icon" class="text-sm">🎵</span>
@@ -105,14 +105,13 @@
       <div class="space-y-0.5">
         <div class="flex items-center gap-2">
           <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
-          <h1 class="text-xl font-black tracking-wide text-slate-900">舞的店 預約系統</h1>
+          <h1 class="text-lg font-black tracking-wide text-slate-900 font-eng-serif">TheDanceHouse</h1>
         </div>
-        <p class="text-[9px] text-slate-500 font-bold tracking-[0.24em] uppercase font-eng-serif">
-          STUDIO BOOKING & MANAGEMENT
+        <p class="text-[9px] text-slate-500 font-bold tracking-[0.2em] uppercase">
+          舞的店 · 空間租借系統
         </p>
       </div>
 
-      <!-- 右側會員標籤 -->
       <button id="open-profile-btn" class="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-300 shadow-sm active:scale-95 transition">
         <img id="user-avatar" src="https://via.placeholder.com/28" class="w-6 h-6 rounded-full object-cover hidden border border-slate-200">
         <div class="text-left">
@@ -124,7 +123,7 @@
   </header>
 
   <main class="max-w-md mx-auto p-4 space-y-4">
-    <!-- 主導覽分頁（管理後台預設 hidden） -->
+    <!-- 主導覽分頁 -->
     <div class="flex bg-slate-200/80 p-1 rounded-2xl shadow-inner">
       <button id="tab-booking-view" class="flex-1 py-2 text-xs font-black rounded-xl bg-white text-indigo-600 shadow-sm transition">
         📅 預約空間
@@ -139,6 +138,7 @@
 
     <!-- ===== 分頁 1：預約空間一覽 ===== -->
     <div id="booking-section" class="space-y-4">
+      <!-- 教室選單 -->
       <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200">
         <label class="block text-xs font-bold text-slate-400 mb-1">選擇教室空間</label>
         <select id="classroom-select" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
@@ -146,24 +146,36 @@
         </select>
       </div>
 
-      <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200">
-        <div class="flex justify-between items-center mb-3 px-1">
-          <button id="prev-week" class="px-3 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-bold">← 上週</button>
-          <span id="week-range-text" class="text-xs font-black text-slate-700 font-eng-serif tracking-wider">-- / --</span>
-          <button id="next-week" class="px-3 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-bold">下週 →</button>
+      <!-- 日期選擇：全月日曆選擇器 + 週分頁 -->
+      <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+        <div class="flex justify-between items-center px-1">
+          <button id="prev-week" class="px-2.5 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-bold">← 上週</button>
+          
+          <!-- 點選直接彈出原生全月份日曆 -->
+          <div class="relative cursor-pointer flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-50/70 border border-amber-200 text-amber-900 hover:bg-amber-100/80 transition">
+            <span class="text-xs">📅</span>
+            <span id="date-picker-display" class="text-xs font-black font-eng-serif">2026-10-05</span>
+            <input type="date" id="date-picker-input" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
+          </div>
+
+          <button id="next-week" class="px-2.5 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-bold">下週 →</button>
         </div>
+
+        <!-- 一週快速切換標籤 -->
         <div id="weekday-tabs" class="grid grid-cols-7 gap-1 text-center"></div>
       </div>
 
+      <!-- 可借用時段一覽 -->
       <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
         <div class="flex justify-between items-center mb-3">
           <div>
             <h2 id="current-date-title" class="font-extrabold text-sm text-slate-800">可借用時段</h2>
-            <p class="text-[11px] text-slate-400">點擊整條時段借用，支援即時預約</p>
+            <p class="text-[11px] text-slate-400">每時段 30 分鐘 · 個人練習上限 2 組</p>
           </div>
-          <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-100">即時空檔</span>
+          <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-100">即時名額</span>
         </div>
         
+        <!-- 時段列表容器（30分鐘一條） -->
         <div id="slot-container" class="space-y-4">
           <p class="text-center text-slate-400 text-xs py-8">正在載入即時空檔...</p>
         </div>
@@ -206,7 +218,7 @@
       <div class="space-y-3 text-xs font-bold text-slate-600">
         <div>
           <label class="block mb-1">真實姓名 <span class="text-rose-500">*</span></label>
-          <input type="text" id="reg-name" placeholder="請輸入姓名（例如：黃俊銘）" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none">
+          <input type="text" id="reg-name" placeholder="請輸入真實姓名" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none">
         </div>
         <div>
           <label class="block mb-1">聯絡手機 <span class="text-rose-500">*</span></label>
@@ -231,7 +243,7 @@
       <div class="text-xs space-y-1.5 text-slate-600 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
         <p><strong>教室：</strong><span id="modal-room-name">--</span></p>
         <p><strong>日期：</strong><span id="modal-date">--</span></p>
-        <p><strong>所選時段：</strong><span id="modal-time" class="font-black text-indigo-600 font-eng-serif">--</span></p>
+        <p><strong>所選時段：</strong><span id="modal-time" class="font-black text-indigo-600 font-eng-serif">--</span> <span class="text-slate-400">(30分鐘)</span></p>
         <p><strong>預約人：</strong><span id="modal-user-info" class="font-bold text-slate-800">--</span></p>
       </div>
 
@@ -240,23 +252,24 @@
         <div class="grid grid-cols-2 gap-2 text-xs font-bold">
           <label class="flex items-center justify-center p-2.5 border rounded-xl cursor-pointer hover:bg-slate-50 has-[:checked]:border-indigo-600 has-[:checked]:text-indigo-600 has-[:checked]:bg-indigo-50">
             <input type="radio" name="booking-type" value="個人練習" checked class="hidden">
-            <span>👤 個人練習</span>
+            <span>👤 個人練習 (至多2組)</span>
           </label>
-          <label class="flex items-center justify-center p-2.5 border rounded-xl cursor-pointer hover:bg-slate-50 has-[:checked]:border-indigo-600 has-[:checked]:text-indigo-600 has-[:checked]:bg-indigo-50">
+          <label id="group-booking-option" class="flex items-center justify-center p-2.5 border rounded-xl cursor-pointer hover:bg-slate-50 has-[:checked]:border-indigo-600 has-[:checked]:text-indigo-600 has-[:checked]:bg-indigo-50">
             <input type="radio" name="booking-type" value="團體/開課包場" class="hidden">
-            <span>👥 團體/開課包場</span>
+            <span>👥 團體包場 (獨立包場)</span>
           </label>
         </div>
       </div>
 
+      <!-- 金額試算卡片 (半小時為單位試算) -->
       <div class="bg-amber-50/70 border border-amber-200 rounded-xl p-3">
         <div class="flex justify-between items-center">
-          <span class="text-xs font-bold text-slate-700">金額試算 (共 1 小時)</span>
-          <span id="modal-price" class="text-lg font-black text-rose-600 font-eng-serif">NT$ 350</span>
+          <span class="text-xs font-bold text-slate-700">金額試算 (共 30 分鐘)</span>
+          <span id="modal-price" class="text-lg font-black text-rose-600 font-eng-serif">NT$ 175</span>
         </div>
         <div class="mt-2 text-[11px] text-amber-900 bg-white/70 p-2 rounded-lg border border-amber-100">
           ⚠️ <strong>注意事項：</strong><br>
-          本系統僅提供借用申請與查詢，請於申請提出後的六小時內與負責人匯款並確認呦。
+          本系統僅提供借用申請與查詢，請於申請提出後的 6 小時內完成匯款確認。
         </div>
       </div>
 
@@ -274,11 +287,11 @@
 
   <script>
     const LIFF_ID = '2011761541-hL5HCl1Q'; 
-    // 【已修正網址字元】：確保小寫字母 l 正確對齊
     const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbyV6fcIFzpwv5uUGWCb1GPcNrE7s6ETXmS7I-R6RUhiSBdhqRlSUoVomtzyFefSo7bDEg/exec';
 
-    const RATE_INDIVIDUAL = 350;
-    const RATE_GROUP = 450;
+    // 費率標準：半小時為基準 (個人 175 元/30分；團體 225 元/30分)
+    const RATE_HALF_HOUR_INDIVIDUAL = 175;
+    const RATE_HALF_HOUR_GROUP = 225;
 
     let currentUser = {
       userId: 'guest_user',
@@ -292,33 +305,28 @@
 
     let classrooms = [];
     let selectedRoomId = null;
-    let currentMonday = getMonday(new Date());
     let selectedDate = formatDate(new Date());
+    let currentMonday = getMonday(new Date(selectedDate));
     let currentRequestId = 0;
     let isMusicPlaying = false;
 
-    // 開放時段 (06:00 - 23:00)
-    const TIME_SLOTS = [
-      { start: '06:00', end: '07:00', group: 'morning' },
-      { start: '07:00', end: '08:00', group: 'morning' },
-      { start: '08:00', end: '09:00', group: 'morning' },
-      { start: '09:00', end: '10:00', group: 'morning' },
-      { start: '10:00', end: '11:00', group: 'morning' },
-      { start: '11:00', end: '12:00', group: 'morning' },
-      { start: '12:00', end: '13:00', group: 'afternoon' },
-      { start: '13:00', end: '14:00', group: 'afternoon' },
-      { start: '14:00', end: '15:00', group: 'afternoon' },
-      { start: '15:00', end: '16:00', group: 'afternoon' },
-      { start: '16:00', end: '17:00', group: 'afternoon' },
-      { start: '17:00', end: '18:00', group: 'afternoon' },
-      { start: '18:00', end: '19:00', group: 'evening' },
-      { start: '19:00', end: '20:00', group: 'evening' },
-      { start: '20:00', end: '21:00', group: 'evening' },
-      { start: '21:00', end: '22:00', group: 'evening' },
-      { start: '22:00', end: '23:00', group: 'evening' }
-    ];
+    // 動態產生 06:00 到 23:00 的 30 分鐘時段序列
+    const TIME_SLOTS = [];
+    for (let h = 6; h < 23; h++) {
+      const hStr = ('0' + h).slice(-2);
+      const nextHStr = ('0' + (h + 1)).slice(-2);
+      
+      let grp = 'morning';
+      if (h >= 12 && h < 18) grp = 'afternoon';
+      if (h >= 18) grp = 'evening';
+
+      TIME_SLOTS.push({ start: `${hStr}:00`, end: `${hStr}:30`, group: grp });
+      TIME_SLOTS.push({ start: `${hStr}:30`, end: `${nextHStr}:00`, group: grp });
+    }
 
     window.addEventListener('DOMContentLoaded', async () => {
+      document.getElementById('date-picker-input').value = selectedDate;
+      document.getElementById('date-picker-display').textContent = selectedDate;
       renderWeekdayTabs();
       bindEvents();
       setupSplashAndAudio();
@@ -338,7 +346,7 @@
           isMusicPlaying = true;
           toggleBtn.classList.add('music-spin');
         } catch (err) {
-          console.warn('音樂自動播放受限:', err);
+          console.warn('自動播放受限:', err);
         }
 
         splash.style.opacity = '0';
@@ -393,7 +401,7 @@
           }
         }
       } catch (err) {
-        console.warn('LINE LIFF 初始化或外部瀏覽器運作：', err);
+        console.warn('LINE LIFF 外部載入：', err);
       }
     }
 
@@ -419,7 +427,6 @@
         const res = await fetch(url);
         const data = await res.json();
 
-        // 1. 會員身分檢查
         if (data.member && data.member.registered) {
           currentUser.isRegistered = true;
           currentUser.realName = data.member.real_name;
@@ -431,11 +438,9 @@
           openProfileModal();
         }
 
-        // 2. 管理員權限
         currentUser.isAdmin = !!(data.member && data.member.is_admin === true);
         updateAdminButtonVisibility();
 
-        // 3. 教室空間
         if (data.classrooms && data.classrooms.length > 0) {
           classrooms = data.classrooms;
           const select = document.getElementById('classroom-select');
@@ -501,36 +506,69 @@
       return (h || 0) * 60 + (m || 0);
     }
 
+    // 渲染滿版單欄時段（核心：計算個人 2 組上限與組數標籤）
     function renderAvailableSlots(bookings, recurrings) {
       const container = document.getElementById('slot-container');
       container.innerHTML = '';
 
-      const availableSlots = TIME_SLOTS.filter(slot => {
-        if (isSlotInPast(selectedDate, slot.start)) return false;
+      const slotStatusList = TIME_SLOTS.map(slot => {
+        // 過去時間過濾
+        if (isSlotInPast(selectedDate, slot.start)) {
+          return { ...slot, available: false, reason: 'past' };
+        }
 
         const slotStart = toMinutes(slot.start);
         const slotEnd = toMinutes(slot.end);
 
-        const isBooked = bookings.some(b => {
-          const bStart = toMinutes(b.start_time);
-          const bEnd = toMinutes(b.end_time);
-          return Math.max(slotStart, bStart) < Math.min(slotEnd, bEnd);
-        });
-
+        // 固定課表檢查
         const isRecurring = recurrings.some(r => {
           const rStart = toMinutes(r.start_time);
           const rEnd = toMinutes(r.end_time);
           return Math.max(slotStart, rStart) < Math.min(slotEnd, rEnd);
         });
+        if (isRecurring) {
+          return { ...slot, available: false, reason: 'recurring' };
+        }
 
-        return !isBooked && !isRecurring;
+        // 計算重疊之單次預約
+        let individualCount = 0;
+        let isGroupBooked = false;
+
+        bookings.forEach(b => {
+          const bStart = toMinutes(b.start_time);
+          const bEnd = toMinutes(b.end_time);
+          if (Math.max(slotStart, bStart) < Math.min(slotEnd, bEnd)) {
+            if (String(b.booking_type).indexOf('團體') !== -1) {
+              isGroupBooked = true;
+            } else {
+              individualCount++;
+            }
+          }
+        });
+
+        if (isGroupBooked) {
+          return { ...slot, available: false, reason: 'group_booked' };
+        }
+
+        // 個人借用上限 2 組
+        if (individualCount >= 2) {
+          return { ...slot, available: false, reason: 'full' };
+        }
+
+        return {
+          ...slot,
+          available: true,
+          individualCount: individualCount // 0 或 1
+        };
       });
+
+      const availableSlots = slotStatusList.filter(s => s.available);
 
       if (availableSlots.length === 0) {
         container.innerHTML = `
           <div class="text-center py-10 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
             <p class="text-sm font-bold text-slate-400">本日無可借用時段</p>
-            <p class="text-xs text-slate-400 mt-1">（時段已過或已被借用，請切換其他日期）</p>
+            <p class="text-xs text-slate-400 mt-1">（時段已滿或已過去，請切換其他日期）</p>
           </div>
         `;
         return;
@@ -550,18 +588,43 @@
           gWrapper.innerHTML = `<h3 class="text-xs font-black text-slate-500 pt-1 tracking-wide">${g.label}</h3>`;
 
           const listContainer = document.createElement('div');
-          listContainer.className = 'space-y-2';
+          listContainer.className = 'space-y-1.5';
 
           groupSlots.forEach(slot => {
             const row = document.createElement('div');
-            row.className = 'w-full flex items-center justify-between p-3.5 bg-white border border-slate-200 rounded-xl hover:border-amber-400 hover:shadow-sm cursor-pointer transition select-none';
+            row.className = 'w-full flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl hover:border-amber-400 hover:shadow-sm cursor-pointer transition select-none';
+
+            // 狀態徽章：空檔 vs 已有 1 組
+            let badgeHtml = '';
+            if (slot.individualCount === 1) {
+              badgeHtml = `
+                <div class="flex items-center gap-1.5">
+                  <span class="text-[11px] text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                    尚餘 1 名額 (1/2)
+                  </span>
+                  <span class="text-xs px-2.5 py-0.5 bg-amber-500 text-white font-bold rounded-lg shadow-sm">
+                    可共享
+                  </span>
+                </div>
+              `;
+            } else {
+              badgeHtml = `
+                <div class="flex items-center gap-1.5">
+                  <span class="text-[11px] text-slate-400 font-medium bg-slate-50 px-1.5 py-0.5 rounded">
+                    空檔 (0/2)
+                  </span>
+                  <span class="text-xs px-2.5 py-0.5 bg-emerald-50 text-emerald-600 font-bold border border-emerald-200 rounded-lg">
+                    可選
+                  </span>
+                </div>
+              `;
+            }
+
             row.innerHTML = `
-              <div class="flex items-center space-x-3">
+              <div class="flex items-center space-x-2">
                 <span class="text-sm font-black text-slate-800 tracking-wider font-eng-serif">${slot.start} - ${slot.end}</span>
               </div>
-              <span class="text-xs px-2.5 py-1 bg-emerald-50 text-emerald-600 font-bold border border-emerald-200 rounded-lg">
-                可選
-              </span>
+              ${badgeHtml}
             `;
             row.onclick = () => openBookingModal(slot);
             listContainer.appendChild(row);
@@ -728,13 +791,23 @@
       document.getElementById('modal-user-info').textContent = `${currentUser.realName} (${currentUser.phone})`;
       document.getElementById('booking-purpose').value = '';
       
+      // 若該時段已有 1 組個人預約，禁止選「團體包場」
+      const groupOpt = document.getElementById('group-booking-option');
+      const radioIndividual = document.querySelector('input[name="booking-type"][value="個人練習"]');
+      if (slot.individualCount === 1) {
+        groupOpt.classList.add('hidden');
+        radioIndividual.checked = true;
+      } else {
+        groupOpt.classList.remove('hidden');
+      }
+
       updateModalPrice();
       document.getElementById('booking-modal').classList.remove('hidden');
     }
 
     function updateModalPrice() {
       const type = document.querySelector('input[name="booking-type"]:checked').value;
-      const price = (type === '團體/開課包場' || type === '團體包場') ? RATE_GROUP : RATE_INDIVIDUAL;
+      const price = (type === '團體/開課包場' || type === '團體包場') ? RATE_HALF_HOUR_GROUP : RATE_HALF_HOUR_INDIVIDUAL;
       document.getElementById('modal-price').textContent = `NT$ ${price}`;
     }
 
@@ -770,11 +843,11 @@
         const result = await res.json();
 
         if (result.success) {
-          alert(`【${bookingType}】已成功送出申請！\n\n請記得於 6 小時內完成匯款確認。\n您可隨時至「我的紀錄」查看審核狀態。`);
+          alert(`【${bookingType}】已成功送出申請！\n\n時段：${selectedDate} ${targetSlot.start}-${targetSlot.end}\n請記得於 6 小時內完成匯款確認。`);
           document.getElementById('booking-modal').classList.add('hidden');
           await fetchAndRenderSlots();
         } else {
-          alert(result.error || '預約失敗，該時段可能剛好被預約');
+          alert(result.error || '預約失敗，該時段名額已滿');
           await fetchAndRenderSlots();
         }
       } catch (err) {
@@ -859,11 +932,6 @@
       container.innerHTML = '';
       const dayLabels = ['一', '二', '三', '四', '五', '六', '日'];
 
-      const endSunday = new Date(currentMonday);
-      endSunday.setDate(endSunday.getDate() + 6);
-      document.getElementById('week-range-text').textContent = 
-        `${currentMonday.getMonth() + 1}/${currentMonday.getDate()} - ${endSunday.getMonth() + 1}/${endSunday.getDate()}`;
-
       for (let i = 0; i < 7; i++) {
         const loopDate = new Date(currentMonday);
         loopDate.setDate(loopDate.getDate() + i);
@@ -881,6 +949,8 @@
         tab.onclick = () => {
           if (selectedDate === loopDateStr) return;
           selectedDate = loopDateStr;
+          document.getElementById('date-picker-display').textContent = selectedDate;
+          document.getElementById('date-picker-input').value = selectedDate;
           renderWeekdayTabs();
           fetchAndRenderSlots();
         };
@@ -889,6 +959,16 @@
     }
 
     function bindEvents() {
+      // 全月日曆選擇連動
+      document.getElementById('date-picker-input').addEventListener('change', (e) => {
+        if (!e.target.value) return;
+        selectedDate = e.target.value;
+        document.getElementById('date-picker-display').textContent = selectedDate;
+        currentMonday = getMonday(new Date(selectedDate));
+        renderWeekdayTabs();
+        fetchAndRenderSlots();
+      });
+
       document.getElementById('tab-booking-view').addEventListener('click', () => {
         document.getElementById('booking-section').classList.remove('hidden');
         document.getElementById('records-section').classList.add('hidden');
@@ -935,18 +1015,25 @@
         selectedRoomId = e.target.value;
         fetchAndRenderSlots();
       });
+
       document.getElementById('prev-week').addEventListener('click', () => {
         currentMonday.setDate(currentMonday.getDate() - 7);
         selectedDate = formatDate(currentMonday);
+        document.getElementById('date-picker-display').textContent = selectedDate;
+        document.getElementById('date-picker-input').value = selectedDate;
         renderWeekdayTabs();
         fetchAndRenderSlots();
       });
+
       document.getElementById('next-week').addEventListener('click', () => {
         currentMonday.setDate(currentMonday.getDate() + 7);
         selectedDate = formatDate(currentMonday);
+        document.getElementById('date-picker-display').textContent = selectedDate;
+        document.getElementById('date-picker-input').value = selectedDate;
         renderWeekdayTabs();
         fetchAndRenderSlots();
       });
+
       document.getElementById('close-booking-modal').addEventListener('click', () => {
         document.getElementById('booking-modal').classList.add('hidden');
       });
