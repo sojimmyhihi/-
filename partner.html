@@ -44,16 +44,27 @@
       animation: slowSpin 8s linear infinite;
     }
     .fade-transition {
-      transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
+      transition: opacity 0.6s ease-in-out, transform 0.6s ease-in-out;
+    }
+
+    /* ★ 核心修正：預設強制隱藏主表單與 Header，杜絕載入時閃出下一個畫面 ★ */
+    #app-header, #app-form {
+      display: none !important;
+    }
+    #app-header.ready, #app-form.ready {
+      display: block !important;
+      animation: formAppear 0.5s ease-out forwards;
+    }
+    @keyframes formAppear {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen pb-16 antialiased selection:bg-amber-100">
 
- <!-- 背景鋼琴音樂（已換為優雅法式純鋼琴曲） -->
-  <audio id="bg-music" loop preload="auto">
-    <source src="https://actions.google.com/sounds/v1/musical_tracks/piano_ballad.mp3" type="audio/mp3">
-  </audio>
+  <!-- 背景鋼琴音樂（高相容性、穩定直連的純鋼琴流暢旋律） -->
+  <audio id="bg-music" loop preload="auto" playsinline webkit-playsinline src="https://cdn.freesound.org/previews/612/612642_11861866-lq.mp3"></audio>
 
   <!-- 1. 開場優雅大理石封面 -->
   <div id="splash-screen" class="fixed inset-0 z-50 marble-bg flex flex-col justify-between items-center py-16 px-6 fade-transition cursor-pointer select-none">
@@ -129,8 +140,8 @@
     </div>
   </div>
 
-  <!-- 4. 主介面 Header（維持精緻雙欄排版，不跑版） -->
-  <header class="marble-bg text-slate-800 pt-5 pb-5 px-5 shadow-sm rounded-b-3xl border-b border-slate-300/80 sticky top-0 z-20 overflow-hidden">
+  <!-- 4. 主介面 Header（預設隱藏，點擊選項後平滑浮現） -->
+  <header id="app-header" class="marble-bg text-slate-800 pt-5 pb-5 px-5 shadow-sm rounded-b-3xl border-b border-slate-300/80 sticky top-0 z-20 overflow-hidden">
     <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200"></div>
 
     <div class="max-w-md mx-auto flex items-center justify-between">
@@ -162,8 +173,8 @@
     </div>
   </header>
 
-  <!-- 5. 核心表單主體 -->
-  <main class="max-w-md mx-auto p-4 space-y-4 pt-6">
+  <!-- 5. 核心表單主體（預設隱藏，點擊選項後平滑浮現） -->
+  <main id="app-form" class="max-w-md mx-auto p-4 space-y-4 pt-6">
     <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200/90 space-y-6">
       
       <!-- 頂部方案切換條 -->
@@ -268,10 +279,10 @@
   </main>
 
   <script>
-    const LIFF_ID = '2011761541-H6wrNahH'; // 沿用已通過測試的 LIFF ID
+    const LIFF_ID = '2011761541-H6wrNahH';
     const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbyV6fcIFzpwv5uUGWCb1GPcNrE7s6ETXmS7I-R6RUhiSBdhqRlSUoVomtzyFefSo7bDEg/exec';
 
-    let currentOption = 'regular'; // 'regular' (A) 或 'space_share' (B)
+    let currentOption = 'regular';
     let isMusicPlaying = false;
     let currentUser = {
       userId: 'guest_user',
@@ -293,19 +304,25 @@
       const musicIcon = document.getElementById('music-icon');
 
       splash.addEventListener('click', async () => {
-        // 利用封面真實手勢解鎖音訊
+        // 利用封面真實手勢解鎖音訊播放
         try {
-          audio.volume = 0.45;
-          await audio.play();
-          isMusicPlaying = true;
-          toggleBtn.classList.add('music-spin');
+          audio.volume = 0.5;
+          const playPromise = audio.play();
+          if (playPromise !== undefined) {
+            playPromise.then(() => {
+              isMusicPlaying = true;
+              toggleBtn.classList.add('music-spin');
+            }).catch(e => {
+              console.warn('音訊播放策略受限：', e);
+            });
+          }
         } catch (err) {
-          console.warn('音訊播放受限：', err);
+          console.warn('音訊處理提示：', err);
         }
 
         splash.style.opacity = '0';
         splash.style.pointerEvents = 'none';
-        setTimeout(() => splash.classList.add('hidden'), 800);
+        setTimeout(() => splash.classList.add('hidden'), 600);
 
         authLoading.classList.remove('hidden');
         authLoading.style.opacity = '1';
@@ -317,8 +334,8 @@
           setTimeout(() => {
             authLoading.classList.add('hidden');
             portal.classList.remove('hidden'); // 展開純文字二選一
-          }, 600);
-        }, 600);
+          }, 500);
+        }, 500);
       });
 
       // 右上角音樂按鈕切換
@@ -344,7 +361,7 @@
         await liff.init({ liffId: LIFF_ID });
 
         if (!liff.isLoggedIn()) {
-          liff.login();
+          // 若在外部瀏覽器則可按需導向登入，或維持訪客模式
           return;
         }
 
@@ -370,11 +387,11 @@
           }
         }
       } catch (err) {
-        console.warn('LINE LIFF 外部載入：', err);
+        console.warn('LINE LIFF 連線：', err);
       }
     }
 
-    /* 3. 點擊開場文字選項直接進入表單 */
+    /* 3. 點擊開場文字選項直接進入表單（平滑揭開表單） */
     function selectOption(optionKey) {
       currentOption = optionKey;
       renderFormFields();
@@ -382,6 +399,11 @@
       const portal = document.getElementById('portal-view');
       portal.style.opacity = '0';
       portal.style.pointerEvents = 'none';
+
+      // 喚出原本隱藏的 Header 與表單
+      document.getElementById('app-header').classList.add('ready');
+      document.getElementById('app-form').classList.add('ready');
+
       setTimeout(() => portal.classList.add('hidden'), 600);
     }
 
@@ -460,7 +482,7 @@
       };
 
       try {
-        const res = await fetch(GAS_API_URL, {
+        await fetch(GAS_API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify(payload)
