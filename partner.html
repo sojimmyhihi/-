@@ -10,13 +10,11 @@
 
   <style>
     :root {
-      --bg: #0d0f14;
-      --card-bg: rgba(22, 25, 35, 0.7);
-      --accent: #8b5cf6;
-      --accent-light: #c4b5fd;
-      --text-main: #f1f3f9;
-      --text-sub: #9499ad;
-      --border-color: rgba(255, 255, 255, 0.08);
+      --bg: #f8f9fc;
+      --text-main: #1e2029;
+      --text-sub: #6c7285;
+      --accent: #4f46e5;
+      --border-color: #e5e7eb;
     }
 
     * {
@@ -33,12 +31,9 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      background-image: 
-        radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.08) 0%, transparent 40%),
-        radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.06) 0%, transparent 40%);
     }
 
-    /* 頂部 Header：簡潔自適應，不擠壓 */
+    /* 頂部導覽列：俐落排版，杜絕擠壓 */
     header {
       position: sticky;
       top: 0;
@@ -47,38 +42,36 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(13, 15, 20, 0.85);
-      backdrop-filter: blur(16px);
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
       border-bottom: 1px solid var(--border-color);
     }
 
     .brand-block h1 {
       font-size: 1.05rem;
-      letter-spacing: 0.08em;
       font-weight: 700;
-      color: #fff;
+      letter-spacing: 0.05em;
+      color: #111827;
     }
 
     .brand-block p {
-      font-size: 0.7rem;
+      font-size: 0.72rem;
       color: var(--text-sub);
-      letter-spacing: 0.05em;
     }
 
     .header-ctrls {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
 
-    /* 使用者小標籤 */
+    /* LINE 資訊標籤 */
     .user-pill {
       display: flex;
       align-items: center;
       gap: 6px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--border-color);
-      padding: 4px 8px;
+      background: #f1f3f9;
+      padding: 4px 10px;
       border-radius: 20px;
     }
 
@@ -90,56 +83,59 @@
     }
 
     .user-name {
-      font-size: 0.75rem;
+      font-size: 0.78rem;
       color: var(--text-main);
-      max-width: 70px;
+      font-weight: 500;
+      max-width: 80px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
 
-    /* 音樂指示波形 */
+    /* 音樂跳動指示器 */
     .music-btn {
       display: flex;
-      align-items: center;
-      gap: 2px;
-      height: 28px;
-      padding: 0 8px;
-      border-radius: 14px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--border-color);
+      align-items: flex-end;
+      gap: 2.5px;
+      height: 16px;
+      padding: 2px 4px;
       cursor: pointer;
     }
 
     .music-bar {
       width: 2.5px;
       height: 4px;
-      background: var(--accent-light);
+      background: #9ca3af;
       border-radius: 2px;
-      transition: height 0.2s ease;
+      transition: height 0.2s ease, background-color 0.3s;
     }
 
-    .playing .bar-1 { animation: jump 0.8s infinite alternate ease-in-out; }
-    .playing .bar-2 { animation: jump 0.6s infinite alternate ease-in-out 0.2s; }
-    .playing .bar-3 { animation: jump 0.9s infinite alternate ease-in-out 0.4s; }
+    .playing .music-bar {
+      background: var(--accent);
+    }
 
-    @keyframes jump {
+    .playing .bar-1 { animation: eqJump 0.8s infinite alternate ease-in-out; }
+    .playing .bar-2 { animation: eqJump 0.6s infinite alternate ease-in-out 0.2s; }
+    .playing .bar-3 { animation: eqJump 0.9s infinite alternate ease-in-out 0.4s; }
+
+    @keyframes eqJump {
       0% { height: 4px; }
-      100% { height: 14px; }
+      100% { height: 16px; }
     }
 
-    /* 開場全螢幕二選一門戶 */
+    /* =========================================
+       開場純文字模式（無任何卡牌感）
+       ========================================= */
     #portal-view {
       position: fixed;
       inset: 0;
       z-index: 200;
-      background: #0d0f14;
+      background: #fdfdfd;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      align-items: center;
-      padding: 24px;
-      transition: opacity 0.6s ease, visibility 0.6s;
+      padding: 36px 30px;
+      transition: opacity 0.5s ease, visibility 0.5s;
     }
 
     #portal-view.hidden-portal {
@@ -148,71 +144,63 @@
       pointer-events: none;
     }
 
-    .portal-subtitle {
-      font-size: 0.75rem;
-      letter-spacing: 0.2em;
-      color: var(--accent-light);
-      text-transform: uppercase;
-      margin-bottom: 8px;
-    }
-
-    .portal-title {
-      font-size: 1.4rem;
+    .portal-lead {
+      font-size: 1.3rem;
+      color: #111827;
       font-weight: 600;
-      color: #fff;
-      margin-bottom: 32px;
+      margin-bottom: 48px;
+      letter-spacing: 0.03em;
     }
 
-    .choice-container {
-      width: 100%;
-      max-width: 400px;
+    .text-option-list {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 36px;
     }
 
-    .choice-card {
-      background: linear-gradient(145deg, rgba(26, 29, 41, 0.85), rgba(17, 20, 29, 0.95));
-      border: 1px solid rgba(139, 92, 246, 0.2);
-      border-radius: 16px;
-      padding: 24px 20px;
-      cursor: pointer;
+    .text-option {
+      background: none;
+      border: none;
+      outline: none;
       text-align: left;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      cursor: pointer;
+      padding: 0;
       position: relative;
-      overflow: hidden;
     }
 
-    .choice-card:active {
-      transform: scale(0.98);
-      border-color: var(--accent);
-    }
-
-    .choice-tag {
-      font-size: 0.7rem;
-      color: var(--accent-light);
-      letter-spacing: 0.05em;
+    .option-title {
+      font-size: 1.25rem;
+      font-weight: 500;
+      color: #1e2029;
+      display: flex;
+      align-items: center;
+      gap: 12px;
       margin-bottom: 6px;
+      transition: color 0.2s ease;
     }
 
-    .choice-card h2 {
-      font-size: 1.15rem;
+    .option-title span.prefix {
+      font-size: 1.1rem;
       font-weight: 600;
-      color: #fff;
-      margin-bottom: 6px;
+      color: var(--accent);
     }
 
-    .choice-card p {
-      font-size: 0.8rem;
-      color: var(--text-sub);
-      line-height: 1.4;
+    .option-desc {
+      font-size: 0.88rem;
+      color: #8c92a4;
+      padding-left: 28px;
     }
 
-    /* 表單頁面 */
+    .text-option:active .option-title {
+      color: var(--accent);
+    }
+
+    /* =========================================
+       表單區域（俐落無厚框設計）
+       ========================================= */
     main {
       flex: 1;
-      padding: 24px 20px 48px;
+      padding: 30px 24px 60px;
       max-width: 520px;
       width: 100%;
       margin: 0 auto;
@@ -221,91 +209,89 @@
     .form-header-bar {
       display: flex;
       justify-content: space-between;
-      align-items: flex-end;
-      margin-bottom: 24px;
+      align-items: baseline;
+      margin-bottom: 28px;
       padding-bottom: 12px;
       border-bottom: 1px solid var(--border-color);
     }
 
-    .plan-tag {
+    .plan-badge {
       font-size: 0.75rem;
-      color: var(--accent-light);
       font-weight: 600;
       letter-spacing: 0.05em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 4px;
     }
 
     .form-header-bar h2 {
-      font-size: 1.3rem;
+      font-size: 1.35rem;
       font-weight: 600;
-      color: #fff;
-      margin-top: 4px;
+      color: #111827;
     }
 
     .switch-link {
-      font-size: 0.8rem;
-      color: var(--accent-light);
-      text-decoration: underline;
+      font-size: 0.85rem;
+      color: var(--accent);
       cursor: pointer;
-      padding-bottom: 2px;
+      text-decoration: underline;
     }
 
-    /* 輕量自然表單元件（去除粗重卡片感） */
     .form-group {
-      margin-bottom: 20px;
+      margin-bottom: 22px;
     }
 
     label {
       display: block;
-      font-size: 0.82rem;
-      color: #b5b9cc;
+      font-size: 0.85rem;
+      color: #374151;
+      font-weight: 500;
       margin-bottom: 8px;
     }
 
     label span {
-      color: #f43f5e;
+      color: #ef4444;
       margin-left: 2px;
     }
 
     input, textarea {
       width: 100%;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 14px 16px;
-      color: #fff;
+      background: #ffffff;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      padding: 12px 14px;
+      color: #111827;
       font-size: 0.95rem;
       outline: none;
-      transition: all 0.2s ease;
+      transition: border-color 0.2s;
     }
 
     input:focus, textarea:focus {
-      background: rgba(255, 255, 255, 0.06);
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
     }
 
     input::placeholder, textarea::placeholder {
-      color: #55596b;
+      color: #9ca3af;
       font-size: 0.85rem;
     }
 
     .submit-btn {
       width: 100%;
-      padding: 15px;
-      border-radius: 12px;
+      padding: 14px;
+      border-radius: 8px;
       border: none;
-      background: linear-gradient(135deg, #7c3aed, #6366f1);
-      color: #fff;
+      background: var(--accent);
+      color: #ffffff;
       font-size: 1rem;
       font-weight: 600;
-      letter-spacing: 0.05em;
       cursor: pointer;
       margin-top: 10px;
-      transition: opacity 0.2s;
+      transition: background-color 0.2s;
     }
 
     .submit-btn:disabled {
-      opacity: 0.5;
+      opacity: 0.6;
     }
 
     .hidden { display: none !important; }
@@ -313,20 +299,20 @@
 </head>
 <body>
 
-  <!-- 免權利金優雅鋼琴音樂（乾淨直連音軌） -->
-  <audio id="bg-music" loop preload="auto" src="https://cdn.freesound.org/previews/612/612642_11861866-lq.mp3"></audio>
+  <!-- 高相容性 CDN 優雅純鋼琴音訊 -->
+  <audio id="bg-music" loop preload="auto" playsinline webkit-playsinline src="https://actions.google.com/sounds/v1/ambiences/daytime_forest_bonfire.ogg" style="display:none;"></audio>
 
-  <!-- 頂部狀態列 -->
+  <!-- 頂部資訊列 -->
   <header>
     <div class="brand-block">
-      <h1>THE DANCE HOUSE</h1>
+      <h1>THEDANCEHOUSE</h1>
       <p>舞的店 ‧ 空間洽詢</p>
     </div>
 
     <div class="header-ctrls">
       <div class="user-pill">
         <img id="user-avatar" class="user-avatar hidden" alt="LINE Avatar">
-        <span id="user-name" class="user-name">讀取中</span>
+        <span id="user-name" class="user-name">訪客</span>
       </div>
 
       <div id="music-btn" class="music-btn" onclick="toggleMusic()">
@@ -337,22 +323,23 @@
     </div>
   </header>
 
-  <!-- 1. 極簡選擇門戶（開場） -->
+  <!-- 1. 純文字開場問答（零卡牌感） -->
   <div id="portal-view">
-    <div class="portal-subtitle">SELECT INQUIRY TYPE</div>
-    <div class="portal-title">請選擇洽詢項目</div>
+    <div class="portal-lead">請問您是：</div>
 
-    <div class="choice-container">
-      <div class="choice-card" onclick="startExperience('plan_a')">
-        <div class="choice-tag">PLAN A</div>
-        <h2>長期租用 / 常態班級意向</h2>
-        <p>定期固定時段排練、常態授課教學、長期專案合作</p>
+    <div class="text-option-list">
+      <div class="text-option" onclick="selectType('regular')">
+        <div class="option-title">
+          <span class="prefix">A.</span> 固定借用申請
+        </div>
+        <div class="option-desc">常態授課班級、固定每週排練、系列專案合作</div>
       </div>
 
-      <div class="choice-card" onclick="startExperience('plan_b')">
-        <div class="choice-tag">PLAN B</div>
-        <h2>舞蹈教室及空間出借</h2>
-        <p>單次活動、短期練習排舞、社案租借或專案攝影</p>
+      <div class="text-option" onclick="selectType('rental')">
+        <div class="option-title">
+          <span class="prefix">B.</span> 空間想要出借
+        </div>
+        <div class="option-desc">舞蹈教室租借、短期排練團練、活動攝影場地</div>
       </div>
     </div>
   </div>
@@ -361,10 +348,10 @@
   <main>
     <div class="form-header-bar">
       <div>
-        <div id="display-plan-tag" class="plan-tag">PLAN A</div>
-        <h2 id="display-plan-title">長期租用 / 常態班級意向</h2>
+        <div id="display-plan-tag" class="plan-badge">OPTION A</div>
+        <h2 id="display-plan-title">固定借用申請</h2>
       </div>
-      <span class="switch-link" onclick="togglePlan()">切換方案</span>
+      <span class="switch-link" onclick="togglePlan()">切換類型</span>
     </div>
 
     <form id="inquiry-form" onsubmit="handleSubmit(event)">
@@ -378,20 +365,20 @@
         <input type="tel" id="contact-phone" required placeholder="例如：0910-076-252">
       </div>
 
-      <!-- 動態欄位：Plan A 常態 -->
+      <!-- 動態欄位：固定借用 -->
       <div id="field-regular" class="form-group">
         <label for="regular-schedule">預計授課 / 排練時段<span>*</span></label>
         <input type="text" id="regular-schedule" placeholder="例如：每週二 19:00 - 21:00，預計租借 3 個月">
       </div>
 
-      <!-- 動態欄位：Plan B 教室出借 -->
+      <!-- 動態欄位：空間出借 -->
       <div id="field-rental" class="form-group hidden">
-        <label for="rental-detail">預計出借日期、時數與用途<span>*</span></label>
-        <input type="text" id="rental-detail" placeholder="例如：10/25 (日) 下午 14:00-17:00，舞團團練">
+        <label for="rental-detail">預計出借日期、時段與用途<span>*</span></label>
+        <input type="text" id="rental-detail" placeholder="例如：10/25 (日) 14:00-17:00，舞團排練">
       </div>
 
       <div class="form-group">
-        <label for="activity-scale">活動性質 / 預估人數</label>
+        <label for="activity-scale">課程性質 / 預估人數</label>
         <input type="text" id="activity-scale" placeholder="例如：成人國標進階班，約 8-12 人">
       </div>
 
@@ -408,8 +395,12 @@
     const LIFF_ID = '2011761541-H6wrNahH';
     const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbyV6fclFzpwv5uUGWCb1GPcNrE7s6ETXmS7I-R6RUhiSBd/exec';
 
-    let currentPlan = 'plan_a'; // 'plan_a' 或 'plan_b'
+    // 換上直連純鋼琴音軌（來自 Google 免版權音訊資源，無防盜鏈問題）
+    const PIANO_MUSIC_URL = 'https://actions.google.com/sounds/v1/musical_tracks/piano_ballad.mp3';
+
+    let currentType = 'regular'; // 'regular' 或 'rental'
     let isMusicPlaying = false;
+    let audioInstance = null;
     let currentUser = {
       userId: '',
       displayName: '訪客',
@@ -417,46 +408,51 @@
     };
 
     window.addEventListener('DOMContentLoaded', () => {
+      initAudio();
       initLIFF();
     });
 
-    /* 點擊卡片進入體驗 */
-    function startExperience(plan) {
-      currentPlan = plan;
-      renderPlanView();
+    function initAudio() {
+      audioInstance = document.getElementById('bg-music');
+      audioInstance.src = PIANO_MUSIC_URL;
+      audioInstance.load();
+    }
 
-      // 平滑淡出門戶
+    /* 點選文字選項直接進入 */
+    function selectType(type) {
+      currentType = type;
+      renderView();
+
+      // 淡出全螢幕純文字選單
       document.getElementById('portal-view').classList.add('hidden-portal');
 
-      // 觸發音訊播放
-      playMusic();
+      // 嚴格利用點擊瞬間的手勢播放音樂
+      playMusicDirectly();
     }
 
-    /* 切換 Plan A / Plan B */
     function togglePlan() {
-      currentPlan = (currentPlan === 'plan_a') ? 'plan_b' : 'plan_a';
-      renderPlanView();
+      currentType = (currentType === 'regular') ? 'rental' : 'regular';
+      renderView();
     }
 
-    function renderPlanView() {
+    function renderView() {
       const tag = document.getElementById('display-plan-tag');
       const title = document.getElementById('display-plan-title');
       const regularGroup = document.getElementById('field-regular');
       const rentalGroup = document.getElementById('field-rental');
-
       const regularInput = document.getElementById('regular-schedule');
       const rentalInput = document.getElementById('rental-detail');
 
-      if (currentPlan === 'plan_a') {
-        tag.textContent = 'PLAN A';
-        title.textContent = '長期租用 / 常態班級意向';
+      if (currentType === 'regular') {
+        tag.textContent = 'OPTION A';
+        title.textContent = '固定借用申請';
         regularGroup.classList.remove('hidden');
         rentalGroup.classList.add('hidden');
         regularInput.required = true;
         rentalInput.required = false;
       } else {
-        tag.textContent = 'PLAN B';
-        title.textContent = '舞蹈教室及空間出借';
+        tag.textContent = 'OPTION B';
+        title.textContent = '空間想要出借';
         regularGroup.classList.add('hidden');
         rentalGroup.classList.remove('hidden');
         regularInput.required = false;
@@ -464,87 +460,78 @@
       }
     }
 
-    /* 音樂播放邏輯 */
-    function playMusic() {
-      const audio = document.getElementById('bg-music');
-      const btn = document.getElementById('music-btn');
-      if (!audio) return;
-
-      audio.play().then(() => {
+    /* 播放音樂 */
+    function playMusicDirectly() {
+      if (!audioInstance) return;
+      audioInstance.play().then(() => {
         isMusicPlaying = true;
-        btn.classList.add('playing');
+        document.getElementById('music-btn').classList.add('playing');
       }).catch(err => {
-        console.warn('音訊自動播放被瀏覽器阻擋，需手動點擊：', err);
+        console.warn('音訊播放提示：', err);
       });
     }
 
     function toggleMusic() {
-      const audio = document.getElementById('bg-music');
       const btn = document.getElementById('music-btn');
+      if (!audioInstance) return;
 
       if (isMusicPlaying) {
-        audio.pause();
+        audioInstance.pause();
         isMusicPlaying = false;
         btn.classList.remove('playing');
       } else {
-        playMusic();
+        audioInstance.play();
+        isMusicPlaying = true;
+        btn.classList.add('playing');
       }
     }
 
-    /* LIFF 初始化與身分取得 */
+    /* LINE 帳號資料載入 */
     async function initLIFF() {
       const nameEl = document.getElementById('user-name');
       const avatarEl = document.getElementById('user-avatar');
       const nameInput = document.getElementById('contact-name');
 
       try {
-        if (typeof liff === 'undefined') {
-          nameEl.textContent = '未載入 SDK';
-          return;
-        }
-
+        if (typeof liff === 'undefined') return;
         await liff.init({ liffId: LIFF_ID });
 
-        if (!liff.isLoggedIn()) {
-          nameEl.textContent = '訪客';
-          return;
-        }
+        if (liff.isLoggedIn()) {
+          const profile = await liff.getProfile();
+          if (profile) {
+            currentUser.userId = profile.userId;
+            currentUser.displayName = profile.displayName || 'LINE 用戶';
+            currentUser.pictureUrl = profile.pictureUrl || '';
 
-        const profile = await liff.getProfile();
-        if (profile) {
-          currentUser.userId = profile.userId;
-          currentUser.displayName = profile.displayName || 'LINE 好友';
-          currentUser.pictureUrl = profile.pictureUrl || '';
+            nameEl.textContent = currentUser.displayName;
+            if (currentUser.pictureUrl) {
+              avatarEl.src = currentUser.pictureUrl;
+              avatarEl.classList.remove('hidden');
+            }
 
-          nameEl.textContent = currentUser.displayName;
-          if (currentUser.pictureUrl) {
-            avatarEl.src = currentUser.pictureUrl;
-            avatarEl.classList.remove('hidden');
-          }
-
-          if (nameInput && !nameInput.value) {
-            nameInput.value = currentUser.displayName;
+            if (nameInput && !nameInput.value) {
+              nameInput.value = currentUser.displayName;
+            }
           }
         }
       } catch (e) {
-        console.error('LIFF 錯誤：', e);
-        nameEl.textContent = 'LINE 訪客';
+        console.error('LIFF 初始化失敗：', e);
       }
     }
 
-    /* 表單提交至 GAS */
+    /* 送出表單到試算表 (GAS) */
     async function handleSubmit(e) {
       e.preventDefault();
       const btn = document.getElementById('submit-btn');
       btn.disabled = true;
-      btn.textContent = '傳送中...';
+      btn.textContent = '送出中...';
 
-      const scheduleValue = (currentPlan === 'plan_a')
+      const scheduleValue = (currentType === 'regular')
         ? document.getElementById('regular-schedule').value
         : document.getElementById('rental-detail').value;
 
       const payload = {
-        plan: (currentPlan === 'plan_a') ? '長期租用/常態班級' : '舞蹈教室及空間出借',
+        plan: (currentType === 'regular') ? 'A. 固定借用申請' : 'B. 空間想要出借',
         lineUserId: currentUser.userId || 'guest_user',
         lineDisplayName: currentUser.displayName || '訪客',
         contactName: document.getElementById('contact-name').value,
@@ -562,12 +549,11 @@
           body: JSON.stringify(payload)
         });
 
-        alert('洽詢已送出！我們將透過 LINE 或電話與您聯繫。');
+        alert('洽詢已成功送出！專員將透過 LINE 或電話與您聯繫。');
         if (typeof liff !== 'undefined' && liff.isInClient && liff.isInClient()) {
           liff.closeWindow();
         }
       } catch (err) {
-        console.error('傳送失敗：', err);
         alert('連線逾時，請重試或私訊粉專。');
       } finally {
         btn.disabled = false;
