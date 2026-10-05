@@ -2,453 +2,576 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TheDanceHouse Tainan - 空間合作與長租洽詢</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TheDanceHouse Tainan - 空間洽詢</title>
+
+  <!-- LINE LIFF SDK -->
   <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
-  <!-- 典雅襯線字體 -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Noto+Serif+TC:wght@400;600;900&display=swap" rel="stylesheet">
-
   <style>
+    :root {
+      --bg: #0d0f14;
+      --card-bg: rgba(22, 25, 35, 0.7);
+      --accent: #8b5cf6;
+      --accent-light: #c4b5fd;
+      --text-main: #f1f3f9;
+      --text-sub: #9499ad;
+      --border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
     body {
-      font-family: 'Noto Serif TC', 'Cormorant Garamond', Georgia, serif;
-    }
-    .font-eng-serif {
-      font-family: 'Cinzel', serif;
-    }
-    .marble-bg {
-      background-color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
       background-image: 
-        radial-gradient(at 10% 20%, rgba(226, 232, 240, 0.6) 0px, transparent 50%),
-        radial-gradient(at 90% 80%, rgba(203, 213, 225, 0.5) 0px, transparent 55%),
-        linear-gradient(125deg, transparent 40%, rgba(212, 175, 55, 0.08) 47%, rgba(255, 255, 255, 0.9) 50%, transparent 53%),
-        radial-gradient(circle at 50% 50%, #ffffff 0%, #f1f5f9 100%);
+        radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.06) 0%, transparent 40%);
     }
-    @keyframes slowSpin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
+
+    /* 頂部 Header：簡潔自適應，不擠壓 */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(13, 15, 20, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-color);
     }
-    .music-spin {
-      animation: slowSpin 8s linear infinite;
+
+    .brand-block h1 {
+      font-size: 1.05rem;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      color: #fff;
     }
-    .fade-transition {
-      transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s;
+
+    .brand-block p {
+      font-size: 0.7rem;
+      color: var(--text-sub);
+      letter-spacing: 0.05em;
     }
-    /* 藍紫呼吸光卡片 */
-    @keyframes bluePurplePulse {
-      0%, 100% {
-        box-shadow: 0 4px 20px -2px rgba(99, 102, 241, 0.12), 0 0 15px rgba(168, 85, 247, 0.08);
-        border-color: rgba(147, 112, 219, 0.3);
-      }
-      50% {
-        box-shadow: 0 10px 30px -4px rgba(99, 102, 241, 0.28), 0 0 35px rgba(168, 85, 247, 0.22);
-        border-color: rgba(139, 92, 246, 0.75);
-      }
+
+    .header-ctrls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
-    .portal-card-glow {
-      animation: bluePurplePulse 3.8s ease-in-out infinite;
+
+    /* 使用者小標籤 */
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
+      padding: 4px 8px;
+      border-radius: 20px;
     }
+
+    .user-avatar {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .user-name {
+      font-size: 0.75rem;
+      color: var(--text-main);
+      max-width: 70px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* 音樂指示波形 */
+    .music-btn {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      height: 28px;
+      padding: 0 8px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+    }
+
+    .music-bar {
+      width: 2.5px;
+      height: 4px;
+      background: var(--accent-light);
+      border-radius: 2px;
+      transition: height 0.2s ease;
+    }
+
+    .playing .bar-1 { animation: jump 0.8s infinite alternate ease-in-out; }
+    .playing .bar-2 { animation: jump 0.6s infinite alternate ease-in-out 0.2s; }
+    .playing .bar-3 { animation: jump 0.9s infinite alternate ease-in-out 0.4s; }
+
+    @keyframes jump {
+      0% { height: 4px; }
+      100% { height: 14px; }
+    }
+
+    /* 開場全螢幕二選一門戶 */
+    #portal-view {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: #0d0f14;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      transition: opacity 0.6s ease, visibility 0.6s;
+    }
+
+    #portal-view.hidden-portal {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .portal-subtitle {
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      color: var(--accent-light);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .portal-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 32px;
+    }
+
+    .choice-container {
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .choice-card {
+      background: linear-gradient(145deg, rgba(26, 29, 41, 0.85), rgba(17, 20, 29, 0.95));
+      border: 1px solid rgba(139, 92, 246, 0.2);
+      border-radius: 16px;
+      padding: 24px 20px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .choice-card:active {
+      transform: scale(0.98);
+      border-color: var(--accent);
+    }
+
+    .choice-tag {
+      font-size: 0.7rem;
+      color: var(--accent-light);
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+
+    .choice-card h2 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .choice-card p {
+      font-size: 0.8rem;
+      color: var(--text-sub);
+      line-height: 1.4;
+    }
+
+    /* 表單頁面 */
+    main {
+      flex: 1;
+      padding: 24px 20px 48px;
+      max-width: 520px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .form-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .plan-tag {
+      font-size: 0.75rem;
+      color: var(--accent-light);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    .form-header-bar h2 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #fff;
+      margin-top: 4px;
+    }
+
+    .switch-link {
+      font-size: 0.8rem;
+      color: var(--accent-light);
+      text-decoration: underline;
+      cursor: pointer;
+      padding-bottom: 2px;
+    }
+
+    /* 輕量自然表單元件（去除粗重卡片感） */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      color: #b5b9cc;
+      margin-bottom: 8px;
+    }
+
+    label span {
+      color: #f43f5e;
+      margin-left: 2px;
+    }
+
+    input, textarea {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 14px 16px;
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    input:focus, textarea:focus {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+    }
+
+    input::placeholder, textarea::placeholder {
+      color: #55596b;
+      font-size: 0.85rem;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 15px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, #7c3aed, #6366f1);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: opacity 0.2s;
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.5;
+    }
+
+    .hidden { display: none !important; }
   </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen pb-16 antialiased selection:bg-amber-100">
+<body>
 
-  <!-- 背景鋼琴音樂 -->
-  <audio id="bg-music" loop preload="auto">
-    <source src="https://cdn.pixabay.com/download/audio/2022/11/06/audio_c35c8bcf62.mp3?filename=soft-piano-ambient-126245.mp3" type="audio/mp3">
-  </audio>
+  <!-- 免權利金優雅鋼琴音樂（乾淨直連音軌） -->
+  <audio id="bg-music" loop preload="auto" src="https://cdn.freesound.org/previews/612/612642_11861866-lq.mp3"></audio>
 
-  <!-- 1. 開場優雅雙卡片封面 -->
-  <div id="splash-screen" class="fixed inset-0 z-50 marble-bg flex flex-col justify-between items-center py-10 px-6 fade-transition select-none overflow-y-auto">
-    <div class="w-full flex justify-center pt-2">
-      <div class="h-0.5 w-12 bg-amber-400/60 tracking-widest"></div>
+  <!-- 頂部狀態列 -->
+  <header>
+    <div class="brand-block">
+      <h1>THE DANCE HOUSE</h1>
+      <p>舞的店 ‧ 空間洽詢</p>
     </div>
 
-    <!-- 標題區域 -->
-    <div class="text-center space-y-3 my-4">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber-300/60 bg-amber-50/50 backdrop-blur-sm text-[11px] font-medium tracking-[0.25em] text-amber-800 uppercase font-eng-serif">
-        Tainan Dance Studio
-      </div>
-      <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-wider">
-        TheDanceHouse<br><span class="text-2xl text-amber-900 font-normal">Tainan</span>
-      </h1>
-      <p class="text-xs text-slate-500 font-eng-serif tracking-[0.3em] uppercase">
-        Cooperation & Space Inquiry
-      </p>
-      <div class="pt-1 flex justify-center">
-        <span class="inline-block w-8 h-[1px] bg-slate-300"></span>
-      </div>
-      <p class="text-xs font-bold text-slate-600 tracking-wider pt-2">請選擇您預計洽詢的合作方案</p>
-    </div>
-
-    <!-- 兩張大卡片 -->
-    <div class="w-full max-w-sm sm:max-w-md space-y-4 my-2">
-      <!-- 卡片 A：長期租用 -->
-      <div onclick="selectCategory('regular_rent')" class="portal-card-glow group bg-white/90 backdrop-blur-sm p-5 sm:p-6 rounded-2xl border cursor-pointer active:scale-95 hover:scale-[1.01] transition-all">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2.5 py-0.5 rounded-full font-eng-serif">Plan A</span>
-          <span class="text-xs text-slate-400 group-hover:text-indigo-600 transition">點選進入 →</span>
-        </div>
-        <h3 class="text-base sm:text-lg font-black text-slate-800 tracking-wide mb-1">
-          長期租用 / 常態班級
-        </h3>
-        <p class="text-xs text-slate-500 leading-relaxed font-sans">
-          每週固定時段開班、長期合約方案、常態授課專案與時段保留。
-        </p>
+    <div class="header-ctrls">
+      <div class="user-pill">
+        <img id="user-avatar" class="user-avatar hidden" alt="LINE Avatar">
+        <span id="user-name" class="user-name">讀取中</span>
       </div>
 
-      <!-- 卡片 B：空間合作 -->
-      <div onclick="selectCategory('partnership')" class="portal-card-glow group bg-white/90 backdrop-blur-sm p-5 sm:p-6 rounded-2xl border cursor-pointer active:scale-95 hover:scale-[1.01] transition-all" style="animation-delay: 1.9s;">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-bold text-purple-600 bg-purple-50 border border-purple-100 px-2.5 py-0.5 rounded-full font-eng-serif">Plan B</span>
-          <span class="text-xs text-slate-400 group-hover:text-purple-600 transition">點選進入 →</span>
-        </div>
-        <h3 class="text-base sm:text-lg font-black text-slate-800 tracking-wide mb-1">
-          空間合作 / 資源出借
-        </h3>
-        <p class="text-xs text-slate-500 leading-relaxed font-sans">
-          跨界品牌聯名、單日講座活動、短影音棚拍合作與相關器材出借。
-        </p>
-      </div>
-    </div>
-
-    <div class="text-center pt-2">
-      <p class="text-[10px] font-eng-serif tracking-[0.25em] uppercase text-slate-400">TOUCH A CARD TO PROCEED</p>
-    </div>
-  </div>
-
-  <!-- 2. 身分確認過場動畫 -->
-  <div id="auth-loading-screen" class="fixed inset-0 z-40 bg-white/95 backdrop-blur-md flex flex-col items-center justify-center p-6 space-y-5 fade-transition hidden opacity-0">
-    <div class="relative w-16 h-16">
-      <div class="absolute inset-0 rounded-full border-2 border-amber-200 border-t-amber-600 animate-spin"></div>
-      <div class="absolute inset-2 rounded-full border-2 border-slate-100 border-b-slate-400 animate-spin" style="animation-direction: reverse; animation-duration: 1.5s;"></div>
-    </div>
-    <div class="text-center space-y-1">
-      <p class="text-sm font-bold text-slate-800 tracking-wider">連線認證中</p>
-      <p class="text-[10px] font-eng-serif text-slate-400 tracking-widest uppercase">Connecting to TheDanceHouse...</p>
-    </div>
-  </div>
-
-  <!-- 3. 右上角浮動音樂切換按鈕 -->
-  <div class="fixed top-4 right-4 z-30">
-    <button id="toggle-music-btn" class="w-9 h-9 rounded-full bg-white/90 backdrop-blur-md shadow-md border border-slate-200 flex items-center justify-center text-slate-600 hover:text-amber-600 active:scale-90 transition">
-      <span id="music-icon" class="text-sm">🎵</span>
-    </button>
-  </div>
-
-  <!-- 主介面 Header -->
-  <header class="marble-bg text-slate-800 pt-5 pb-6 px-5 shadow-sm rounded-b-3xl border-b border-slate-300/80 relative overflow-hidden">
-    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200"></div>
-
-    <div class="max-w-md mx-auto flex items-center justify-between">
-      <div class="space-y-0.5">
-        <div class="flex items-center gap-2">
-          <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
-          <h1 class="text-lg font-black tracking-wide text-slate-900 font-eng-serif">TheDanceHouse</h1>
-        </div>
-        <p class="text-[9px] text-slate-500 font-bold tracking-[0.2em] uppercase">
-          舞的店 · 專案合作洽詢
-        </p>
-      </div>
-
-      <div class="flex items-center gap-2">
-        <button id="switch-category-btn" onclick="toggleCategory()" class="text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-1.5 rounded-full hover:bg-indigo-100 active:scale-95 transition shadow-sm">
-          切換方案
-        </button>
-
-        <div class="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-300 shadow-sm">
-          <img id="user-avatar" src="https://via.placeholder.com/28" class="w-6 h-6 rounded-full object-cover hidden border border-slate-200">
-          <div class="text-left">
-            <span id="user-display" class="block text-xs font-bold text-slate-800 max-w-[80px] truncate">訪客模式</span>
-            <span id="verify-badge" class="block text-[9px] text-amber-600 font-semibold">驗證中...</span>
-          </div>
-        </div>
+      <div id="music-btn" class="music-btn" onclick="toggleMusic()">
+        <div class="music-bar bar-1"></div>
+        <div class="music-bar bar-2"></div>
+        <div class="music-bar bar-3"></div>
       </div>
     </div>
   </header>
 
-  <!-- 表單主體 -->
-  <main class="max-w-md mx-auto p-4 space-y-4">
-    <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200 space-y-5">
-      <!-- 方案現況 Badge -->
-      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-        <div>
-          <span id="plan-badge" class="text-[11px] font-bold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-md font-eng-serif">Plan A</span>
-          <h2 id="plan-title" class="text-base font-black text-slate-900 mt-1">長期租用 / 常態班級意向</h2>
-        </div>
-        <span class="text-[10px] text-slate-400 font-eng-serif tracking-widest uppercase">Inquiry Form</span>
+  <!-- 1. 極簡選擇門戶（開場） -->
+  <div id="portal-view">
+    <div class="portal-subtitle">SELECT INQUIRY TYPE</div>
+    <div class="portal-title">請選擇洽詢項目</div>
+
+    <div class="choice-container">
+      <div class="choice-card" onclick="startExperience('plan_a')">
+        <div class="choice-tag">PLAN A</div>
+        <h2>長期租用 / 常態班級意向</h2>
+        <p>定期固定時段排練、常態授課教學、長期專案合作</p>
       </div>
 
-      <form id="inquiry-form" onsubmit="submitForm(event)" class="space-y-4 text-xs font-bold text-slate-600">
-        <div>
-          <label class="block mb-1">聯絡姓名 / 稱謂 <span class="text-rose-500">*</span></label>
-          <input type="text" id="contact-name" required placeholder="例如：黃老師、林小姐" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition">
-        </div>
-
-        <div>
-          <label class="block mb-1">聯絡電話 <span class="text-rose-500">*</span></label>
-          <input type="tel" id="contact-phone" required placeholder="例如：0910-076-252" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition">
-        </div>
-
-        <!-- 動態欄位：長期班級專用 -->
-        <div id="field-regular" class="space-y-4">
-          <div>
-            <label class="block mb-1">預計授課 / 排練時段 <span class="text-rose-500">*</span></label>
-            <input type="text" id="regular-schedule" placeholder="例如：每週二 19:00 - 21:00，預計租借半年" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition">
-          </div>
-          <div>
-            <label class="block mb-1">課程性質 / 班級人數規模</label>
-            <input type="text" id="regular-capacity" placeholder="例如：成人國標進階班，約 8-12 人" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition">
-          </div>
-        </div>
-
-        <!-- 動態欄位：空間合作專用 -->
-        <div id="field-partnership" class="space-y-4 hidden">
-          <div>
-            <label class="block mb-1">活動類型 / 合作型態說明 <span class="text-rose-500">*</span></label>
-            <textarea id="partner-concept" rows="3" placeholder="請簡述合作提案（例如：品牌講座、快閃棚拍、舞蹈工作坊等）" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition"></textarea>
-          </div>
-          <div>
-            <label class="block mb-1">欲借用或配合之設備支援</label>
-            <input type="text" id="partner-equipment" placeholder="例如：專業音響系統、補光燈腳架、特定時段清場" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition">
-          </div>
-        </div>
-
-        <div>
-          <label class="block mb-1">其他備註與需求細節</label>
-          <textarea id="notes" rows="2" placeholder="如有任何特殊預算考量或問題歡迎填寫" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition"></textarea>
-        </div>
-
-        <!-- 溫馨提示 -->
-        <div class="bg-amber-50/70 border border-amber-200 rounded-xl p-3 text-[11px] text-amber-900 leading-relaxed">
-          ✨ <strong>貼心提醒：</strong><br>
-          送出後系統將即時發送提醒至工作室後台，我們將於 24 小時內透過 LINE 或電話與您回覆確認！
-        </div>
-
-        <button type="submit" id="submit-btn" class="w-full py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 font-eng-serif font-black text-xs tracking-[0.2em] uppercase shadow-md active:scale-95 transition">
-          Confirm & Send Inquiry
-        </button>
-      </form>
+      <div class="choice-card" onclick="startExperience('plan_b')">
+        <div class="choice-tag">PLAN B</div>
+        <h2>舞蹈教室及空間出借</h2>
+        <p>單次活動、短期練習排舞、社案租借或專案攝影</p>
+      </div>
     </div>
+  </div>
+
+  <!-- 2. 表單區域 -->
+  <main>
+    <div class="form-header-bar">
+      <div>
+        <div id="display-plan-tag" class="plan-tag">PLAN A</div>
+        <h2 id="display-plan-title">長期租用 / 常態班級意向</h2>
+      </div>
+      <span class="switch-link" onclick="togglePlan()">切換方案</span>
+    </div>
+
+    <form id="inquiry-form" onsubmit="handleSubmit(event)">
+      <div class="form-group">
+        <label for="contact-name">聯絡姓名 / 稱謂<span>*</span></label>
+        <input type="text" id="contact-name" required placeholder="例如：Jimmy">
+      </div>
+
+      <div class="form-group">
+        <label for="contact-phone">聯絡電話<span>*</span></label>
+        <input type="tel" id="contact-phone" required placeholder="例如：0910-076-252">
+      </div>
+
+      <!-- 動態欄位：Plan A 常態 -->
+      <div id="field-regular" class="form-group">
+        <label for="regular-schedule">預計授課 / 排練時段<span>*</span></label>
+        <input type="text" id="regular-schedule" placeholder="例如：每週二 19:00 - 21:00，預計租借 3 個月">
+      </div>
+
+      <!-- 動態欄位：Plan B 教室出借 -->
+      <div id="field-rental" class="form-group hidden">
+        <label for="rental-detail">預計出借日期、時數與用途<span>*</span></label>
+        <input type="text" id="rental-detail" placeholder="例如：10/25 (日) 下午 14:00-17:00，舞團團練">
+      </div>
+
+      <div class="form-group">
+        <label for="activity-scale">活動性質 / 預估人數</label>
+        <input type="text" id="activity-scale" placeholder="例如：成人國標進階班，約 8-12 人">
+      </div>
+
+      <div class="form-group">
+        <label for="notes">其他備註與需求細節</label>
+        <textarea id="notes" rows="3" placeholder="如有任何特殊預算考量或問題歡迎填寫"></textarea>
+      </div>
+
+      <button type="submit" id="submit-btn" class="submit-btn">確認送出洽詢</button>
+    </form>
   </main>
 
   <script>
     const LIFF_ID = '2011761541-H6wrNahH';
-    const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbyV6fcIFzpwv5uUGWCb1GPcNrE7s6ETXmS7I-R6RUhiSBdhqRlSUoVomtzyFefSo7bDEg/exec';
+    const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbyV6fclFzpwv5uUGWCb1GPcNrE7s6ETXmS7I-R6RUhiSBd/exec';
 
-    let currentCategory = 'regular_rent';
+    let currentPlan = 'plan_a'; // 'plan_a' 或 'plan_b'
     let isMusicPlaying = false;
     let currentUser = {
-      userId: 'guest_user',
-      lineName: '訪客',
+      userId: '',
+      displayName: '訪客',
       pictureUrl: ''
     };
 
     window.addEventListener('DOMContentLoaded', () => {
-      setupAudioToggle();
+      initLIFF();
     });
 
-    function setupAudioToggle() {
-      const audio = document.getElementById('bg-music');
-      const toggleBtn = document.getElementById('toggle-music-btn');
-      const musicIcon = document.getElementById('music-icon');
+    /* 點擊卡片進入體驗 */
+    function startExperience(plan) {
+      currentPlan = plan;
+      renderPlanView();
 
-      toggleBtn.addEventListener('click', () => {
-        if (isMusicPlaying) {
-          audio.pause();
-          isMusicPlaying = false;
-          toggleBtn.classList.remove('music-spin');
-          musicIcon.textContent = '🔈';
-        } else {
-          audio.play().then(() => {
-            isMusicPlaying = true;
-            toggleBtn.classList.add('music-spin');
-            musicIcon.textContent = '🎵';
-          }).catch(e => console.warn(e));
-        }
+      // 平滑淡出門戶
+      document.getElementById('portal-view').classList.add('hidden-portal');
+
+      // 觸發音訊播放
+      playMusic();
+    }
+
+    /* 切換 Plan A / Plan B */
+    function togglePlan() {
+      currentPlan = (currentPlan === 'plan_a') ? 'plan_b' : 'plan_a';
+      renderPlanView();
+    }
+
+    function renderPlanView() {
+      const tag = document.getElementById('display-plan-tag');
+      const title = document.getElementById('display-plan-title');
+      const regularGroup = document.getElementById('field-regular');
+      const rentalGroup = document.getElementById('field-rental');
+
+      const regularInput = document.getElementById('regular-schedule');
+      const rentalInput = document.getElementById('rental-detail');
+
+      if (currentPlan === 'plan_a') {
+        tag.textContent = 'PLAN A';
+        title.textContent = '長期租用 / 常態班級意向';
+        regularGroup.classList.remove('hidden');
+        rentalGroup.classList.add('hidden');
+        regularInput.required = true;
+        rentalInput.required = false;
+      } else {
+        tag.textContent = 'PLAN B';
+        title.textContent = '舞蹈教室及空間出借';
+        regularGroup.classList.add('hidden');
+        rentalGroup.classList.remove('hidden');
+        regularInput.required = false;
+        rentalInput.required = true;
+      }
+    }
+
+    /* 音樂播放邏輯 */
+    function playMusic() {
+      const audio = document.getElementById('bg-music');
+      const btn = document.getElementById('music-btn');
+      if (!audio) return;
+
+      audio.play().then(() => {
+        isMusicPlaying = true;
+        btn.classList.add('playing');
+      }).catch(err => {
+        console.warn('音訊自動播放被瀏覽器阻擋，需手動點擊：', err);
       });
     }
 
-    /* 關鍵修復：立即執行動畫退場，絕不卡死在首頁 */
-    async function selectCategory(category) {
-      applyCategoryView(category);
-
+    function toggleMusic() {
       const audio = document.getElementById('bg-music');
-      const toggleBtn = document.getElementById('toggle-music-btn');
-      const splash = document.getElementById('splash-screen');
-      const authLoading = document.getElementById('auth-loading-screen');
+      const btn = document.getElementById('music-btn');
 
-      // 1. 播放音樂（獨立捕捉錯誤，就算失敗也往下執行）
-      if (audio) {
-        audio.volume = 0.5;
-        audio.play().then(() => {
-          isMusicPlaying = true;
-          if (toggleBtn) toggleBtn.classList.add('music-spin');
-        }).catch(err => {
-          console.warn('音訊自動播放被瀏覽器限制，略過音訊：', err);
-        });
-      }
-
-      // 2. 開場首頁立刻淡出
-      if (splash) {
-        splash.style.opacity = '0';
-        splash.style.pointerEvents = 'none';
-        setTimeout(() => {
-          splash.classList.add('hidden');
-        }, 600);
-      }
-
-      // 3. 顯示過場動畫
-      if (authLoading) {
-        authLoading.classList.remove('hidden');
-        // 延遲一點點讓 transition 生效
-        setTimeout(() => authLoading.classList.remove('opacity-0'), 20);
-      }
-
-      // 4. 背景進行 LIFF 認證（限時 2.5 秒，逾時自動放行）
-      try {
-        const timeoutPromise = new Promise(resolve => setTimeout(resolve, 2500));
-        await Promise.race([initLineAuth(), timeoutPromise]);
-      } catch (e) {
-        console.warn('認證異常或超時，自動放行：', e);
-      }
-
-      // 5. 關閉過場轉圈
-      if (authLoading) {
-        authLoading.classList.add('opacity-0');
-        setTimeout(() => {
-          authLoading.classList.add('hidden');
-        }, 600);
-      }
-    }
-
-    function applyCategoryView(category) {
-      currentCategory = category;
-      const planBadge = document.getElementById('plan-badge');
-      const planTitle = document.getElementById('plan-title');
-      const fieldRegular = document.getElementById('field-regular');
-      const fieldPartnership = document.getElementById('field-partnership');
-
-      if (category === 'regular_rent') {
-        if (planBadge) {
-          planBadge.textContent = 'Plan A';
-          planBadge.className = 'text-[11px] font-bold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-md font-eng-serif';
-        }
-        if (planTitle) planTitle.textContent = '長期租用 / 常態班級意向';
-        if (fieldRegular) fieldRegular.classList.remove('hidden');
-        if (fieldPartnership) fieldPartnership.classList.add('hidden');
+      if (isMusicPlaying) {
+        audio.pause();
+        isMusicPlaying = false;
+        btn.classList.remove('playing');
       } else {
-        if (planBadge) {
-          planBadge.textContent = 'Plan B';
-          planBadge.className = 'text-[11px] font-bold text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded-md font-eng-serif';
-        }
-        if (planTitle) planTitle.textContent = '空間合作 / 資源出借企劃';
-        if (fieldRegular) fieldRegular.classList.add('hidden');
-        if (fieldPartnership) fieldPartnership.classList.remove('hidden');
+        playMusic();
       }
     }
 
-    function toggleCategory() {
-      const nextCategory = (currentCategory === 'regular_rent') ? 'partnership' : 'regular_rent';
-      applyCategoryView(nextCategory);
-    }
-
-    async function initLineAuth() {
-      const userDisplay = document.getElementById('user-display');
-      const verifyBadge = document.getElementById('verify-badge');
-      const userAvatar = document.getElementById('user-avatar');
-      const contactNameInput = document.getElementById('contact-name');
-
-      if (typeof liff === 'undefined') {
-        if (userDisplay) userDisplay.textContent = '訪客模式';
-        if (verifyBadge) verifyBadge.textContent = 'SDK 未載入';
-        return;
-      }
+    /* LIFF 初始化與身分取得 */
+    async function initLIFF() {
+      const nameEl = document.getElementById('user-name');
+      const avatarEl = document.getElementById('user-avatar');
+      const nameInput = document.getElementById('contact-name');
 
       try {
+        if (typeof liff === 'undefined') {
+          nameEl.textContent = '未載入 SDK';
+          return;
+        }
+
         await liff.init({ liffId: LIFF_ID });
 
         if (!liff.isLoggedIn()) {
-          if (userDisplay) userDisplay.textContent = '訪客模式';
-          if (verifyBadge) {
-            verifyBadge.textContent = '未認證';
-            verifyBadge.className = 'block text-[9px] text-amber-600 font-semibold';
-          }
+          nameEl.textContent = '訪客';
           return;
         }
 
         const profile = await liff.getProfile();
-        if (profile && profile.userId) {
+        if (profile) {
           currentUser.userId = profile.userId;
-          currentUser.lineName = profile.displayName || 'LINE 用戶';
+          currentUser.displayName = profile.displayName || 'LINE 好友';
           currentUser.pictureUrl = profile.pictureUrl || '';
 
-          if (userDisplay) userDisplay.textContent = currentUser.lineName;
-          if (verifyBadge) {
-            verifyBadge.textContent = '已認證';
-            verifyBadge.className = 'block text-[9px] text-emerald-600 font-semibold';
+          nameEl.textContent = currentUser.displayName;
+          if (currentUser.pictureUrl) {
+            avatarEl.src = currentUser.pictureUrl;
+            avatarEl.classList.remove('hidden');
           }
 
-          if (currentUser.pictureUrl && userAvatar) {
-            userAvatar.src = currentUser.pictureUrl;
-            userAvatar.classList.remove('hidden');
-          }
-
-          if (contactNameInput && !contactNameInput.value) {
-            contactNameInput.value = currentUser.lineName;
+          if (nameInput && !nameInput.value) {
+            nameInput.value = currentUser.displayName;
           }
         }
-      } catch (err) {
-        console.warn('LIFF 載入提示：', err);
-        if (userDisplay) userDisplay.textContent = '訪客模式';
-        if (verifyBadge) {
-          verifyBadge.textContent = '外部開啟';
-          verifyBadge.className = 'block text-[9px] text-slate-400 font-semibold';
-        }
+      } catch (e) {
+        console.error('LIFF 錯誤：', e);
+        nameEl.textContent = 'LINE 訪客';
       }
     }
 
-    async function submitForm(event) {
-      event.preventDefault();
+    /* 表單提交至 GAS */
+    async function handleSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('submit-btn');
+      btn.disabled = true;
+      btn.textContent = '傳送中...';
 
-      const submitBtn = document.getElementById('submit-btn');
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'TRANSMITTING...';
+      const scheduleValue = (currentPlan === 'plan_a')
+        ? document.getElementById('regular-schedule').value
+        : document.getElementById('rental-detail').value;
 
       const payload = {
-        action: 'submitInquiry',
-        category: currentCategory === 'regular_rent' ? '長期租用 / 常態班級' : '空間合作 / 資源出借',
-        line_user_id: currentUser.userId,
-        line_name: currentUser.lineName,
-        contact_name: document.getElementById('contact-name').value.trim(),
-        contact_phone: document.getElementById('contact-phone').value.trim(),
-        schedule: document.getElementById('regular-schedule').value.trim(),
-        capacity: document.getElementById('regular-capacity').value.trim(),
-        concept: document.getElementById('partner-concept').value.trim(),
-        equipment: document.getElementById('partner-equipment').value.trim(),
-        notes: document.getElementById('notes').value.trim()
+        plan: (currentPlan === 'plan_a') ? '長期租用/常態班級' : '舞蹈教室及空間出借',
+        lineUserId: currentUser.userId || 'guest_user',
+        lineDisplayName: currentUser.displayName || '訪客',
+        contactName: document.getElementById('contact-name').value,
+        contactPhone: document.getElementById('contact-phone').value,
+        scheduleOrDetail: scheduleValue,
+        activityScale: document.getElementById('activity-scale').value,
+        notes: document.getElementById('notes').value
       };
 
       try {
         await fetch(GAS_API_URL, {
           method: 'POST',
           mode: 'no-cors',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
 
-        alert('洽詢意向已成功送出！\nTheDanceHouse 將盡速與您取得聯繫。');
-        
+        alert('洽詢已送出！我們將透過 LINE 或電話與您聯繫。');
         if (typeof liff !== 'undefined' && liff.isInClient && liff.isInClient()) {
           liff.closeWindow();
         }
       } catch (err) {
-        alert('送出失敗，請確認網路連線或直接透過 LINE 官方帳號聯繫！');
+        console.error('傳送失敗：', err);
+        alert('連線逾時，請重試或私訊粉專。');
       } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Confirm & Send Inquiry';
+        btn.disabled = false;
+        btn.textContent = '確認送出洽詢';
       }
     }
   </script>
