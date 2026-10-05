@@ -2,51 +2,66 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>舞的店 - 合作夥伴與空間出借洽詢</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TheDanceHouse Tainan - 長期租用與空間合作</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
   <style>
-    /* 典雅大理石底紋 */
-    .marble-bg {
-      background-color: #f7f8fa;
+    /* 頂級大理石光感底紋 */
+    .marble-cover {
+      background-color: #f8fafc;
       background-image: 
-        radial-gradient(at 15% 25%, rgba(195, 203, 214, 0.45) 0px, transparent 55%),
-        radial-gradient(at 85% 75%, rgba(210, 215, 222, 0.5) 0px, transparent 55%),
-        linear-gradient(115deg, transparent 40%, rgba(175, 185, 200, 0.3) 46%, rgba(150, 160, 175, 0.4) 48%, rgba(255, 255, 255, 0.85) 50%, transparent 54%),
-        radial-gradient(circle at 50% 50%, #ffffff 0%, #edf1f5 100%);
-      background-size: 100% 100%, 100% 100%, 260px 100%, 100% 100%;
+        radial-gradient(at 15% 15%, rgba(226, 232, 240, 0.6) 0px, transparent 50%),
+        radial-gradient(at 85% 85%, rgba(203, 213, 225, 0.5) 0px, transparent 55%),
+        linear-gradient(135deg, transparent 35%, rgba(255, 255, 255, 0.95) 45%, rgba(226, 232, 240, 0.4) 50%, transparent 60%),
+        radial-gradient(circle at 50% 50%, #ffffff 0%, #f1f5f9 100%);
+      background-size: 100% 100%, 100% 100%, 300% 300%, 100% 100%;
     }
 
-    /* 呼吸微光閃爍動畫 */
+    /* 呼吸微光與流光動效 */
     @keyframes subtle-breathe {
       0%, 100% {
-        opacity: 0.4;
+        opacity: 0.45;
         transform: scale(0.985);
         box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
       }
       50% {
         opacity: 0.95;
         transform: scale(1.015);
-        box-shadow: 0 0 25px 4px rgba(79, 70, 229, 0.28);
+        box-shadow: 0 0 25px 4px rgba(79, 70, 229, 0.25);
       }
     }
-
     .breathe-glow {
       animation: subtle-breathe 3.6s ease-in-out infinite;
     }
 
-    /* 點擊切換淡入動畫 */
+    @keyframes text-blink {
+      0%, 100% { opacity: 0.35; }
+      50% { opacity: 0.95; }
+    }
+    .touch-blink {
+      animation: text-blink 2.4s ease-in-out infinite;
+    }
+
+    /* 開場向上滑動淡出 */
+    .splash-exit {
+      transform: translateY(-100%);
+      opacity: 0;
+      transition: transform 0.65s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.5s ease;
+      pointer-events: none;
+    }
+
+    /* 漸入動畫 */
     .fade-enter {
-      animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation: fadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(12px); }
+      from { opacity: 0; transform: translateY(16px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* 等化器音波動態 */
+    /* 等化器跳動動態 */
     @keyframes eq-bounce {
       0%, 100% { height: 4px; }
       50% { height: 16px; }
@@ -56,31 +71,65 @@
     .eq-bar-3 { animation: eq-bounce 1.3s ease-in-out infinite 0.4s; }
   </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen pb-16 font-sans antialiased">
+<body class="bg-slate-100 text-slate-800 min-h-screen pb-16 font-sans antialiased overflow-x-hidden select-none">
 
-  <!-- 背景氛圍音樂播放器 -->
+  <!-- ==================== 1. 大氣開場畫面 (Cover Splash) ==================== -->
+  <div id="splash-screen" onclick="startExperience()" class="marble-cover fixed inset-0 z-50 flex flex-col justify-between items-center py-16 px-6 text-center cursor-pointer">
+    
+    <!-- 頂部裝飾金線 -->
+    <div class="w-12 h-0.5 bg-amber-400/80 rounded-full mt-4"></div>
+
+    <!-- 中間標題群 (復刻截圖排版) -->
+    <div class="space-y-4 max-w-xs">
+      <div class="inline-block px-4 py-1 rounded-full border border-amber-300/80 bg-white/70 shadow-sm backdrop-blur-sm">
+        <span class="text-[11px] font-bold tracking-[0.25em] text-amber-800 uppercase">TAINAN DANCE STUDIO</span>
+      </div>
+
+      <div class="space-y-1 pt-1">
+        <h1 class="text-3xl font-black text-slate-900 tracking-tight font-serif">
+          TheDanceHouse
+        </h1>
+        <h2 class="text-xl font-bold text-amber-900 tracking-wide font-serif">
+          Tainan
+        </h2>
+      </div>
+
+      <p class="text-[10px] text-slate-500 font-bold tracking-[0.26em] uppercase leading-relaxed pt-2">
+        STUDIO BOOKING & SPACE<br>RENTAL
+      </p>
+
+      <div class="w-8 h-px bg-slate-300 mx-auto pt-1"></div>
+    </div>
+
+    <!-- 底部點擊指引 -->
+    <div class="touch-blink space-y-1 mb-6">
+      <p class="text-sm font-black tracking-widest text-slate-700 font-serif">點擊開始</p>
+      <p class="text-[9px] text-slate-400 tracking-[0.3em] uppercase">TOUCH TO START</p>
+    </div>
+  </div>
+
+  <!-- 背景氛圍音樂 (選用唯美當代鋼琴氛圍曲) -->
   <audio id="bg-music" loop preload="auto">
-    <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3" type="audio/mpeg">
+    <source src="https://cdn.pixabay.com/download/audio/2022/11/06/audio_c9398f6738.mp3?filename=piano-moment-9835.mp3" type="audio/mpeg">
   </audio>
 
-  <!-- 頂部 Header -->
-  <header class="marble-bg text-slate-800 pt-5 pb-6 px-5 shadow-sm rounded-b-3xl border-b border-slate-300/80 relative overflow-hidden">
+  <!-- ==================== 2. 主要系統 Header ==================== -->
+  <header class="marble-cover text-slate-800 pt-5 pb-6 px-5 shadow-sm rounded-b-3xl border-b border-slate-300/80 relative overflow-hidden">
     <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200"></div>
 
     <div class="max-w-md mx-auto flex items-center justify-between">
       <div class="space-y-0.5">
         <div class="flex items-center gap-2">
-          <!-- 呼吸指示燈 -->
           <span class="inline-block w-2.5 h-2.5 rounded-full bg-indigo-500 breathe-glow"></span>
           <h1 class="text-xl font-black tracking-wide text-slate-900 font-serif">長期夥伴洽詢</h1>
         </div>
-        <p class="text-[9px] text-slate-500 font-bold tracking-[0.22em] uppercase font-sans">
+        <p class="text-[9px] text-slate-500 font-bold tracking-[0.22em] uppercase">
           PARTNERSHIP & RESIDENCY
         </p>
       </div>
 
       <div class="flex items-center gap-2">
-        <!-- 音樂開關 -->
+        <!-- 音樂動態開關 -->
         <button id="music-toggle-btn" class="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-300 shadow-sm active:scale-95 transition">
           <div id="eq-visual" class="flex items-end gap-0.5 h-3.5 opacity-40">
             <span class="w-1 bg-indigo-600 rounded-full h-1"></span>
@@ -90,10 +139,10 @@
           <span id="music-label" class="text-[10px] font-bold text-slate-700 tracking-wider">BGM OFF</span>
         </button>
 
-        <!-- LINE 帳號連動標籤 -->
+        <!-- LINE 帳號連動指示 -->
         <div class="flex items-center gap-1.5 bg-white/95 px-2.5 py-1.5 rounded-full border border-slate-300 shadow-sm">
           <img id="user-avatar" src="https://via.placeholder.com/24" class="w-5 h-5 rounded-full object-cover hidden border border-slate-200">
-          <span id="user-name" class="text-[11px] font-bold text-slate-700 max-w-[70px] truncate">連線中...</span>
+          <span id="user-name" class="text-[11px] font-bold text-slate-700 max-w-[75px] truncate">連結中...</span>
         </div>
       </div>
     </div>
@@ -101,9 +150,8 @@
 
   <main class="max-w-md mx-auto p-4 space-y-4">
 
-    <!-- ==================== 第一階段：開場兩大角色選擇 ==================== -->
+    <!-- ==================== 階段一：兩大核心選項 ==================== -->
     <div id="stage-select-role" class="space-y-4 fade-enter">
-      <!-- 導引卡片 -->
       <div class="bg-white/90 backdrop-blur-sm p-5 rounded-2xl border border-slate-200 shadow-sm text-center space-y-1">
         <span class="text-[10px] tracking-[0.3em] font-black text-indigo-500 uppercase block">Collaborate with Us</span>
         <h2 class="text-base font-black text-slate-800">探索與「舞的店」的合作可能</h2>
@@ -112,14 +160,12 @@
         </p>
       </div>
 
-      <!-- 兩大核心卡片 -->
       <div class="space-y-3.5">
-        
         <!-- 選項 1：長期租用 -->
         <div onclick="goToForm('regular_rent')" class="group relative bg-white p-5 rounded-3xl border-2 border-slate-200 hover:border-indigo-500 cursor-pointer transition-all duration-300 shadow-sm hover:shadow-md active:scale-[0.98] breathe-glow">
           <div class="flex items-start justify-between">
             <div class="flex items-center space-x-4">
-              <div class="w-13 h-13 p-3 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-2xl group-hover:scale-110 transition">
+              <div class="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-2xl group-hover:scale-110 transition">
                 🩰
               </div>
               <div>
@@ -143,7 +189,7 @@
         <div onclick="goToForm('space_partner')" class="group relative bg-white p-5 rounded-3xl border-2 border-slate-200 hover:border-amber-500 cursor-pointer transition-all duration-300 shadow-sm hover:shadow-md active:scale-[0.98]">
           <div class="flex items-start justify-between">
             <div class="flex items-center space-x-4">
-              <div class="w-13 h-13 p-3 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-2xl group-hover:scale-110 transition">
+              <div class="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-2xl group-hover:scale-110 transition">
                 🤝
               </div>
               <div>
@@ -162,10 +208,8 @@
             <span class="text-xs">▾</span>
           </div>
         </div>
-
       </div>
 
-      <!-- 返回首頁 -->
       <div class="text-center pt-2">
         <a href="index.html" class="inline-flex items-center text-xs font-bold text-slate-400 hover:text-indigo-600 transition">
           ← 返回一般時段即時租借系統
@@ -173,10 +217,8 @@
       </div>
     </div>
 
-
-    <!-- ==================== 第二階段：資料收集表單 ==================== -->
+    <!-- ==================== 階段二：資料收集表單 ==================== -->
     <div id="stage-form" class="space-y-4 hidden">
-      <!-- 頂部身分確認條 -->
       <div class="flex justify-between items-center bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
         <div class="flex items-center gap-2.5">
           <span id="form-role-icon" class="text-xl">🩰</span>
@@ -190,7 +232,6 @@
         </button>
       </div>
 
-      <!-- 資料表單卡片 -->
       <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4">
         <div>
           <label class="block text-xs font-bold text-slate-600 mb-1">
@@ -208,7 +249,6 @@
           <input type="tel" id="inquiry-phone" placeholder="例如：0910076252" class="w-full border border-slate-300 rounded-xl p-3 text-sm font-bold focus:ring-2 focus:ring-indigo-500 outline-none">
         </div>
 
-        <!-- 動態欄位：長期租用專屬需求 -->
         <div id="field-regular-extra" class="space-y-3">
           <div>
             <label class="block text-xs font-bold text-slate-600 mb-1">
@@ -219,7 +259,6 @@
           </div>
         </div>
 
-        <!-- 動態欄位：空間合作專屬需求 -->
         <div id="field-partner-extra" class="space-y-3 hidden">
           <div>
             <label class="block text-xs font-bold text-slate-600 mb-1">
@@ -238,7 +277,6 @@
           <textarea id="inquiry-notes" rows="3" placeholder="請填寫預計人數、舞風、設備需求或期望的配合方式..." class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"></textarea>
         </div>
 
-        <!-- 送出按鈕 -->
         <button id="submit-inquiry-btn" onclick="submitInquiry()" class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-black text-sm rounded-2xl shadow-lg shadow-indigo-200 transition flex items-center justify-center space-x-2">
           <span>送出洽詢意向</span>
           <span class="text-xs opacity-75 font-normal tracking-wider">CONFIRM & SUBMIT</span>
@@ -258,7 +296,7 @@
     const LIFF_ID = '2011761541-hL5HCl1Q';
     const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbyV6fclFzpwv5uUGWCb1GPcNrE7s6ETXmS7I-R6RUhiSBd/exec';
 
-    let currentSelectedCategory = 'regular_rent'; // 'regular_rent' 或 'space_partner'
+    let currentSelectedCategory = 'regular_rent';
     let isMusicPlaying = false;
     let currentUser = {
       userId: 'guest_user',
@@ -267,12 +305,40 @@
     };
 
     window.addEventListener('DOMContentLoaded', async () => {
-      initMusic();
+      initMusicToggle();
+      // 在開場背景即啟動主動 LIFF 帳號授權連線
       await initLIFF();
     });
 
-    // 1. 背景音樂播放控制
-    function initMusic() {
+    // 1. 點擊開場進入系統並解鎖音樂
+    function startExperience() {
+      const splash = document.getElementById('splash-screen');
+      splash.classList.add('splash-exit');
+
+      // 使用者互動直接觸發音樂播放 (瀏覽器安全策略允許)
+      playMusic();
+    }
+
+    // 2. 音樂播放器控制 (支援手動開關與音波動畫)
+    function playMusic() {
+      const audio = document.getElementById('bg-music');
+      const label = document.getElementById('music-label');
+      const visual = document.getElementById('eq-visual');
+      const bars = visual.querySelectorAll('span');
+
+      audio.play().then(() => {
+        isMusicPlaying = true;
+        label.textContent = 'PLAYING';
+        visual.classList.remove('opacity-40');
+        bars[0].classList.add('eq-bar-1');
+        bars[1].classList.add('eq-bar-2');
+        bars[2].classList.add('eq-bar-3');
+      }).catch(err => {
+        console.warn('音樂自動播放受限：', err);
+      });
+    }
+
+    function initMusicToggle() {
       const audio = document.getElementById('bg-music');
       const btn = document.getElementById('music-toggle-btn');
       const label = document.getElementById('music-label');
@@ -289,24 +355,17 @@
           bars[1].classList.remove('eq-bar-2');
           bars[2].classList.remove('eq-bar-3');
         } else {
-          audio.play().then(() => {
-            isMusicPlaying = true;
-            label.textContent = 'PLAYING';
-            visual.classList.remove('opacity-40');
-            bars[0].classList.add('eq-bar-1');
-            bars[1].classList.add('eq-bar-2');
-            bars[2].classList.add('eq-bar-3');
-          }).catch(err => {
-            console.log('瀏覽器自動播放限制需手動互動觸發', err);
-          });
+          playMusic();
         }
       });
     }
 
-    // 2. 嚴謹的 LIFF 帳號連結
+    // 3. 主動且嚴謹的 LINE LIFF 授權連結
     async function initLIFF() {
       try {
         await liff.init({ liffId: LIFF_ID });
+        
+        // 若在外部瀏覽器或尚未登入，主動呼叫 login
         if (!liff.isLoggedIn()) {
           liff.login();
           return;
@@ -318,7 +377,7 @@
           currentUser.displayName = profile.displayName || 'LINE 用戶';
           currentUser.pictureUrl = profile.pictureUrl || '';
 
-          // 介面即時反應 LINE 身分
+          // 同步更新介面標籤
           document.getElementById('user-name').textContent = currentUser.displayName;
           if (currentUser.pictureUrl) {
             const avatar = document.getElementById('user-avatar');
@@ -326,16 +385,19 @@
             avatar.classList.remove('hidden');
           }
 
-          // 自動預填姓名
-          document.getElementById('inquiry-name').value = currentUser.displayName;
+          // 自動填入姓名欄位
+          const nameInput = document.getElementById('inquiry-name');
+          if (nameInput && !nameInput.value) {
+            nameInput.value = currentUser.displayName;
+          }
         }
       } catch (err) {
-        console.warn('LIFF 外部環境運作：', err);
-        document.getElementById('user-name').textContent = '未連結 LINE';
+        console.warn('LIFF 初始化連線警告：', err);
+        document.getElementById('user-name').textContent = '訪客模式';
       }
     }
 
-    // 3. 畫面切換：進入資料收集
+    // 4. 畫面切換：進入資料收集
     function goToForm(category) {
       currentSelectedCategory = category;
       const stageSelect = document.getElementById('stage-select-role');
@@ -364,7 +426,6 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // 4. 返回開場選擇頁
     function backToSelect() {
       document.getElementById('stage-form').classList.add('hidden');
       const stageSelect = document.getElementById('stage-select-role');
@@ -373,7 +434,7 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // 5. 送出資料收集並正確寫入後端
+    // 5. 送出洽詢並確實綁定 LINE 帳號資料
     async function submitInquiry() {
       const name = document.getElementById('inquiry-name').value.trim();
       const phone = document.getElementById('inquiry-phone').value.trim();
@@ -404,7 +465,7 @@
         const payload = {
           action: 'createBooking',
           classroom_id: '1',
-          line_user_id: currentUser.userId, // 確實連結 LINE 帳號
+          line_user_id: currentUser.userId, // 確實綁定 LINE UID
           user_name: name,
           phone: phone,
           booking_type: typeLabel,
