@@ -46,7 +46,7 @@
     }
   </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen pb-16 antialiased selection:bg-amber-100">
+<body class="bg-slate-100 text-slate-800 min-h-screen pb-24 antialiased selection:bg-amber-100">
 
   <!-- 背景鋼琴音樂 -->
   <audio id="bg-music" loop preload="auto">
@@ -138,7 +138,6 @@
 
     <!-- ===== 分頁 1：預約空間一覽 ===== -->
     <div id="booking-section" class="space-y-4">
-      <!-- 教室選單 -->
       <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200">
         <label class="block text-xs font-bold text-slate-400 mb-1">選擇教室空間</label>
         <select id="classroom-select" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
@@ -146,12 +145,11 @@
         </select>
       </div>
 
-      <!-- 日期選擇：全月日曆選擇器 + 週分頁 -->
+      <!-- 日曆選擇器 + 週分頁 -->
       <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
         <div class="flex justify-between items-center px-1">
           <button id="prev-week" class="px-2.5 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-bold">← 上週</button>
           
-          <!-- 點選直接彈出原生全月份日曆 -->
           <div class="relative cursor-pointer flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-50/70 border border-amber-200 text-amber-900 hover:bg-amber-100/80 transition">
             <span class="text-xs">📅</span>
             <span id="date-picker-display" class="text-xs font-black font-eng-serif">2026-10-05</span>
@@ -161,7 +159,6 @@
           <button id="next-week" class="px-2.5 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-bold">下週 →</button>
         </div>
 
-        <!-- 一週快速切換標籤 -->
         <div id="weekday-tabs" class="grid grid-cols-7 gap-1 text-center"></div>
       </div>
 
@@ -170,12 +167,11 @@
         <div class="flex justify-between items-center mb-3">
           <div>
             <h2 id="current-date-title" class="font-extrabold text-sm text-slate-800">可借用時段</h2>
-            <p class="text-[11px] text-slate-400">每時段 30 分鐘 · 個人練習上限 2 組</p>
+            <p class="text-[11px] text-slate-400">勾選時段多選 · 每次預約至少 1 小時（須連續）</p>
           </div>
-          <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-100">即時名額</span>
+          <button id="clear-selected-btn" class="text-xs text-slate-400 hover:text-slate-600 font-medium">清除選取</button>
         </div>
         
-        <!-- 時段列表容器（30分鐘一條） -->
         <div id="slot-container" class="space-y-4">
           <p class="text-center text-slate-400 text-xs py-8">正在載入即時空檔...</p>
         </div>
@@ -207,6 +203,19 @@
       </div>
     </div>
   </main>
+
+  <!-- 底部多選確認浮動列 (選取滿 1 小時連續時段後展開) -->
+  <div id="bottom-booking-bar" class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 p-3.5 shadow-2xl z-40 transform translate-y-full transition-transform duration-300">
+    <div class="max-w-md mx-auto flex items-center justify-between gap-3">
+      <div>
+        <p id="bar-summary-text" class="text-xs font-black text-slate-800">已選 2 個時段 (共 1.0 小時)</p>
+        <p id="bar-time-range" class="text-[11px] font-bold text-indigo-600 font-eng-serif">--:-- ~ --:--</p>
+      </div>
+      <button id="open-multi-booking-modal-btn" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md active:scale-95 transition">
+        確認預約 →
+      </button>
+    </div>
+  </div>
 
   <!-- 實名制登記彈窗 -->
   <div id="profile-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
@@ -243,7 +252,7 @@
       <div class="text-xs space-y-1.5 text-slate-600 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
         <p><strong>教室：</strong><span id="modal-room-name">--</span></p>
         <p><strong>日期：</strong><span id="modal-date">--</span></p>
-        <p><strong>所選時段：</strong><span id="modal-time" class="font-black text-indigo-600 font-eng-serif">--</span> <span class="text-slate-400">(30分鐘)</span></p>
+        <p><strong>預約時段：</strong><span id="modal-time" class="font-black text-indigo-600 font-eng-serif">--</span> (<span id="modal-hours-span">1.0</span>小時)</p>
         <p><strong>預約人：</strong><span id="modal-user-info" class="font-bold text-slate-800">--</span></p>
       </div>
 
@@ -261,11 +270,11 @@
         </div>
       </div>
 
-      <!-- 金額試算卡片 (半小時為單位試算) -->
+      <!-- 金額試算卡片 -->
       <div class="bg-amber-50/70 border border-amber-200 rounded-xl p-3">
         <div class="flex justify-between items-center">
-          <span class="text-xs font-bold text-slate-700">金額試算 (共 30 分鐘)</span>
-          <span id="modal-price" class="text-lg font-black text-rose-600 font-eng-serif">NT$ 175</span>
+          <span class="text-xs font-bold text-slate-700">金額試算</span>
+          <span id="modal-price" class="text-lg font-black text-rose-600 font-eng-serif">NT$ 350</span>
         </div>
         <div class="mt-2 text-[11px] text-amber-900 bg-white/70 p-2 rounded-lg border border-amber-100">
           ⚠️ <strong>注意事項：</strong><br>
@@ -289,7 +298,7 @@
     const LIFF_ID = '2011761541-hL5HCl1Q'; 
     const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbyV6fcIFzpwv5uUGWCb1GPcNrE7s6ETXmS7I-R6RUhiSBdhqRlSUoVomtzyFefSo7bDEg/exec';
 
-    // 費率標準：半小時為基準 (個人 175 元/30分；團體 225 元/30分)
+    // 費率標準：半小時基準 (個人 175 元/30分 = 350/時；團體 225 元/30分 = 450/時)
     const RATE_HALF_HOUR_INDIVIDUAL = 175;
     const RATE_HALF_HOUR_GROUP = 225;
 
@@ -310,7 +319,11 @@
     let currentRequestId = 0;
     let isMusicPlaying = false;
 
-    // 動態產生 06:00 到 23:00 的 30 分鐘時段序列
+    // 已勾選的時段集合 (放 slot.start)
+    let selectedSlotStarts = new Set();
+    let currentAvailableSlotsMap = new Map();
+
+    // 產生 06:00 到 23:00 的 30 分鐘時段序列
     const TIME_SLOTS = [];
     for (let h = 6; h < 23; h++) {
       const hStr = ('0' + h).slice(-2);
@@ -468,6 +481,9 @@
 
     async function fetchAndRenderSlots() {
       if (!selectedRoomId) return;
+      selectedSlotStarts.clear();
+      updateBottomBar();
+
       const container = document.getElementById('slot-container');
       container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">更新狀態中...</p>';
       document.getElementById('current-date-title').textContent = `${selectedDate} 可借用時段`;
@@ -506,13 +522,13 @@
       return (h || 0) * 60 + (m || 0);
     }
 
-    // 渲染滿版單欄時段（核心：計算個人 2 組上限與組數標籤）
+    // 渲染滿版單欄多選時段
     function renderAvailableSlots(bookings, recurrings) {
       const container = document.getElementById('slot-container');
       container.innerHTML = '';
+      currentAvailableSlotsMap.clear();
 
       const slotStatusList = TIME_SLOTS.map(slot => {
-        // 過去時間過濾
         if (isSlotInPast(selectedDate, slot.start)) {
           return { ...slot, available: false, reason: 'past' };
         }
@@ -520,7 +536,6 @@
         const slotStart = toMinutes(slot.start);
         const slotEnd = toMinutes(slot.end);
 
-        // 固定課表檢查
         const isRecurring = recurrings.some(r => {
           const rStart = toMinutes(r.start_time);
           const rEnd = toMinutes(r.end_time);
@@ -530,7 +545,6 @@
           return { ...slot, available: false, reason: 'recurring' };
         }
 
-        // 計算重疊之單次預約
         let individualCount = 0;
         let isGroupBooked = false;
 
@@ -546,23 +560,19 @@
           }
         });
 
-        if (isGroupBooked) {
-          return { ...slot, available: false, reason: 'group_booked' };
-        }
-
-        // 個人借用上限 2 組
-        if (individualCount >= 2) {
+        if (isGroupBooked || individualCount >= 2) {
           return { ...slot, available: false, reason: 'full' };
         }
 
         return {
           ...slot,
           available: true,
-          individualCount: individualCount // 0 或 1
+          individualCount: individualCount
         };
       });
 
       const availableSlots = slotStatusList.filter(s => s.available);
+      availableSlots.forEach(s => currentAvailableSlotsMap.set(s.start, s));
 
       if (availableSlots.length === 0) {
         container.innerHTML = `
@@ -592,9 +602,13 @@
 
           groupSlots.forEach(slot => {
             const row = document.createElement('div');
-            row.className = 'w-full flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl hover:border-amber-400 hover:shadow-sm cursor-pointer transition select-none';
+            row.id = `slot-row-${slot.start.replace(':', '')}`;
+            const isChecked = selectedSlotStarts.has(slot.start);
 
-            // 狀態徽章：空檔 vs 已有 1 組
+            row.className = `w-full flex items-center justify-between p-3 bg-white border rounded-xl hover:border-amber-400 hover:shadow-sm cursor-pointer transition select-none ${
+              isChecked ? 'border-indigo-600 bg-indigo-50/40 ring-1 ring-indigo-500' : 'border-slate-200'
+            }`;
+
             let badgeHtml = '';
             if (slot.individualCount === 1) {
               badgeHtml = `
@@ -621,12 +635,14 @@
             }
 
             row.innerHTML = `
-              <div class="flex items-center space-x-2">
+              <div class="flex items-center space-x-3">
+                <input type="checkbox" ${isChecked ? 'checked' : ''} class="w-4 h-4 rounded text-indigo-600 border-slate-300 pointer-events-none">
                 <span class="text-sm font-black text-slate-800 tracking-wider font-eng-serif">${slot.start} - ${slot.end}</span>
               </div>
               ${badgeHtml}
             `;
-            row.onclick = () => openBookingModal(slot);
+
+            row.onclick = () => toggleSlotSelection(slot);
             listContainer.appendChild(row);
           });
 
@@ -634,6 +650,182 @@
           container.appendChild(gWrapper);
         }
       });
+    }
+
+    // 時段點擊勾選與取消
+    function toggleSlotSelection(slot) {
+      if (selectedSlotStarts.has(slot.start)) {
+        selectedSlotStarts.delete(slot.start);
+      } else {
+        selectedSlotStarts.add(slot.start);
+      }
+
+      // 更新目前被點擊行外觀
+      const row = document.getElementById(`slot-row-${slot.start.replace(':', '')}`);
+      if (row) {
+        const chk = row.querySelector('input[type="checkbox"]');
+        const isChecked = selectedSlotStarts.has(slot.start);
+        chk.checked = isChecked;
+        if (isChecked) {
+          row.className = 'w-full flex items-center justify-between p-3 bg-indigo-50/40 border border-indigo-600 ring-1 ring-indigo-500 rounded-xl hover:shadow-sm cursor-pointer transition select-none';
+        } else {
+          row.className = 'w-full flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl hover:border-amber-400 hover:shadow-sm cursor-pointer transition select-none';
+        }
+      }
+
+      updateBottomBar();
+    }
+
+    // 更新底部浮動確認列
+    function updateBottomBar() {
+      const bar = document.getElementById('bottom-booking-bar');
+      if (selectedSlotStarts.size === 0) {
+        bar.classList.add('translate-y-full');
+        return;
+      }
+
+      const count = selectedSlotStarts.size;
+      const hours = (count * 0.5).toFixed(1);
+      
+      const starts = Array.from(selectedSlotStarts).sort();
+      const firstSlot = currentAvailableSlotsMap.get(starts[0]);
+      const lastSlot = currentAvailableSlotsMap.get(starts[starts.length - 1]);
+
+      document.getElementById('bar-summary-text').textContent = `已勾選 ${count} 個時段 (共 ${hours} 小時)`;
+      document.getElementById('bar-time-range').textContent = firstSlot && lastSlot ? `${firstSlot.start} ~ ${lastSlot.end}` : '--';
+
+      bar.classList.remove('translate-y-full');
+    }
+
+    // 檢查已選時段是否符合：1. 至少一小時 (>=2格) 2. 必須連續
+    function validateContinuousSelection() {
+      if (selectedSlotStarts.size < 2) {
+        alert('每次預約至少需滿 1 小時（請至少勾選 2 個時段）！');
+        return null;
+      }
+
+      // 按時間升冪排序
+      const starts = Array.from(selectedSlotStarts).sort();
+      for (let i = 0; i < starts.length - 1; i++) {
+        const curMin = toMinutes(starts[i]);
+        const nextMin = toMinutes(starts[i + 1]);
+        if (nextMin - curMin !== 30) {
+          alert('所選時段必須為「連續時間」，不可跳選！\n請重新檢查您的選取。');
+          return null;
+        }
+      }
+
+      const firstStart = starts[0];
+      const lastStart = starts[starts.length - 1];
+      const lastSlotObj = currentAvailableSlotsMap.get(lastStart);
+
+      return {
+        startTime: firstStart,
+        endTime: lastSlotObj ? lastSlotObj.end : '--',
+        slotsCount: starts.length,
+        hours: starts.length * 0.5,
+        starts: starts
+      };
+    }
+
+    let verifiedBookingRange = null;
+
+    function openBookingModalWithSelection() {
+      if (!currentUser.isRegistered) {
+        alert('請先完成實名制登記才能進行預約！');
+        openProfileModal();
+        return;
+      }
+
+      const validRange = validateContinuousSelection();
+      if (!validRange) return;
+
+      verifiedBookingRange = validRange;
+
+      const room = classrooms.find(r => String(r.id) === String(selectedRoomId));
+      document.getElementById('modal-room-name').textContent = room ? room.name : '--';
+      document.getElementById('modal-date').textContent = selectedDate;
+      document.getElementById('modal-time').textContent = `${validRange.startTime} - ${validRange.endTime}`;
+      document.getElementById('modal-hours-span').textContent = validRange.hours.toFixed(1);
+      document.getElementById('modal-user-info').textContent = `${currentUser.realName} (${currentUser.phone})`;
+      document.getElementById('booking-purpose').value = '';
+
+      // 若選取區間內有任何一格已有人個人練習，禁止切換成「團體包場」
+      let hasSharedSlot = false;
+      validRange.starts.forEach(st => {
+        const sl = currentAvailableSlotsMap.get(st);
+        if (sl && sl.individualCount > 0) hasSharedSlot = true;
+      });
+
+      const groupOpt = document.getElementById('group-booking-option');
+      const radioIndividual = document.querySelector('input[name="booking-type"][value="個人練習"]');
+      if (hasSharedSlot) {
+        groupOpt.classList.add('hidden');
+        radioIndividual.checked = true;
+      } else {
+        groupOpt.classList.remove('hidden');
+      }
+
+      updateModalPrice();
+      document.getElementById('booking-modal').classList.remove('hidden');
+    }
+
+    function updateModalPrice() {
+      if (!verifiedBookingRange) return;
+      const type = document.querySelector('input[name="booking-type"]:checked').value;
+      const halfHours = verifiedBookingRange.slotsCount;
+      const ratePerHalf = (type === '團體/開課包場' || type === '團體包場') ? RATE_HALF_HOUR_GROUP : RATE_HALF_HOUR_INDIVIDUAL;
+      const total = halfHours * ratePerHalf;
+      document.getElementById('modal-price').textContent = `NT$ ${total}`;
+    }
+
+    async function submitBooking() {
+      if (!verifiedBookingRange) return;
+
+      const bookingType = document.querySelector('input[name="booking-type"]:checked').value;
+      const purpose = document.getElementById('booking-purpose').value.trim() || bookingType;
+      const submitBtn = document.getElementById('submit-booking-btn');
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = '申請送出中...';
+
+      try {
+        const payload = {
+          action: 'createBooking',
+          classroom_id: selectedRoomId,
+          line_user_id: currentUser.userId,
+          user_name: currentUser.realName,
+          phone: currentUser.phone,
+          booking_type: bookingType,
+          booking_date: selectedDate,
+          start_time: verifiedBookingRange.startTime,
+          end_time: verifiedBookingRange.endTime,
+          purpose: purpose
+        };
+
+        const res = await fetch(GAS_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+
+        if (result.success) {
+          alert(`【${bookingType}】已成功送出申請！\n\n時段：${selectedDate} ${verifiedBookingRange.startTime}-${verifiedBookingRange.endTime} (${verifiedBookingRange.hours}小時)\n請記得於 6 小時內完成匯款確認。`);
+          document.getElementById('booking-modal').classList.add('hidden');
+          selectedSlotStarts.clear();
+          updateBottomBar();
+          await fetchAndRenderSlots();
+        } else {
+          alert(result.error || '預約失敗，所選時段可能已被佔用');
+          await fetchAndRenderSlots();
+        }
+      } catch (err) {
+        alert('連線失敗：' + err.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '送出申請';
+      }
     }
 
     async function loadMyRecords() {
@@ -774,90 +966,6 @@
       }
     }
 
-    let targetSlot = null;
-
-    function openBookingModal(slot) {
-      if (!currentUser.isRegistered) {
-        alert('請先完成實名制登記才能進行預約！');
-        openProfileModal();
-        return;
-      }
-
-      targetSlot = slot;
-      const room = classrooms.find(r => String(r.id) === String(selectedRoomId));
-      document.getElementById('modal-room-name').textContent = room ? room.name : '--';
-      document.getElementById('modal-date').textContent = selectedDate;
-      document.getElementById('modal-time').textContent = `${slot.start} - ${slot.end}`;
-      document.getElementById('modal-user-info').textContent = `${currentUser.realName} (${currentUser.phone})`;
-      document.getElementById('booking-purpose').value = '';
-      
-      // 若該時段已有 1 組個人預約，禁止選「團體包場」
-      const groupOpt = document.getElementById('group-booking-option');
-      const radioIndividual = document.querySelector('input[name="booking-type"][value="個人練習"]');
-      if (slot.individualCount === 1) {
-        groupOpt.classList.add('hidden');
-        radioIndividual.checked = true;
-      } else {
-        groupOpt.classList.remove('hidden');
-      }
-
-      updateModalPrice();
-      document.getElementById('booking-modal').classList.remove('hidden');
-    }
-
-    function updateModalPrice() {
-      const type = document.querySelector('input[name="booking-type"]:checked').value;
-      const price = (type === '團體/開課包場' || type === '團體包場') ? RATE_HALF_HOUR_GROUP : RATE_HALF_HOUR_INDIVIDUAL;
-      document.getElementById('modal-price').textContent = `NT$ ${price}`;
-    }
-
-    async function submitBooking() {
-      if (!targetSlot) return;
-
-      const bookingType = document.querySelector('input[name="booking-type"]:checked').value;
-      const purpose = document.getElementById('booking-purpose').value.trim() || bookingType;
-      const submitBtn = document.getElementById('submit-booking-btn');
-
-      submitBtn.disabled = true;
-      submitBtn.textContent = '申請送出中...';
-
-      try {
-        const payload = {
-          action: 'createBooking',
-          classroom_id: selectedRoomId,
-          line_user_id: currentUser.userId,
-          user_name: currentUser.realName,
-          phone: currentUser.phone,
-          booking_type: bookingType,
-          booking_date: selectedDate,
-          start_time: targetSlot.start,
-          end_time: targetSlot.end,
-          purpose: purpose
-        };
-
-        const res = await fetch(GAS_API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(payload)
-        });
-        const result = await res.json();
-
-        if (result.success) {
-          alert(`【${bookingType}】已成功送出申請！\n\n時段：${selectedDate} ${targetSlot.start}-${targetSlot.end}\n請記得於 6 小時內完成匯款確認。`);
-          document.getElementById('booking-modal').classList.add('hidden');
-          await fetchAndRenderSlots();
-        } else {
-          alert(result.error || '預約失敗，該時段名額已滿');
-          await fetchAndRenderSlots();
-        }
-      } catch (err) {
-        alert('連線失敗：' + err.message);
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = '送出申請';
-      }
-    }
-
     function openProfileModal() {
       document.getElementById('reg-name').value = currentUser.realName || '';
       document.getElementById('reg-phone').value = currentUser.phone || '';
@@ -959,7 +1067,7 @@
     }
 
     function bindEvents() {
-      // 全月日曆選擇連動
+      // 日曆連動
       document.getElementById('date-picker-input').addEventListener('change', (e) => {
         if (!e.target.value) return;
         selectedDate = e.target.value;
@@ -968,6 +1076,19 @@
         renderWeekdayTabs();
         fetchAndRenderSlots();
       });
+
+      // 清除多選
+      document.getElementById('clear-selected-btn').addEventListener('click', () => {
+        selectedSlotStarts.clear();
+        document.querySelectorAll('#slot-container input[type="checkbox"]').forEach(c => c.checked = false);
+        document.querySelectorAll('#slot-container .slot-card, #slot-container [id^="slot-row-"]').forEach(row => {
+          row.className = 'w-full flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl hover:border-amber-400 hover:shadow-sm cursor-pointer transition select-none';
+        });
+        updateBottomBar();
+      });
+
+      // 點擊底部多選預約按鈕
+      document.getElementById('open-multi-booking-modal-btn').addEventListener('click', openBookingModalWithSelection);
 
       document.getElementById('tab-booking-view').addEventListener('click', () => {
         document.getElementById('booking-section').classList.remove('hidden');
