@@ -35,7 +35,7 @@
       animation: slowSpin 8s linear infinite;
     }
     .fade-transition {
-      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.7s;
+      transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s;
     }
     /* 藍紫呼吸光卡片 */
     @keyframes bluePurplePulse {
@@ -55,7 +55,7 @@
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen pb-16 antialiased selection:bg-amber-100">
 
-  <!-- 背景鋼琴音樂（沉靜優雅現代鋼琴） -->
+  <!-- 背景鋼琴音樂 -->
   <audio id="bg-music" loop preload="auto">
     <source src="https://cdn.pixabay.com/download/audio/2022/11/06/audio_c35c8bcf62.mp3?filename=soft-piano-ambient-126245.mp3" type="audio/mp3">
   </audio>
@@ -86,7 +86,7 @@
     <!-- 兩張大卡片 -->
     <div class="w-full max-w-sm sm:max-w-md space-y-4 my-2">
       <!-- 卡片 A：長期租用 -->
-      <div onclick="selectCategory('regular_rent')" class="portal-card-glow group bg-white/90 backdrop-blur-sm p-5 sm:p-6 rounded-2xl border cursor-pointer active:scale-98 hover:scale-[1.01] transition-all">
+      <div onclick="selectCategory('regular_rent')" class="portal-card-glow group bg-white/90 backdrop-blur-sm p-5 sm:p-6 rounded-2xl border cursor-pointer active:scale-95 hover:scale-[1.01] transition-all">
         <div class="flex items-center justify-between mb-2">
           <span class="text-xs font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2.5 py-0.5 rounded-full font-eng-serif">Plan A</span>
           <span class="text-xs text-slate-400 group-hover:text-indigo-600 transition">點選進入 →</span>
@@ -100,7 +100,7 @@
       </div>
 
       <!-- 卡片 B：空間合作 -->
-      <div onclick="selectCategory('partnership')" class="portal-card-glow group bg-white/90 backdrop-blur-sm p-5 sm:p-6 rounded-2xl border cursor-pointer active:scale-98 hover:scale-[1.01] transition-all" style="animation-delay: 1.9s;">
+      <div onclick="selectCategory('partnership')" class="portal-card-glow group bg-white/90 backdrop-blur-sm p-5 sm:p-6 rounded-2xl border cursor-pointer active:scale-95 hover:scale-[1.01] transition-all" style="animation-delay: 1.9s;">
         <div class="flex items-center justify-between mb-2">
           <span class="text-xs font-bold text-purple-600 bg-purple-50 border border-purple-100 px-2.5 py-0.5 rounded-full font-eng-serif">Plan B</span>
           <span class="text-xs text-slate-400 group-hover:text-purple-600 transition">點選進入 →</span>
@@ -120,7 +120,7 @@
   </div>
 
   <!-- 2. 身分確認過場動畫 -->
-  <div id="auth-loading-screen" class="fixed inset-0 z-40 bg-white/95 backdrop-blur-md flex flex-col items-center justify-center p-6 space-y-5 fade-transition hidden">
+  <div id="auth-loading-screen" class="fixed inset-0 z-40 bg-white/95 backdrop-blur-md flex flex-col items-center justify-center p-6 space-y-5 fade-transition hidden opacity-0">
     <div class="relative w-16 h-16">
       <div class="absolute inset-0 rounded-full border-2 border-amber-200 border-t-amber-600 animate-spin"></div>
       <div class="absolute inset-2 rounded-full border-2 border-slate-100 border-b-slate-400 animate-spin" style="animation-direction: reverse; animation-duration: 1.5s;"></div>
@@ -235,7 +235,7 @@
   </main>
 
   <script>
-    const LIFF_ID = '2011761541-H6wrNahH'; 
+    const LIFF_ID = '2011761541-H6wrNahH';
     const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbyV6fcIFzpwv5uUGWCb1GPcNrE7s6ETXmS7I-R6RUhiSBdhqRlSUoVomtzyFefSo7bDEg/exec';
 
     let currentCategory = 'regular_rent';
@@ -250,7 +250,6 @@
       setupAudioToggle();
     });
 
-    /* 音樂控制器 */
     function setupAudioToggle() {
       const audio = document.getElementById('bg-music');
       const toggleBtn = document.getElementById('toggle-music-btn');
@@ -272,7 +271,7 @@
       });
     }
 
-    /* 點擊卡片觸發進場 */
+    /* 關鍵修復：立即執行動畫退場，絕不卡死在首頁 */
     async function selectCategory(category) {
       applyCategoryView(category);
 
@@ -281,34 +280,50 @@
       const splash = document.getElementById('splash-screen');
       const authLoading = document.getElementById('auth-loading-screen');
 
-      // 嘗試播放音訊
-      try {
+      // 1. 播放音樂（獨立捕捉錯誤，就算失敗也往下執行）
+      if (audio) {
         audio.volume = 0.5;
-        await audio.play();
-        isMusicPlaying = true;
-        toggleBtn.classList.add('music-spin');
-      } catch (err) {
-        console.warn('音樂自動播放受阻:', err);
+        audio.play().then(() => {
+          isMusicPlaying = true;
+          if (toggleBtn) toggleBtn.classList.add('music-spin');
+        }).catch(err => {
+          console.warn('音訊自動播放被瀏覽器限制，略過音訊：', err);
+        });
       }
 
-      // 開場畫面退場
-      splash.style.opacity = '0';
-      splash.style.pointerEvents = 'none';
-      setTimeout(() => splash.classList.add('hidden'), 700);
+      // 2. 開場首頁立刻淡出
+      if (splash) {
+        splash.style.opacity = '0';
+        splash.style.pointerEvents = 'none';
+        setTimeout(() => {
+          splash.classList.add('hidden');
+        }, 600);
+      }
 
-      // 身分驗證過場動畫
-      authLoading.classList.remove('hidden');
-      authLoading.style.opacity = '1';
+      // 3. 顯示過場動畫
+      if (authLoading) {
+        authLoading.classList.remove('hidden');
+        // 延遲一點點讓 transition 生效
+        setTimeout(() => authLoading.classList.remove('opacity-0'), 20);
+      }
 
-      await initLineAuth();
+      // 4. 背景進行 LIFF 認證（限時 2.5 秒，逾時自動放行）
+      try {
+        const timeoutPromise = new Promise(resolve => setTimeout(resolve, 2500));
+        await Promise.race([initLineAuth(), timeoutPromise]);
+      } catch (e) {
+        console.warn('認證異常或超時，自動放行：', e);
+      }
 
-      setTimeout(() => {
-        authLoading.style.opacity = '0';
-        setTimeout(() => authLoading.classList.add('hidden'), 700);
-      }, 600);
+      // 5. 關閉過場轉圈
+      if (authLoading) {
+        authLoading.classList.add('opacity-0');
+        setTimeout(() => {
+          authLoading.classList.add('hidden');
+        }, 600);
+      }
     }
 
-    /* 方案與動態欄位切換 */
     function applyCategoryView(category) {
       currentCategory = category;
       const planBadge = document.getElementById('plan-badge');
@@ -317,17 +332,21 @@
       const fieldPartnership = document.getElementById('field-partnership');
 
       if (category === 'regular_rent') {
-        planBadge.textContent = 'Plan A';
-        planBadge.className = 'text-[11px] font-bold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-md font-eng-serif';
-        planTitle.textContent = '長期租用 / 常態班級意向';
-        fieldRegular.classList.remove('hidden');
-        fieldPartnership.classList.add('hidden');
+        if (planBadge) {
+          planBadge.textContent = 'Plan A';
+          planBadge.className = 'text-[11px] font-bold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-md font-eng-serif';
+        }
+        if (planTitle) planTitle.textContent = '長期租用 / 常態班級意向';
+        if (fieldRegular) fieldRegular.classList.remove('hidden');
+        if (fieldPartnership) fieldPartnership.classList.add('hidden');
       } else {
-        planBadge.textContent = 'Plan B';
-        planBadge.className = 'text-[11px] font-bold text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded-md font-eng-serif';
-        planTitle.textContent = '空間合作 / 資源出借企劃';
-        fieldRegular.classList.add('hidden');
-        fieldPartnership.classList.remove('hidden');
+        if (planBadge) {
+          planBadge.textContent = 'Plan B';
+          planBadge.className = 'text-[11px] font-bold text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded-md font-eng-serif';
+        }
+        if (planTitle) planTitle.textContent = '空間合作 / 資源出借企劃';
+        if (fieldRegular) fieldRegular.classList.add('hidden');
+        if (fieldPartnership) fieldPartnership.classList.remove('hidden');
       }
     }
 
@@ -336,16 +355,27 @@
       applyCategoryView(nextCategory);
     }
 
-    /* LINE 驗證串接 */
     async function initLineAuth() {
-      try {
-        if (typeof liff === 'undefined') return;
+      const userDisplay = document.getElementById('user-display');
+      const verifyBadge = document.getElementById('verify-badge');
+      const userAvatar = document.getElementById('user-avatar');
+      const contactNameInput = document.getElementById('contact-name');
 
+      if (typeof liff === 'undefined') {
+        if (userDisplay) userDisplay.textContent = '訪客模式';
+        if (verifyBadge) verifyBadge.textContent = 'SDK 未載入';
+        return;
+      }
+
+      try {
         await liff.init({ liffId: LIFF_ID });
 
         if (!liff.isLoggedIn()) {
-          document.getElementById('user-display').textContent = '訪客模式';
-          document.getElementById('verify-badge').textContent = '未認證';
+          if (userDisplay) userDisplay.textContent = '訪客模式';
+          if (verifyBadge) {
+            verifyBadge.textContent = '未認證';
+            verifyBadge.className = 'block text-[9px] text-amber-600 font-semibold';
+          }
           return;
         }
 
@@ -355,28 +385,31 @@
           currentUser.lineName = profile.displayName || 'LINE 用戶';
           currentUser.pictureUrl = profile.pictureUrl || '';
 
-          document.getElementById('user-display').textContent = currentUser.lineName;
-          document.getElementById('verify-badge').textContent = '已認證';
-          document.getElementById('verify-badge').className = 'block text-[9px] text-emerald-600 font-semibold';
-
-          if (currentUser.pictureUrl) {
-            const avatar = document.getElementById('user-avatar');
-            avatar.src = currentUser.pictureUrl;
-            avatar.classList.remove('hidden');
+          if (userDisplay) userDisplay.textContent = currentUser.lineName;
+          if (verifyBadge) {
+            verifyBadge.textContent = '已認證';
+            verifyBadge.className = 'block text-[9px] text-emerald-600 font-semibold';
           }
 
-          const contactNameInput = document.getElementById('contact-name');
-          if (!contactNameInput.value) {
+          if (currentUser.pictureUrl && userAvatar) {
+            userAvatar.src = currentUser.pictureUrl;
+            userAvatar.classList.remove('hidden');
+          }
+
+          if (contactNameInput && !contactNameInput.value) {
             contactNameInput.value = currentUser.lineName;
           }
         }
       } catch (err) {
         console.warn('LIFF 載入提示：', err);
-        document.getElementById('verify-badge').textContent = '連線略過';
+        if (userDisplay) userDisplay.textContent = '訪客模式';
+        if (verifyBadge) {
+          verifyBadge.textContent = '外部開啟';
+          verifyBadge.className = 'block text-[9px] text-slate-400 font-semibold';
+        }
       }
     }
 
-    /* 表單提交至 GAS */
     async function submitForm(event) {
       event.preventDefault();
 
@@ -399,8 +432,9 @@
       };
 
       try {
-        const res = await fetch(GAS_API_URL, {
+        await fetch(GAS_API_URL, {
           method: 'POST',
+          mode: 'no-cors',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify(payload)
         });
