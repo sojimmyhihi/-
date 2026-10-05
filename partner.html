@@ -63,8 +63,8 @@
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen pb-16 antialiased selection:bg-amber-100">
 
-  <!-- 改用 Google 官方無跨域防盜限制的高品質純鋼琴音軌 -->
-  <audio id="bg-music" loop preload="auto" playsinline webkit-playsinline src="https://actions.google.com/sounds/v1/musical_tracks/piano_ballad.mp3"></audio>
+  <!-- 改用同目錄 GitHub 本地音訊，徹底解決 LINE 跨網域阻擋問題 -->
+  <audio id="bg-music" loop preload="auto" playsinline webkit-playsinline src="./bg-music.mp3"></audio>
 
   <!-- 1. 開場優雅大理石封面 -->
   <div id="splash-screen" class="fixed inset-0 z-50 marble-bg flex flex-col justify-between items-center py-16 px-6 fade-transition cursor-pointer select-none">
@@ -303,33 +303,32 @@
       const toggleBtn = document.getElementById('toggle-music-btn');
       const musicIcon = document.getElementById('music-icon');
 
-      // 預載緩衝
-      if (audio) {
-        audio.load();
-      }
+      let audioUnlocked = false;
 
-      // 真正喚醒並播放音訊的函式
-      const triggerAudio = () => {
-        if (!audio) return;
+      // 針對手機端與 LINE In-App Webview 的強制解鎖函式
+      const unlockAndPlay = () => {
+        if (!audio || audioUnlocked) return;
         audio.volume = 0.5;
+
         const playPromise = audio.play();
         if (playPromise !== undefined) {
           playPromise.then(() => {
+            audioUnlocked = true;
             isMusicPlaying = true;
             toggleBtn.classList.add('music-spin');
             musicIcon.textContent = '🎵';
-          }).catch(e => {
-            console.warn('音訊播放受限：', e);
+          }).catch(err => {
+            console.warn('音訊等待後續手勢播放：', err);
           });
         }
       };
 
-      // 點擊封面開啟流程
+      // 手指碰觸 (touchstart) 與點擊 (click) 雙管齊下解鎖
+      splash.addEventListener('touchstart', unlockAndPlay, { passive: true, once: true });
+
       const handleStart = async (e) => {
         e.stopPropagation();
-        
-        // 抓緊用戶點擊原生事件瞬間播放音訊
-        triggerAudio();
+        unlockAndPlay();
 
         splash.style.opacity = '0';
         splash.style.pointerEvents = 'none';
@@ -363,7 +362,7 @@
             isMusicPlaying = true;
             toggleBtn.classList.add('music-spin');
             musicIcon.textContent = '🎵';
-          });
+          }).catch(err => console.warn(err));
         }
       });
     }
@@ -409,7 +408,7 @@
       currentOption = optionKey;
       renderFormFields();
 
-      // 二次確保音訊播放（若初次受限）
+      // 二次確保音訊播放（若初次觸摸因網路未載入完成）
       const audio = document.getElementById('bg-music');
       if (audio && audio.paused) {
         audio.play().then(() => {
