@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>舞的店 - 長期合作夥伴洽詢</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+  <style>
+    .marble-bg {
+      background-color: #f7f8fa;
+      background-image: 
+        radial-gradient(at 15% 25%, rgba(195, 203, 214, 0.5) 0px, transparent 55%),
+        radial-gradient(at 85% 75%, rgba(210, 215, 222, 0.55) 0px, transparent 55%),
+        linear-gradient(115deg, transparent 40%, rgba(175, 185, 200, 0.35) 46%, rgba(150, 160, 175, 0.5) 48%, rgba(255, 255, 255, 0.85) 50%, transparent 54%),
+        linear-gradient(245deg, transparent 60%, rgba(185, 195, 205, 0.3) 64%, rgba(165, 175, 190, 0.45) 66%, transparent 70%),
+        radial-gradient(circle at 50% 50%, #ffffff 0%, #edf1f5 100%);
+      background-size: 100% 100%, 100% 100%, 260px 100%, 320px 100%, 100% 100%;
+    }
+
+    .fade-in {
+      animation: fadeIn 0.4s ease-out forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen pb-12">
+
+  <!-- Header -->
+  <header class="marble-bg text-slate-800 pt-5 pb-6 px-5 shadow-sm rounded-b-3xl border-b border-slate-300/80 relative overflow-hidden">
+    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200"></div>
+
+    <div class="max-w-md mx-auto flex items-center justify-between">
+      <div class="space-y-0.5">
+        <div class="flex items-center gap-2">
+          <span class="inline-block w-2.5 h-2.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.6)]"></span>
+          <h1 class="text-xl font-black tracking-wide text-slate-900 font-serif">舞的店 合作提案</h1>
+        </div>
+        <p class="text-[10px] text-slate-500 font-bold tracking-[0.22em] uppercase font-sans">
+          PARTNERSHIP PROGRAM
+        </p>
+      </div>
+
+      <div class="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-300 shadow-sm">
+        <img id="user-avatar" src="https://via.placeholder.com/28" class="w-6 h-6 rounded-full object-cover hidden border border-slate-200">
+        <span id="user-display" class="text-xs font-bold text-slate-800 max-w-[85px] truncate">LINE 連結中...</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-md mx-auto p-4 space-y-4">
+
+    <!-- 第一層：身分選擇卡片 (Step 1) -->
+    <div id="step-role-selection" class="space-y-4 fade-in">
+      <div class="text-center py-3">
+        <h2 class="text-base font-black text-slate-800">請選擇您的合作身分</h2>
+        <p class="text-xs text-slate-500 mt-1">我們期待與專業的師資及優質空間共同創造舞蹈能量</p>
+      </div>
+
+      <!-- 老師卡片 -->
+      <div onclick="selectRole('長期開課老師')" class="bg-white p-5 rounded-2xl border-2 border-transparent hover:border-indigo-500 shadow-sm active:scale-98 cursor-pointer transition flex items-center gap-4">
+        <div class="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center text-3xl shadow-inner shrink-0">
+          💃
+        </div>
+        <div class="space-y-1">
+          <h3 class="text-sm font-black text-slate-800">我是老師 / 舞團</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">尋找固定時段開課、常態包堂培訓或合作推廣舞蹈課程。</p>
+        </div>
+      </div>
+
+      <!-- 房東 / 空間主卡片 -->
+      <div onclick="selectRole('空間合作房東')" class="bg-white p-5 rounded-2xl border-2 border-transparent hover:border-indigo-500 shadow-sm active:scale-98 cursor-pointer transition flex items-center gap-4">
+        <div class="w-14 h-14 rounded-2xl bg-amber-50 flex items-center justify-center text-3xl shadow-inner shrink-0">
+          🏢
+        </div>
+        <div class="space-y-1">
+          <h3 class="text-sm font-black text-slate-800">我有閒置空間 / 房東</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">具備合適空間欲改建為舞蹈教室、場地分租或聯名經營合作。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 第二層：詳細表單 (Step 2) -->
+    <div id="step-form" class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4 hidden fade-in">
+      <div class="flex items-center justify-between border-b pb-3">
+        <div>
+          <span id="role-tag" class="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-50 text-indigo-600">--</span>
+          <h2 class="text-sm font-black text-slate-800 mt-1">填寫洽詢資訊</h2>
+        </div>
+        <button onclick="backToStep1()" class="text-xs text-slate-400 hover:text-slate-600 font-bold">← 重新選擇</button>
+      </div>
+
+      <!-- 基本聯絡資料 -->
+      <div class="space-y-3 text-xs font-bold text-slate-600">
+        <div>
+          <label class="block mb-1">您的姓名 / 稱呼 <span class="text-rose-500">*</span></label>
+          <input type="text" id="input-name" placeholder="請輸入姓名（例如：王小明）" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+        <div>
+          <label class="block mb-1">聯絡手機 <span class="text-rose-500">*</span></label>
+          <input type="tel" id="input-phone" placeholder="例如：0912345678" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+      </div>
+
+      <!-- 動態欄位區（依身分切換） -->
+      <div id="dynamic-fields" class="space-y-3 text-xs font-bold text-slate-600 border-t pt-3">
+        <!-- JS 動態插入 -->
+      </div>
+
+      <button id="submit-btn" onclick="submitPartnerForm()" class="w-full py-3 text-sm rounded-xl bg-indigo-600 hover:bg-indigo-700 font-bold text-white shadow-md active:scale-98 transition">
+        送出合作洽詢
+      </button>
+    </div>
+
+    <!-- 成功畫面 -->
+    <div id="step-success" class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm text-center space-y-3 hidden fade-in">
+      <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-3xl mx-auto">
+        ✓
+      </div>
+      <h3 class="text-base font-black text-slate-800">提案已送出</h3>
+      <p class="text-xs text-slate-500 leading-relaxed">
+        感謝您的洽詢！我們已收到您的合作資訊，負責人將於 1-2 個工作天內主動與您聯繫。
+      </p>
+      <button onclick="liff.closeWindow()" class="mt-4 px-6 py-2 text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl">
+        關閉視窗
+      </button>
+    </div>
+
+  </main>
+
+  <script>
+    const LIFF_ID = '2011761541-hL5HCl1Q'; // 使用與原系統相同的 LIFF ID
+    const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbyV6fclFzpwv5uUGWCb1GPcNrE7s6ETXmS7I-R6RUhiSBd/exec';
+
+    let currentRole = '';
+    let lineProfile = {
+      userId: '',
+      displayName: '訪客',
+      pictureUrl: ''
+    };
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      await initLIFF();
+    });
+
+    async function initLIFF() {
+      try {
+        await liff.init({ liffId: LIFF_ID });
+        if (liff.isLoggedIn()) {
+          const profile = await liff.getProfile();
+          lineProfile.userId = profile.userId;
+          lineProfile.displayName = profile.displayName || 'LINE 用戶';
+          lineProfile.pictureUrl = profile.pictureUrl || '';
+
+          document.getElementById('user-display').textContent = profile.displayName;
+          if (profile.pictureUrl) {
+            const img = document.getElementById('user-avatar');
+            img.src = profile.pictureUrl;
+            img.classList.remove('hidden');
+          }
+        }
+      } catch (e) {
+        console.warn('LIFF 載入提示：', e);
+      }
+    }
+
+    function selectRole(role) {
+      currentRole = role;
+      document.getElementById('step-role-selection').classList.add('hidden');
+      document.getElementById('step-form').classList.remove('hidden');
+      document.getElementById('role-tag').textContent = role;
+
+      const dynamicContainer = document.getElementById('dynamic-fields');
+      if (role === '長期開課老師') {
+        dynamicContainer.innerHTML = `
+          <div>
+            <label class="block mb-1">主要授課舞風 / 項目 <span class="text-rose-500">*</span></label>
+            <input type="text" id="detail-1" placeholder="例如：國際標準舞、拉丁、街舞、瑜伽" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-medium outline-none">
+          </div>
+          <div>
+            <label class="block mb-1">期望開課時段 / 頻率 <span class="text-rose-500">*</span></label>
+            <input type="text" id="detail-2" placeholder="例如：每週二晚上 19:00-21:00、每週固定 2 堂" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-medium outline-none">
+          </div>
+          <div>
+            <label class="block mb-1">預計每班學員人數（選填）</label>
+            <input type="text" id="detail-3" placeholder="例如：個人私教 / 6-10 人團班" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-medium outline-none">
+          </div>
+        `;
+      } else {
+        dynamicContainer.innerHTML = `
+          <div>
+            <label class="block mb-1">空間可用坪數 <span class="text-rose-500">*</span></label>
+            <input type="text" id="detail-1" placeholder="例如：約 25 坪、無柱開放空間" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-medium outline-none">
+          </div>
+          <div>
+            <label class="block mb-1">空間所在區域 / 地址概況 <span class="text-rose-500">*</span></label>
+            <input type="text" id="detail-2" placeholder="例如：台南市東區近成大、有電梯" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-medium outline-none">
+          </div>
+          <div>
+            <label class="block mb-1">空間現況 / 合作構想備註（選填）</label>
+            <textarea id="detail-3" rows="2" placeholder="例如：目前為毛胚屋、已有木地板、希望長租或利潤分成" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-medium outline-none"></textarea>
+          </div>
+        `;
+      }
+    }
+
+    function backToStep1() {
+      document.getElementById('step-form').classList.add('hidden');
+      document.getElementById('step-role-selection').classList.remove('hidden');
+    }
+
+    async function submitPartnerForm() {
+      const name = document.getElementById('input-name').value.trim();
+      const phone = document.getElementById('input-phone').value.trim();
+      const d1 = document.getElementById('detail-1').value.trim();
+      const d2 = document.getElementById('detail-2').value.trim();
+      const d3 = document.getElementById('detail-3').value.trim();
+
+      if (!name || !phone || !d1 || !d2) {
+        alert('請完整填寫必填欄位！');
+        return;
+      }
+
+      const submitBtn = document.getElementById('submit-btn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = '送出資料中...';
+
+      try {
+        const payload = {
+          action: 'submitPartnership',
+          partner_type: currentRole,
+          real_name: name,
+          phone: phone,
+          line_user_id: lineProfile.userId,
+          line_name: lineProfile.displayName,
+          detail_1: d1,
+          detail_2: d2,
+          detail_3: d3
+        };
+
+        const res = await fetch(GAS_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+
+        if (result.success) {
+          document.getElementById('step-form').classList.add('hidden');
+          document.getElementById('step-success').classList.remove('hidden');
+        } else {
+          alert('送出失敗：' + (result.error || '請稍後再試'));
+        }
+      } catch (err) {
+        alert('連線失敗：' + err.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '送出合作洽詢';
+      }
+    }
+  </script>
+</body>
+</html>
