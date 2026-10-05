@@ -8,238 +8,331 @@
   <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
   <style>
+    /* 典雅大理石底紋 */
     .marble-bg {
       background-color: #f7f8fa;
       background-image: 
-        radial-gradient(at 15% 25%, rgba(195, 203, 214, 0.5) 0px, transparent 55%),
-        radial-gradient(at 85% 75%, rgba(210, 215, 222, 0.55) 0px, transparent 55%),
-        linear-gradient(115deg, transparent 40%, rgba(175, 185, 200, 0.35) 46%, rgba(150, 160, 175, 0.5) 48%, rgba(255, 255, 255, 0.85) 50%, transparent 54%),
-        linear-gradient(245deg, transparent 60%, rgba(185, 195, 205, 0.3) 64%, rgba(165, 175, 190, 0.45) 66%, transparent 70%),
+        radial-gradient(at 15% 25%, rgba(195, 203, 214, 0.45) 0px, transparent 55%),
+        radial-gradient(at 85% 75%, rgba(210, 215, 222, 0.5) 0px, transparent 55%),
+        linear-gradient(115deg, transparent 40%, rgba(175, 185, 200, 0.3) 46%, rgba(150, 160, 175, 0.4) 48%, rgba(255, 255, 255, 0.85) 50%, transparent 54%),
         radial-gradient(circle at 50% 50%, #ffffff 0%, #edf1f5 100%);
-      background-size: 100% 100%, 100% 100%, 260px 100%, 320px 100%, 100% 100%;
+      background-size: 100% 100%, 100% 100%, 260px 100%, 100% 100%;
     }
 
-    .fade-in {
-      animation: fadeIn 0.4s ease-out forwards;
+    /* 呼吸微光呼吸動畫 */
+    @keyframes subtle-breathe {
+      0%, 100% {
+        opacity: 0.35;
+        transform: scale(0.98);
+        box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+      }
+      50% {
+        opacity: 0.95;
+        transform: scale(1.02);
+        box-shadow: 0 0 25px 3px rgba(99, 102, 241, 0.25);
+      }
     }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(12px); }
-      to { opacity: 1; transform: translateY(0); }
+
+    .breathe-glow {
+      animation: subtle-breathe 3.6s ease-in-out infinite;
     }
+
+    /* 音樂等化器跳動動畫 */
+    @keyframes eq-bounce {
+      0%, 100% { height: 4px; }
+      50% { height: 16px; }
+    }
+    .eq-bar-1 { animation: eq-bounce 1.1s ease-in-out infinite; }
+    .eq-bar-2 { animation: eq-bounce 0.8s ease-in-out infinite 0.2s; }
+    .eq-bar-3 { animation: eq-bounce 1.3s ease-in-out infinite 0.4s; }
   </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen pb-12">
+<body class="bg-slate-100 text-slate-800 min-h-screen pb-16 font-sans">
 
-  <!-- Header -->
+  <!-- 背景氛圍音樂播放器 (預設無版權鋼琴爵士曲，點擊切換) -->
+  <audio id="bg-music" loop preload="auto">
+    <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- 頂部 Header -->
   <header class="marble-bg text-slate-800 pt-5 pb-6 px-5 shadow-sm rounded-b-3xl border-b border-slate-300/80 relative overflow-hidden">
     <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200"></div>
 
     <div class="max-w-md mx-auto flex items-center justify-between">
       <div class="space-y-0.5">
         <div class="flex items-center gap-2">
-          <span class="inline-block w-2.5 h-2.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.6)]"></span>
-          <h1 class="text-xl font-black tracking-wide text-slate-900 font-serif">舞的店 合作提案</h1>
+          <!-- 呼吸指示燈 -->
+          <span class="inline-block w-2.5 h-2.5 rounded-full bg-indigo-500 breathe-glow"></span>
+          <h1 class="text-xl font-black tracking-wide text-slate-900 font-serif">長期夥伴洽詢</h1>
         </div>
-        <p class="text-[10px] text-slate-500 font-bold tracking-[0.22em] uppercase font-sans">
-          PARTNERSHIP PROGRAM
+        <p class="text-[9px] text-slate-500 font-bold tracking-[0.22em] uppercase font-sans">
+          PARTNERSHIP & RESIDENCY
         </p>
       </div>
 
-      <div class="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-300 shadow-sm">
-        <img id="user-avatar" src="https://via.placeholder.com/28" class="w-6 h-6 rounded-full object-cover hidden border border-slate-200">
-        <span id="user-display" class="text-xs font-bold text-slate-800 max-w-[85px] truncate">LINE 連結中...</span>
-      </div>
+      <!-- 音樂開關按鈕 (帶音波動畫) -->
+      <button id="music-toggle-btn" class="flex items-center gap-2.5 bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-slate-300 shadow-sm active:scale-95 transition">
+        <div id="eq-visual" class="flex items-end gap-0.5 h-4 opacity-40">
+          <span class="w-1 bg-indigo-600 rounded-full h-1"></span>
+          <span class="w-1 bg-indigo-600 rounded-full h-2"></span>
+          <span class="w-1 bg-indigo-600 rounded-full h-1"></span>
+        </div>
+        <div class="text-left">
+          <span id="music-label" class="block text-[11px] font-bold text-slate-800 tracking-wider">BGM OFF</span>
+          <span class="block text-[8px] text-slate-400 font-semibold uppercase tracking-widest">Ambient</span>
+        </div>
+      </button>
     </div>
   </header>
 
   <main class="max-w-md mx-auto p-4 space-y-4">
-
-    <!-- 第一層：身分選擇卡片 (Step 1) -->
-    <div id="step-role-selection" class="space-y-4 fade-in">
-      <div class="text-center py-3">
-        <h2 class="text-base font-black text-slate-800">請選擇您的合作身分</h2>
-        <p class="text-xs text-slate-500 mt-1">我們期待與專業的師資及優質空間共同創造舞蹈能量</p>
-      </div>
-
-      <!-- 老師卡片 -->
-      <div onclick="selectRole('長期開課老師')" class="bg-white p-5 rounded-2xl border-2 border-transparent hover:border-indigo-500 shadow-sm active:scale-98 cursor-pointer transition flex items-center gap-4">
-        <div class="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center text-3xl shadow-inner shrink-0">
-          💃
-        </div>
-        <div class="space-y-1">
-          <h3 class="text-sm font-black text-slate-800">我是老師 / 舞團</h3>
-          <p class="text-xs text-slate-500 leading-relaxed">尋找固定時段開課、常態包堂培訓或合作推廣舞蹈課程。</p>
-        </div>
-      </div>
-
-      <!-- 房東 / 空間主卡片 -->
-      <div onclick="selectRole('空間合作房東')" class="bg-white p-5 rounded-2xl border-2 border-transparent hover:border-indigo-500 shadow-sm active:scale-98 cursor-pointer transition flex items-center gap-4">
-        <div class="w-14 h-14 rounded-2xl bg-amber-50 flex items-center justify-center text-3xl shadow-inner shrink-0">
-          🏢
-        </div>
-        <div class="space-y-1">
-          <h3 class="text-sm font-black text-slate-800">我有閒置空間 / 房東</h3>
-          <p class="text-xs text-slate-500 leading-relaxed">具備合適空間欲改建為舞蹈教室、場地分租或聯名經營合作。</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- 第二層：詳細表單 (Step 2) -->
-    <div id="step-form" class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4 hidden fade-in">
-      <div class="flex items-center justify-between border-b pb-3">
-        <div>
-          <span id="role-tag" class="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-50 text-indigo-600">--</span>
-          <h2 class="text-sm font-black text-slate-800 mt-1">填寫洽詢資訊</h2>
-        </div>
-        <button onclick="backToStep1()" class="text-xs text-slate-400 hover:text-slate-600 font-bold">← 重新選擇</button>
-      </div>
-
-      <!-- 基本聯絡資料 -->
-      <div class="space-y-3 text-xs font-bold text-slate-600">
-        <div>
-          <label class="block mb-1">您的姓名 / 稱呼 <span class="text-rose-500">*</span></label>
-          <input type="text" id="input-name" placeholder="請輸入姓名（例如：王小明）" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none">
-        </div>
-        <div>
-          <label class="block mb-1">聯絡手機 <span class="text-rose-500">*</span></label>
-          <input type="tel" id="input-phone" placeholder="例如：0912345678" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none">
-        </div>
-      </div>
-
-      <!-- 動態欄位區（依身分切換） -->
-      <div id="dynamic-fields" class="space-y-3 text-xs font-bold text-slate-600 border-t pt-3">
-        <!-- JS 動態插入 -->
-      </div>
-
-      <button id="submit-btn" onclick="submitPartnerForm()" class="w-full py-3 text-sm rounded-xl bg-indigo-600 hover:bg-indigo-700 font-bold text-white shadow-md active:scale-98 transition">
-        送出合作洽詢
-      </button>
-    </div>
-
-    <!-- 成功畫面 -->
-    <div id="step-success" class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm text-center space-y-3 hidden fade-in">
-      <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-3xl mx-auto">
-        ✓
-      </div>
-      <h3 class="text-base font-black text-slate-800">提案已送出</h3>
-      <p class="text-xs text-slate-500 leading-relaxed">
-        感謝您的洽詢！我們已收到您的合作資訊，負責人將於 1-2 個工作天內主動與您聯繫。
+    <!-- 引言卡片 -->
+    <div class="bg-white/90 backdrop-blur-sm p-4 rounded-2xl border border-slate-200 shadow-sm text-center space-y-1">
+      <span class="text-[10px] tracking-[0.3em] font-black text-indigo-500 uppercase block">Collaborate with Us</span>
+      <h2 class="text-base font-bold text-slate-800">與「舞的店」共創優質舞動時光</h2>
+      <p class="text-xs text-slate-500 leading-relaxed pt-1">
+        請點選您的合作身分，我們將為您規劃專屬的時段折扣與空間支援。
       </p>
-      <button onclick="liff.closeWindow()" class="mt-4 px-6 py-2 text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl">
-        關閉視窗
+    </div>
+
+    <!-- 角色選擇器（極簡卡片 ＋ 呼吸邊框 ＋ 英文副標） -->
+    <div class="space-y-2.5">
+      <span class="text-xs font-bold text-slate-400 px-1 tracking-wider uppercase">Select Your Role · 選擇身分</span>
+      
+      <div class="grid grid-cols-1 gap-2.5" id="role-selector">
+        
+        <!-- 角色 1：授課師資 -->
+        <div onclick="selectRole('teacher')" id="card-teacher" class="role-card relative bg-white p-4 rounded-2xl border-2 border-slate-200 cursor-pointer transition-all duration-300 hover:border-indigo-400 active:scale-[0.99] select-none">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3.5">
+              <div class="w-11 h-11 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-xl">
+                🩰
+              </div>
+              <div>
+                <h3 class="text-sm font-black text-slate-800">授課師資 / 定期常態班</h3>
+                <p class="text-[10px] text-slate-400 font-semibold tracking-wider uppercase mt-0.5">Dance Instructor · Regular Classes</p>
+              </div>
+            </div>
+            <!-- 選中圓點指示器 -->
+            <div class="check-dot w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center">
+              <span class="inner-dot w-2.5 h-2.5 rounded-full bg-indigo-600 hidden"></span>
+            </div>
+          </div>
+          <p class="text-xs text-slate-500 mt-2.5 pl-14 leading-relaxed">
+            每週固定時段排課、常態教學班級，享長期專屬保留時段與特惠包堂方案。
+          </p>
+        </div>
+
+        <!-- 角色 2：舞團排練 -->
+        <div onclick="selectRole('crew')" id="card-crew" class="role-card relative bg-white p-4 rounded-2xl border-2 border-slate-200 cursor-pointer transition-all duration-300 hover:border-indigo-400 active:scale-[0.99] select-none">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3.5">
+              <div class="w-11 h-11 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-xl">
+                💃
+              </div>
+              <div>
+                <h3 class="text-sm font-black text-slate-800">舞團集訓 / 演出備賽排練</h3>
+                <p class="text-[10px] text-slate-400 font-semibold tracking-wider uppercase mt-0.5">Dance Crew · Intensive Rehearsal</p>
+              </div>
+            </div>
+            <div class="check-dot w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center">
+              <span class="inner-dot w-2.5 h-2.5 rounded-full bg-indigo-600 hidden"></span>
+            </div>
+          </div>
+          <p class="text-xs text-slate-500 mt-2.5 pl-14 leading-relaxed">
+            專案型密集集訓、賽前隊形彩排、成果展備賽，彈性多時段預約安排。
+          </p>
+        </div>
+
+        <!-- 角色 3：工作坊 / 空間租借者 -->
+        <div onclick="selectRole('event')" id="card-event" class="role-card relative bg-white p-4 rounded-2xl border-2 border-slate-200 cursor-pointer transition-all duration-300 hover:border-indigo-400 active:scale-[0.99] select-none">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3.5">
+              <div class="w-11 h-11 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-xl">
+                🤝
+              </div>
+              <div>
+                <h3 class="text-sm font-black text-slate-800">單場工作坊 / 商業活動拍攝</h3>
+                <p class="text-[10px] text-slate-400 font-semibold tracking-wider uppercase mt-0.5">Workshop · Studio Rental & Shooting</p>
+              </div>
+            </div>
+            <div class="check-dot w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center">
+              <span class="inner-dot w-2.5 h-2.5 rounded-full bg-indigo-600 hidden"></span>
+            </div>
+          </div>
+          <p class="text-xs text-slate-500 mt-2.5 pl-14 leading-relaxed">
+            大師客座講座、肢體工作坊、動態動態錄影或商業品牌平面拍攝。
+          </p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 洽詢資料填寫表單 -->
+    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3.5">
+      <div>
+        <label class="block text-xs font-bold text-slate-600 mb-1">
+          姓名 / 團隊稱呼 <span class="text-indigo-600">*</span>
+          <span class="text-[10px] text-slate-400 font-normal ml-1">Name / Team</span>
+        </label>
+        <input type="text" id="partner-name" placeholder="例如：黃老師 / 舞春舞團" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-bold focus:ring-2 focus:ring-indigo-500 outline-none">
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-600 mb-1">
+          聯絡電話 <span class="text-indigo-600">*</span>
+          <span class="text-[10px] text-slate-400 font-normal ml-1">Phone Number</span>
+        </label>
+        <input type="tel" id="partner-phone" placeholder="例如：0910076252" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-bold focus:ring-2 focus:ring-indigo-500 outline-none">
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-600 mb-1">
+          預計合作型態與需求簡述
+          <span class="text-[10px] text-slate-400 font-normal ml-1">Plan & Schedule</span>
+        </label>
+        <textarea id="partner-desc" rows="3" placeholder="例如：每週二晚上預計固定開國標團班 2 小時，想了解長期包堂優惠方案" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none"></textarea>
+      </div>
+
+      <!-- 送出按鈕 -->
+      <button id="submit-partner-btn" onclick="submitPartnerInquiry()" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-black text-sm rounded-xl shadow-md transition flex items-center justify-center space-x-2">
+        <span>送出長期合作意向</span>
+        <span class="text-xs opacity-75 font-normal tracking-wider">SUBMIT INQUIRY</span>
       </button>
     </div>
 
+    <!-- 底部空間指南連結 -->
+    <div class="text-center pt-2">
+      <a href="index.html" class="inline-flex items-center text-xs font-bold text-slate-400 hover:text-indigo-600 transition">
+        ← 返回一般時段租借系統 Back to Studio Booking
+      </a>
+    </div>
   </main>
 
   <script>
-    const LIFF_ID = '2011761541-hL5HCl1Q'; // 使用與原系統相同的 LIFF ID
-    const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbyV6fcIFzpwv5uUGWCb1GPcNrE7s6ETXmS7I-R6RUhiSBdhqRlSUoVomtzyFefSo7bDEg/exec';
+    const LIFF_ID = '2011761541-hL5HCl1Q';
+    const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbyV6fclFzpwv5uUGWCb1GPcNrE7s6ETXmS7I-R6RUhiSBd/exec';
 
-    let currentRole = '';
-    let lineProfile = {
-      userId: '',
-      displayName: '訪客',
-      pictureUrl: ''
-    };
+    let currentRole = 'teacher';
+    let isMusicPlaying = false;
+    let currentUser = { userId: '', displayName: '' };
 
     window.addEventListener('DOMContentLoaded', async () => {
+      initMusicPlayer();
+      selectRole('teacher'); // 預設選中教師
       await initLIFF();
     });
 
+    // 1. 背景音樂播放控制（自帶等化器動態）
+    function initMusicPlayer() {
+      const audio = document.getElementById('bg-music');
+      const toggleBtn = document.getElementById('music-toggle-btn');
+      const label = document.getElementById('music-label');
+      const visual = document.getElementById('eq-visual');
+      const bars = visual.querySelectorAll('span');
+
+      toggleBtn.addEventListener('click', () => {
+        if (isMusicPlaying) {
+          audio.pause();
+          isMusicPlaying = false;
+          label.textContent = 'BGM OFF';
+          visual.classList.add('opacity-40');
+          bars[0].classList.remove('eq-bar-1');
+          bars[1].classList.remove('eq-bar-2');
+          bars[2].classList.remove('eq-bar-3');
+        } else {
+          audio.play().then(() => {
+            isMusicPlaying = true;
+            label.textContent = 'PLAYING';
+            visual.classList.remove('opacity-40');
+            bars[0].classList.add('eq-bar-1');
+            bars[1].classList.add('eq-bar-2');
+            bars[2].classList.add('eq-bar-3');
+          }).catch(err => {
+            console.log('瀏覽器自動播放限制需手動點擊觸發', err);
+          });
+        }
+      });
+    }
+
+    // 2. 角色選擇器（極簡切換 ＋ 呼吸微光）
+    function selectRole(roleKey) {
+      currentRole = roleKey;
+      const roles = ['teacher', 'crew', 'event'];
+
+      roles.forEach(r => {
+        const card = document.getElementById(`card-${r}`);
+        const innerDot = card.querySelector('.inner-dot');
+        const checkDot = card.querySelector('.check-dot');
+
+        if (r === roleKey) {
+          // 選中狀態：呼吸微光邊框 ＋ 實心圓點
+          card.classList.remove('border-slate-200');
+          card.classList.add('border-indigo-600', 'breathe-glow', 'bg-indigo-50/20');
+          checkDot.classList.remove('border-slate-300');
+          checkDot.classList.add('border-indigo-600');
+          innerDot.classList.remove('hidden');
+        } else {
+          // 未選中狀態
+          card.classList.remove('border-indigo-600', 'breathe-glow', 'bg-indigo-50/20');
+          card.classList.add('border-slate-200');
+          checkDot.classList.remove('border-indigo-600');
+          checkDot.classList.add('border-slate-300');
+          innerDot.classList.add('hidden');
+        }
+      });
+    }
+
+    // 3. LIFF 自動帶入身分
     async function initLIFF() {
       try {
         await liff.init({ liffId: LIFF_ID });
         if (liff.isLoggedIn()) {
           const profile = await liff.getProfile();
-          lineProfile.userId = profile.userId;
-          lineProfile.displayName = profile.displayName || 'LINE 用戶';
-          lineProfile.pictureUrl = profile.pictureUrl || '';
-
-          document.getElementById('user-display').textContent = profile.displayName;
-          if (profile.pictureUrl) {
-            const img = document.getElementById('user-avatar');
-            img.src = profile.pictureUrl;
-            img.classList.remove('hidden');
+          currentUser.userId = profile.userId;
+          currentUser.displayName = profile.displayName;
+          if (profile.displayName) {
+            document.getElementById('partner-name').value = profile.displayName;
           }
         }
-      } catch (e) {
-        console.warn('LIFF 載入提示：', e);
+      } catch (err) {
+        console.warn('LIFF 略過', err);
       }
     }
 
-    function selectRole(role) {
-      currentRole = role;
-      document.getElementById('step-role-selection').classList.add('hidden');
-      document.getElementById('step-form').classList.remove('hidden');
-      document.getElementById('role-tag').textContent = role;
+    // 4. 送出洽詢
+    async function submitPartnerInquiry() {
+      const name = document.getElementById('partner-name').value.trim();
+      const phone = document.getElementById('partner-phone').value.trim();
+      const desc = document.getElementById('partner-desc').value.trim();
+      const btn = document.getElementById('submit-partner-btn');
 
-      const dynamicContainer = document.getElementById('dynamic-fields');
-      if (role === '長期開課老師') {
-        dynamicContainer.innerHTML = `
-          <div>
-            <label class="block mb-1">主要授課舞風 / 項目 <span class="text-rose-500">*</span></label>
-            <input type="text" id="detail-1" placeholder="例如：國際標準舞、拉丁、街舞、瑜伽" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-medium outline-none">
-          </div>
-          <div>
-            <label class="block mb-1">期望開課時段 / 頻率 <span class="text-rose-500">*</span></label>
-            <input type="text" id="detail-2" placeholder="例如：每週二晚上 19:00-21:00、每週固定 2 堂" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-medium outline-none">
-          </div>
-          <div>
-            <label class="block mb-1">預計每班學員人數（選填）</label>
-            <input type="text" id="detail-3" placeholder="例如：個人私教 / 6-10 人團班" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-medium outline-none">
-          </div>
-        `;
-      } else {
-        dynamicContainer.innerHTML = `
-          <div>
-            <label class="block mb-1">空間可用坪數 <span class="text-rose-500">*</span></label>
-            <input type="text" id="detail-1" placeholder="例如：約 25 坪、無柱開放空間" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-medium outline-none">
-          </div>
-          <div>
-            <label class="block mb-1">空間所在區域 / 地址概況 <span class="text-rose-500">*</span></label>
-            <input type="text" id="detail-2" placeholder="例如：台南市東區近成大、有電梯" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-medium outline-none">
-          </div>
-          <div>
-            <label class="block mb-1">空間現況 / 合作構想備註（選填）</label>
-            <textarea id="detail-3" rows="2" placeholder="例如：目前為毛胚屋、已有木地板、希望長租或利潤分成" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-medium outline-none"></textarea>
-          </div>
-        `;
-      }
-    }
-
-    function backToStep1() {
-      document.getElementById('step-form').classList.add('hidden');
-      document.getElementById('step-role-selection').classList.remove('hidden');
-    }
-
-    async function submitPartnerForm() {
-      const name = document.getElementById('input-name').value.trim();
-      const phone = document.getElementById('input-phone').value.trim();
-      const d1 = document.getElementById('detail-1').value.trim();
-      const d2 = document.getElementById('detail-2').value.trim();
-      const d3 = document.getElementById('detail-3').value.trim();
-
-      if (!name || !phone || !d1 || !d2) {
-        alert('請完整填寫必填欄位！');
+      if (!name || !phone) {
+        alert('請填寫姓名/團隊稱呼與聯絡電話！');
         return;
       }
 
-      const submitBtn = document.getElementById('submit-btn');
-      submitBtn.disabled = true;
-      submitBtn.textContent = '送出資料中...';
+      btn.disabled = true;
+      btn.innerHTML = '<span>資料送出中...</span>';
+
+      const roleTitles = {
+        teacher: '授課師資 / 定期常態班',
+        crew: '舞團集訓 / 演出備賽排練',
+        event: '單場工作坊 / 商業活動拍攝'
+      };
 
       try {
         const payload = {
-          action: 'submitPartnership',
-          partner_type: currentRole,
-          real_name: name,
+          action: 'createBooking',
+          classroom_id: '1',
+          line_user_id: currentUser.userId || 'guest_user',
+          user_name: name,
           phone: phone,
-          line_user_id: lineProfile.userId,
-          line_name: lineProfile.displayName,
-          detail_1: d1,
-          detail_2: d2,
-          detail_3: d3
+          booking_type: '長期合作洽詢：' + roleTitles[currentRole],
+          booking_date: '合作洽詢',
+          start_time: '--',
+          end_time: '--',
+          purpose: desc || '無特殊備註'
         };
 
         const res = await fetch(GAS_API_URL, {
@@ -250,16 +343,21 @@
         const result = await res.json();
 
         if (result.success) {
-          document.getElementById('step-form').classList.add('hidden');
-          document.getElementById('step-success').classList.remove('hidden');
+          alert('【長期合作洽詢已送出】\n\n感謝您的填寫！小編將於 24 小時內透過電話或 LINE 與您聯繫，並為您安排現場空間導覽與專屬優惠方案。');
+          // 若在 LINE 內可直接關閉視窗，否則回首頁
+          if (typeof liff !== 'undefined' && liff.isInClient()) {
+            liff.closeWindow();
+          } else {
+            window.location.href = 'index.html';
+          }
         } else {
           alert('送出失敗：' + (result.error || '請稍後再試'));
         }
       } catch (err) {
-        alert('連線失敗：' + err.message);
+        alert('網路連線失敗：' + err.message);
       } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = '送出合作洽詢';
+        btn.disabled = false;
+        btn.innerHTML = '<span>送出長期合作意向</span><span class="text-xs opacity-75 font-normal tracking-wider">SUBMIT INQUIRY</span>';
       }
     }
   </script>
