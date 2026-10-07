@@ -2,10 +2,9 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🎄 聖誕狂歡活動報名</title>
-  <!-- 加入 ?v=3 強制手機載入最新樣式，避開暫存 -->
-  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -20,15 +19,14 @@
     <source src="xmas-music.mp3" type="audio/mpeg">
   </audio>
 
-  <!-- 頂部成大國標社 Logo（獨立於主卡片外，常駐頂端） -->
-  <header class="club-brand">
-    <img src="logo.png" alt="成大國標社 Logo" class="club-logo" onerror="this.style.display='none'">
-    <span class="club-name">NCKU BALLROOM DANCE CLUB</span>
-  </header>
-
   <main class="container">
     <!-- 第一頁：封面 -->
     <section id="step-1" class="page active">
+      <!-- 頂部成大國標橫式 Logo（無圓框遮罩） -->
+      <div class="logo-container">
+        <img src="logo.png" alt="成大國標 NCKU BALLROOM DANCE CLUB" class="banner-logo">
+      </div>
+
       <div class="content cover-content">
         <div class="xmas-badge">MERRY CHRISTMAS</div>
         <h1 class="main-title">聖誕派對<br>狂歡夜</h1>
@@ -43,14 +41,6 @@
     <!-- 第二頁：票種選擇 -->
     <section id="step-2" class="page">
       <div class="content">
-        <!-- 頂部雙人跳舞像素小人區域 -->
-        <div class="dance-pixel-container">
-          <div class="pixel-couple">
-            <span class="pixel-dancer leader">🕺</span>
-            <span class="sparkle">✨</span>
-            <span class="pixel-dancer follower">💃</span>
-          </div>
-        </div>
         <h2 class="step-title">選擇報名票種</h2>
         <p class="step-desc">請選擇參加人數，系統將自動結算費用</p>
 
