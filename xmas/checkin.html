@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎟️ 現場驗票核銷系統</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #121212;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+    h1 {
+      font-size: 20px;
+      margin: 12px 0 16px;
+      color: #ffd700;
+      text-align: center;
+    }
+    #reader {
+      width: 100%;
+      max-width: 400px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid #333;
+      background: #000;
+    }
+    .result-card {
+      width: 100%;
+      max-width: 400px;
+      margin-top: 16px;
+      padding: 18px;
+      border-radius: 12px;
+      background: #1e1e1e;
+      border: 1px solid #333;
+      text-align: center;
+      transition: all 0.3s;
+    }
+    .status-badge {
+      display: inline-block;
+      font-size: 18px;
+      font-weight: bold;
+      padding: 8px 16px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+    }
+    .status-badge.success { background: #165b33; color: #fff; }
+    .status-badge.warning { background: #d97706; color: #fff; }
+    .status-badge.error { background: #c41e3a; color: #fff; }
+
+    .info-list {
+      text-align: left;
+      font-size: 15px;
+      line-height: 1.8;
+      background: rgba(255,255,255,0.05);
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+    .btn-reset {
+      margin-top: 16px;
+      width: 100%;
+      padding: 12px;
+      border: none;
+      background: #3b82f6;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎅 成大國標 現場驗票入口</h1>
+
+  <!-- 鏡頭掃描框 -->
+  <div id="reader"></div>
+
+  <!-- 驗票結果提示卡 -->
+  <div id="result-box" class="result-card" style="display: none;">
+    <div id="status-tag" class="status-badge"></div>
+    <div id="status-msg" style="font-size: 16px; margin-bottom: 8px;"></div>
+    <div id="ticket-info" class="info-list" style="display: none;"></div>
+    <button class="btn-reset" onclick="resumeScanning()">掃描下一位</button>
+  </div>
+
+  <script>
+    // 你的 GAS API 網址
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbylhpmhV38QJ54i1ysZsNSBBLfaVgvQKFFh1HSEEvVNC-C55eO_hoCCF2xkmooxdmq7/exec";
+
+    let html5QrCode;
+    let isProcessing = false;
+
+    // 蜂鳴音效（使用 Web Audio API，無需外掛音效檔）
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playBeep(type) {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      
+      if (type === "success") {
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime); // 高音 A5
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.15);
+      } else {
+        osc.frequency.setValueAtTime(300, audioCtx.currentTime); // 低音警示
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
+      }
+    }
+
+    async function onScanSuccess(decodedText) {
+      if (isProcessing) return;
+      isProcessing = true;
+
+      // 暫停掃描相機
+      html5QrCode.pause();
+
+      const resultBox = document.getElementById("result-box");
+      const statusTag = document.getElementById("status-tag");
+      const statusMsg = document.getElementById("status-msg");
+      const ticketInfo = document.getElementById("ticket-info");
+
+      resultBox.style.display = "block";
+      statusTag.className = "status-badge warning";
+      statusTag.innerText = "驗證中...";
+      statusMsg.innerText = `讀取票號：${decodedText}`;
+      ticketInfo.style.display = "none";
+
+      try {
+        const response = await fetch(GAS_API_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "checkInTicket",
+            ticketId: decodedText
+          })
+        });
+        const res = await response.json();
+
+        if (res.status === "SUCCESS") {
+          playBeep("success");
+          statusTag.className = "status-badge success";
+          statusTag.innerText = "准予入場 ✅";
+          statusMsg.innerText = res.message;
+          ticketInfo.style.display = "block";
+          ticketInfo.innerHTML = `
+            <div><strong>學員姓名：</strong>${res.data.name}</div>
+            <div><strong>票券編號：</strong>${res.data.ticketId}</div>
+            <div><strong>社員人數：</strong>${res.data.memberCount} 人</div>
+            <div><strong>朋友人數：</strong>${res.data.guestCount} 人</div>
+            <div><strong>應付金額：</strong>NT$ ${res.data.totalAmount}</div>
+            <div><strong>核銷時間：</strong>${res.data.checkinTime}</div>
+          `;
+        } else if (res.status === "ALREADY_USED") {
+          playBeep("error");
+          statusTag.className = "status-badge warning";
+          statusTag.innerText = "重複票券 ⚠️";
+          statusMsg.innerText = res.message;
+          ticketInfo.style.display = "block";
+          ticketInfo.innerHTML = `<div><strong>報名姓名：</strong>${res.data.name}</div>`;
+        } else {
+          playBeep("error");
+          statusTag.className = "status-badge error";
+          statusTag.innerText = "無效票券 ❌";
+          statusMsg.innerText = res.message;
+        }
+      } catch (err) {
+        statusTag.className = "status-badge error";
+        statusTag.innerText = "連線失敗";
+        statusMsg.innerText = "請檢查網路連線後重試";
+      }
+    }
+
+    function resumeScanning() {
+      document.getElementById("result-box").style.display = "none";
+      isProcessing = false;
+      html5QrCode.resume();
+    }
+
+    // 啟動相機
+    window.addEventListener("DOMContentLoaded", () => {
+      html5QrCode = new Html5Qrcode("reader");
+      html5QrCode.start(
+        { facingMode: "environment" }, // 使用手機後置主鏡頭
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 250 }
+        },
+        onScanSuccess
+      ).catch(err => {
+        alert("無法開啟相機，請確認瀏覽器已允許相機存取權限！");
+      });
+    });
+  </script>
+</body>
+</html>
