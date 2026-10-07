@@ -1,4 +1,4 @@
-// === 請貼上您的 GAS Web App 部署網址 ===
+// === GAS Web App 部署網址 ===
 const GAS_API_URL = "https://script.google.com/macros/s/AKfycbylhpmhV38QJ54i1ysZsNSBBLfaVgvQKFFh1HSEEvVNC-C55eO_hoCCF2xkmooxdmq7/exec";
 
 // 票價設定
@@ -6,7 +6,8 @@ const PRICE_MEMBER = 350;
 const PRICE_GUEST = 500;
 
 let counts = { member: 0, guest: 0 };
-let audio = document.getElementById("bg-music");
+const audio = document.getElementById("bg-music");
+const musicToggleBtn = document.getElementById("music-toggle");
 
 // 1. 下雪背景特效
 const canvas = document.getElementById("snow-canvas");
@@ -54,22 +55,49 @@ function updateSnow() {
 }
 drawSnow();
 
-// 2. 音樂控制與換頁
-document.getElementById("btn-start").addEventListener("click", () => {
-  // 解鎖自動播放限制
-  audio.play().catch(() => console.log("Audio play prevented"));
-  goToStep(2);
-});
-
-document.getElementById("music-toggle").addEventListener("click", () => {
-  if (audio.paused) {
-    audio.play();
-    document.getElementById("music-toggle").innerText = "🎵";
-  } else {
-    audio.pause();
-    document.getElementById("music-toggle").innerText = "🔇";
+// 2. 音樂啟動與頁面切換控制
+function startAudioAndEnter() {
+  if (audio && audio.paused) {
+    audio.play().then(() => {
+      if (musicToggleBtn) musicToggleBtn.innerText = "🎵";
+    }).catch((err) => {
+      console.log("瀏覽器阻擋自動播放，需使用者再次互動:", err);
+    });
   }
-});
+  goToStep(2);
+}
+
+// 點擊按鈕進入第 2 頁並播放音樂
+const btnStart = document.getElementById("btn-start");
+if (btnStart) {
+  btnStart.addEventListener("click", (e) => {
+    e.stopPropagation();
+    startAudioAndEnter();
+  });
+}
+
+// 點擊首頁任意處也可進入第 2 頁並播放音樂
+const step1 = document.getElementById("step-1");
+if (step1) {
+  step1.addEventListener("click", () => {
+    startAudioAndEnter();
+  });
+}
+
+// 音樂開關懸浮按鈕
+if (musicToggleBtn) {
+  musicToggleBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (!audio) return;
+    if (audio.paused) {
+      audio.play();
+      musicToggleBtn.innerText = "🎵";
+    } else {
+      audio.pause();
+      musicToggleBtn.innerText = "🔇";
+    }
+  });
+}
 
 function goToStep(step) {
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
@@ -100,7 +128,7 @@ const phoneInput = document.getElementById("cust-phone");
 const phoneHint = document.getElementById("phone-hint");
 
 phoneInput.addEventListener("input", (e) => {
-  const val = e.target.value.replace(/\D/g, ""); // 只留數字
+  const val = e.target.value.replace(/\D/g, ""); // 只保留數字
   e.target.value = val;
   if (val.length === 10 && /^09\d{8}$/.test(val)) {
     phoneHint.innerText = "";
