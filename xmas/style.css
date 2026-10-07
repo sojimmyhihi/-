@@ -117,6 +117,11 @@ body {
   top: 61%;
 }
 
+/* 第二頁微調位置，讓上方頂部常駐 Logo 與小人有舒適間距 */
+#step-2 {
+  top: 57%;
+}
+
 /* 卡片玻璃質感外觀 */
 .content {
   width: 100%;
@@ -128,6 +133,41 @@ body {
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   text-align: center;
+}
+
+/* =====================================
+   第二頁像素跳舞小人樣式與律動動畫
+   ===================================== */
+.dancer-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: -10px;
+  margin-bottom: 12px;
+  height: 90px;
+}
+
+.pixel-dancers-img {
+  height: 85px;
+  width: auto;
+  object-fit: contain;
+  image-rendering: pixelated; /* 強化像素邊緣銳利清晰 */
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+  animation: dance-sway 1.2s infinite ease-in-out;
+  transform-origin: bottom center;
+}
+
+/* 雙人踩拍律動搖擺 */
+@keyframes dance-sway {
+  0% {
+    transform: rotate(-3deg) translateY(0);
+  }
+  50% {
+    transform: rotate(3deg) translateY(-4px);
+  }
+  100% {
+    transform: rotate(-3deg) translateY(0);
+  }
 }
 
 /* 第一頁封面內容 */
