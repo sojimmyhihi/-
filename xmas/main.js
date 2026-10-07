@@ -8,6 +8,7 @@ const PRICE_GUEST = 500;
 let counts = { member: 0, guest: 0 };
 const audio = document.getElementById("bg-music");
 const musicToggleBtn = document.getElementById("music-toggle");
+const mainLogo = document.getElementById("main-logo");
 
 // 1. 下雪背景特效
 const canvas = document.getElementById("snow-canvas");
@@ -67,7 +68,7 @@ function startAudioAndEnter() {
   goToStep(2);
 }
 
-// 點擊按鈕進入第 2 頁並播放音樂
+// 點擊「TOUCH TO START」按鈕
 const btnStart = document.getElementById("btn-start");
 if (btnStart) {
   btnStart.addEventListener("click", (e) => {
@@ -76,7 +77,7 @@ if (btnStart) {
   });
 }
 
-// 點擊首頁任意處也可進入第 2 頁並播放音樂
+// 點擊第一頁任一處亦可啟動並翻頁
 const step1 = document.getElementById("step-1");
 if (step1) {
   step1.addEventListener("click", () => {
@@ -99,10 +100,20 @@ if (musicToggleBtn) {
   });
 }
 
+// 核心換頁與 Logo 動態連動邏輯
 function goToStep(step) {
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
   const target = document.getElementById("step-" + step);
   if (target) target.classList.add("active");
+
+  // 若為第一頁，Logo 回到大尺寸；第二頁及之後，加上 .mini 縮小滑動至頂部
+  if (mainLogo) {
+    if (step === 1 || step === "1") {
+      mainLogo.classList.remove("mini");
+    } else {
+      mainLogo.classList.add("mini");
+    }
+  }
 }
 
 // 3. 票數計算器
@@ -120,7 +131,7 @@ function changeCount(type, delta) {
 }
 
 document.getElementById("btn-to-step3").addEventListener("click", () => {
-  goToStep(3);
+  goToStep(2 === 2 ? 3 : 2);
 });
 
 // 4. 手機號碼格式驗證 (台灣 09xxxxxxxx)
@@ -128,7 +139,7 @@ const phoneInput = document.getElementById("cust-phone");
 const phoneHint = document.getElementById("phone-hint");
 
 phoneInput.addEventListener("input", (e) => {
-  const val = e.target.value.replace(/\D/g, ""); // 只保留數字
+  const val = e.target.value.replace(/\D/g, "");
   e.target.value = val;
   if (val.length === 10 && /^09\d{8}$/.test(val)) {
     phoneHint.innerText = "";
