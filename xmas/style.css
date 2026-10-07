@@ -4,16 +4,15 @@
   padding: 0;
 }
 
-body {
+html, body {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden; /* 徹底杜絕橫向被撐開跑版 */
+  position: relative;
   font-family: 'Montserrat', 'Noto Sans TC', sans-serif;
   background: radial-gradient(circle at center, #1b3b2b 0%, #0d1f16 100%);
   color: #fff;
   min-height: 100vh;
-  overflow-x: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
 }
 
 /* 下雪背景 Canvas */
@@ -27,18 +26,18 @@ body {
   z-index: 1;
 }
 
-/* 音樂控制懸浮鈕 */
+/* 右上角音樂按鈕 */
 .music-btn {
   position: fixed;
-  top: 20px;
-  right: 20px;
+  top: 18px;
+  right: 18px;
   z-index: 100;
   background: rgba(255, 255, 255, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.4);
   color: white;
-  font-size: 20px;
-  width: 44px;
-  height: 44px;
+  font-size: 18px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   cursor: pointer;
   backdrop-filter: blur(5px);
@@ -49,30 +48,31 @@ body {
   transform: scale(1.1);
 }
 
-/* 頂部社團 Logo 常駐區域 */
+/* 頂部社團 Logo 常駐（固定頂部脫離文檔流，絕不擠壓主要卡片） */
 .club-brand {
   position: fixed;
-  top: 18px;
+  top: 16px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  z-index: 60;
+  gap: 3px;
+  z-index: 50;
   pointer-events: none;
+  width: 100%;
+  text-align: center;
 }
 
 .club-logo {
-  width: 46px;
-  height: 46px;
+  width: 44px;
+  height: 44px;
   object-fit: contain;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.1);
   padding: 3px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4), 0 0 12px rgba(247, 208, 112, 0.3);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4), 0 0 10px rgba(247, 208, 112, 0.3);
   backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
   border: 1px solid rgba(247, 208, 112, 0.4);
 }
 
@@ -85,39 +85,36 @@ body {
   white-space: nowrap;
 }
 
-/* 主容器：固定垂直置中、寬度全屏自適應 */
+/* 主容器：固定正中央 */
 .container {
   width: 100%;
-  max-width: 460px;
+  max-width: 440px;
   min-height: 100vh;
+  margin: 0 auto;
   position: relative;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  padding: 85px 16px 24px 16px;
   z-index: 10;
-  padding: 85px 18px 24px 18px;
 }
 
-/* 換頁容器：置中對齊，防偏右變形 */
+/* 各分頁卡片容器 */
 .page {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0.96);
-  width: calc(100% - 36px);
-  max-width: 420px;
+  width: 100%;
+  display: none;
   opacity: 0;
-  pointer-events: none;
+  transform: translateY(15px) scale(0.97);
   transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
 .page.active {
+  display: block;
   opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
-  pointer-events: auto;
+  transform: translateY(0) scale(1);
 }
 
-/* 卡片外框：深綠毛玻璃 */
+/* 卡片主體 */
 .content {
   width: 100%;
   background: rgba(18, 38, 28, 0.88);
@@ -165,11 +162,12 @@ body {
 }
 
 .btn-touch {
-  position: relative;
+  width: 100%;
+  max-width: 250px;
   background: linear-gradient(135deg, #c41e3a, #99162c);
   color: #fff;
   border: none;
-  padding: 15px 32px;
+  padding: 15px 24px;
   font-size: 15px;
   font-weight: 700;
   letter-spacing: 2px;
@@ -177,19 +175,18 @@ body {
   cursor: pointer;
   box-shadow: 0 4px 20px rgba(196, 30, 58, 0.6);
   transition: transform 0.2s, box-shadow 0.2s;
-  overflow: hidden;
 }
 .btn-touch:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 26px rgba(196, 30, 58, 0.8);
 }
 
-/* 頂部跳舞小人區域 */
+/* 像素舞者區域 */
 .dance-pixel-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   position: relative;
   height: 48px;
 }
@@ -199,7 +196,6 @@ body {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  image-rendering: pixelated;
   filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
 }
 
@@ -239,18 +235,13 @@ body {
   50% { transform: scale(1.3) translateY(-3px); opacity: 1; }
 }
 
-.dance-gif {
-  height: 52px;
-  image-rendering: pixelated;
-  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
-}
-
-/* 票券卡片區域 */
+/* 第二頁卡片 */
 .step-title {
   color: #f7d070;
   font-size: 22px;
   margin-bottom: 6px;
 }
+
 .step-desc {
   font-size: 12px;
   color: #ccc;
@@ -274,10 +265,12 @@ body {
   align-items: center;
   text-align: left;
 }
+
 .ticket-card h3 {
   font-size: 15px;
   margin: 3px 0;
 }
+
 .ticket-card .price {
   color: #f7d070;
   font-weight: 700;
@@ -297,6 +290,7 @@ body {
   align-items: center;
   gap: 10px;
 }
+
 .step-btn {
   width: 32px;
   height: 32px;
@@ -308,6 +302,7 @@ body {
   cursor: pointer;
 }
 .step-btn:hover { background: rgba(255, 255, 255, 0.25); }
+
 .count-val {
   font-size: 17px;
   font-weight: bold;
@@ -329,7 +324,7 @@ body {
   font-weight: bold;
 }
 
-/* 表單與按鈕 */
+/* 第三頁表單 */
 .btn-next {
   width: 100%;
   padding: 13px;
@@ -351,12 +346,14 @@ body {
   text-align: left;
   margin-bottom: 14px;
 }
+
 .form-group label {
   display: block;
   font-size: 12px;
   color: #ddd;
   margin-bottom: 5px;
 }
+
 .form-group input {
   width: 100%;
   padding: 11px;
@@ -366,6 +363,7 @@ body {
   color: white;
   font-size: 14px;
 }
+
 .input-hint {
   font-size: 11px;
   color: #ff7878;
@@ -377,6 +375,7 @@ body {
   display: flex;
   gap: 8px;
 }
+
 .btn-verify {
   white-space: nowrap;
   padding: 0 12px;
@@ -397,6 +396,7 @@ body {
   gap: 10px;
   margin-top: 20px;
 }
+
 .btn-back {
   width: 35%;
   background: rgba(255, 255, 255, 0.15);
