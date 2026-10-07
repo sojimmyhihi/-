@@ -13,13 +13,14 @@
 
   <!-- 音樂控制懸浮鈕 -->
   <button id="music-toggle" class="music-btn" title="音樂開關">🎵</button>
+  
+  <!-- 背景音樂播放器 -->
   <audio id="bg-music" loop preload="auto">
-    <!-- 可替換成任何合法免版權聖誕背景音樂 mp3 網址 -->
-    <source src="https://actions.google.com/sounds/v1/holidays/deck_the_halls.ogg" type="audio/ogg">
+    <source src="xmas-music.mp3" type="audio/mpeg">
   </audio>
 
   <main class="container">
-    <!-- 第一頁：封面 -->
+    <!-- 第一頁：封面（點擊整頁或按鈕皆會觸發播放音樂並進入下一頁） -->
     <section id="step-1" class="page active">
       <div class="content cover-content">
         <div class="xmas-badge">MERRY CHRISTMAS</div>
