@@ -97,13 +97,32 @@ if (musicToggleBtn) {
   });
 }
 
+// === 頁面隱藏 / 切換分頁 / 關閉時自動暫停音樂 ===
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden && audio) {
+    audio.pause();
+    if (musicToggleBtn) musicToggleBtn.innerText = "🔇";
+  }
+});
+
+window.addEventListener("pagehide", () => {
+  if (audio) {
+    audio.pause();
+  }
+});
+
+window.addEventListener("beforeunload", () => {
+  if (audio) {
+    audio.pause();
+  }
+});
+
 // 換頁與 Logo 縮放聯動控制
 function goToStep(step) {
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
   const target = document.getElementById("step-" + step);
   if (target) target.classList.add("active");
 
-  // 第一頁恢復原比例，第二頁及之後縮小滑至頂部
   if (mainLogo) {
     if (step === 1 || step === "1") {
       mainLogo.classList.remove("mini");
