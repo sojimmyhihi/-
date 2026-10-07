@@ -62,13 +62,12 @@ function startAudioAndEnter() {
     audio.play().then(() => {
       if (musicToggleBtn) musicToggleBtn.innerText = "🎵";
     }).catch((err) => {
-      console.log("瀏覽器阻擋自動播放，需使用者再次互動:", err);
+      console.log("Audio play prevented:", err);
     });
   }
   goToStep(2);
 }
 
-// 點擊「TOUCH TO START」按鈕
 const btnStart = document.getElementById("btn-start");
 if (btnStart) {
   btnStart.addEventListener("click", (e) => {
@@ -77,7 +76,6 @@ if (btnStart) {
   });
 }
 
-// 點擊第一頁任一處亦可啟動並翻頁
 const step1 = document.getElementById("step-1");
 if (step1) {
   step1.addEventListener("click", () => {
@@ -85,7 +83,6 @@ if (step1) {
   });
 }
 
-// 音樂開關懸浮按鈕
 if (musicToggleBtn) {
   musicToggleBtn.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -100,13 +97,13 @@ if (musicToggleBtn) {
   });
 }
 
-// 核心換頁與 Logo 動態連動邏輯
+// 換頁與 Logo 縮放聯動控制
 function goToStep(step) {
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
   const target = document.getElementById("step-" + step);
   if (target) target.classList.add("active");
 
-  // 若為第一頁，Logo 回到大尺寸；第二頁及之後，加上 .mini 縮小滑動至頂部
+  // 第一頁恢復原比例，第二頁及之後縮小滑至頂部
   if (mainLogo) {
     if (step === 1 || step === "1") {
       mainLogo.classList.remove("mini");
@@ -131,7 +128,7 @@ function changeCount(type, delta) {
 }
 
 document.getElementById("btn-to-step3").addEventListener("click", () => {
-  goToStep(2 === 2 ? 3 : 2);
+  goToStep(3);
 });
 
 // 4. 手機號碼格式驗證 (台灣 09xxxxxxxx)
