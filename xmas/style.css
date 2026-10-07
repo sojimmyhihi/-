@@ -300,3 +300,87 @@ body {
   border-radius: 8px;
   font-weight: bold;
 }
+/* 頂部跳舞小人區域 */
+.dance-pixel-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 12px;
+  position: relative;
+  height: 50px;
+}
+
+/* 像素舞者組合 */
+.pixel-couple {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  image-rendering: pixelated; /* 強化像素邊緣銳利度 */
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+}
+/* 舞者律動動畫 */
+.pixel-dancer {
+  font-size: 34px;
+  display: inline-block;
+  transform-origin: bottom center;
+}
+
+/* Leader 擺動步伐 (模擬吉特巴/搖擺舞節奏) */
+.pixel-dancer.leader {
+  animation: dance-bounce-left 0.7s infinite alternate ease-in-out;
+}
+
+/* Follower 擺動步伐 (反向節奏) */
+.pixel-dancer.follower {
+  animation: dance-bounce-right 0.7s infinite alternate ease-in-out;
+}
+
+/* 中間火花/音符飄動 */
+.sparkle {
+  font-size: 14px;
+  animation: sparkle-pulse 1.4s infinite ease-in-out;
+}
+
+/* 舞步關鍵影格 */
+@keyframes dance-bounce-left {
+  0% {
+    transform: translateY(0) rotate(-6deg) scaleY(1);
+  }
+  50% {
+    transform: translateY(-8px) rotate(4deg) scaleY(1.08);
+  }
+  100% {
+    transform: translateY(0) rotate(8deg) scaleY(0.95);
+  }
+}
+
+@keyframes dance-bounce-right {
+  0% {
+    transform: translateY(0) rotate(8deg) scaleY(0.95);
+  }
+  50% {
+    transform: translateY(-8px) rotate(-4deg) scaleY(1.08);
+  }
+  100% {
+    transform: translateY(0) rotate(-6deg) scaleY(1);
+  }
+}
+
+@keyframes sparkle-pulse {
+  0%, 100% {
+    transform: scale(0.8) translateY(2px);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(1.3) translateY(-4px);
+    opacity: 1;
+  }
+}
+
+/* 若使用自訂 GIF 圖檔時的樣式 */
+.dance-gif {
+  height: 55px;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+}
