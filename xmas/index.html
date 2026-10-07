@@ -1,1 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎄 聖誕狂歡活動報名</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- 背景下雪 Canvas -->
+  <canvas id="snow-canvas"></canvas>
 
+  <!-- 音樂控制懸浮鈕 -->
+  <button id="music-toggle" class="music-btn" title="音樂開關">🎵</button>
+  <audio id="bg-music" loop preload="auto">
+    <!-- 可替換成任何合法免版權聖誕背景音樂 mp3 網址 -->
+    <source src="https://actions.google.com/sounds/v1/holidays/deck_the_halls.ogg" type="audio/ogg">
+  </audio>
+
+  <main class="container">
+    <!-- 第一頁：封面 -->
+    <section id="step-1" class="page active">
+      <div class="content cover-content">
+        <div class="xmas-badge">MERRY CHRISTMAS</div>
+        <h1 class="main-title">聖誕派對<br>狂歡夜</h1>
+        <p class="subtitle">Winter Celebration 2026</p>
+        <button id="btn-start" class="btn-touch">
+          <span>TOUCH TO START</span>
+          <div class="btn-glow"></div>
+        </button>
+      </div>
+    </section>
+
+    <!-- 第二頁：票種選擇 -->
+    <section id="step-2" class="page">
+      <div class="content">
+        <h2 class="step-title">選擇報名票種</h2>
+        <p class="step-desc">請選擇參加人數，系統將自動結算費用</p>
+
+        <div class="ticket-cards">
+          <!-- 社員票 -->
+          <div class="ticket-card member-card">
+            <div class="card-header">
+              <span class="badge gold">社員專屬</span>
+              <h3>本學期社員</h3>
+              <p class="price">$350 <small>/ 人</small></p>
+            </div>
+            <div class="stepper">
+              <button class="step-btn minus" onclick="changeCount('member', -1)">-</button>
+              <span id="member-count" class="count-val">0</span>
+              <button class="step-btn plus" onclick="changeCount('member', 1)">+</button>
+            </div>
+          </div>
+
+          <!-- 朋友票 -->
+          <div class="ticket-card guest-card">
+            <div class="card-header">
+              <span class="badge red">好友同行</span>
+              <h3>社外好朋友</h3>
+              <p class="price">$500 <small>/ 人</small></p>
+            </div>
+            <div class="stepper">
+              <button class="step-btn minus" onclick="changeCount('guest', -1)">-</button>
+              <span id="guest-count" class="count-val">0</span>
+              <button class="step-btn plus" onclick="changeCount('guest', 1)">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="summary-box">
+          <div class="summary-info">已選：<span id="total-tickets">0</span> 張票</div>
+          <div class="summary-total">總計：NT$ <span id="total-price">0</span></div>
+        </div>
+
+        <button id="btn-to-step3" class="btn-next" disabled>填寫資料</button>
+      </div>
+    </section>
+
+    <!-- 第三頁：詳細資料與 Email 驗證 -->
+    <section id="step-3" class="page">
+      <div class="content">
+        <h2 class="step-title">填寫報名資料</h2>
+        <p class="step-desc">請輸入主要聯絡人資訊以收取電子票券</p>
+
+        <form id="reg-form" onsubmit="event.preventDefault();">
+          <div class="form-group">
+            <label>主要聯絡人姓名 *</label>
+            <input type="text" id="cust-name" placeholder="請輸入姓名" required>
+          </div>
+
+          <div class="form-group">
+            <label>聯絡電話 (台灣手機 10 碼) *</label>
+            <input type="tel" id="cust-phone" inputmode="numeric" placeholder="例如：0912345678" maxlength="10" required>
+            <span class="input-hint" id="phone-hint"></span>
+          </div>
+
+          <div class="form-group">
+            <label>電子信箱 (接收電子票券) *</label>
+            <div class="email-input-wrap">
+              <input type="email" id="cust-email" placeholder="example@email.com" required>
+              <button type="button" id="btn-send-code" class="btn-verify">傳送驗證碼</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>信箱 6 位數驗證碼 *</label>
+            <input type="text" id="cust-code" inputmode="numeric" maxlength="6" placeholder="請輸入收到的驗證碼" required>
+          </div>
+
+          <div class="btn-group">
+            <button type="button" class="btn-back" onclick="goToStep(2)">回上一步</button>
+            <button type="button" id="btn-submit" class="btn-next">確認送出並領票</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- 完成頁 -->
+    <section id="step-success" class="page">
+      <div class="content success-content">
+        <div class="success-icon">🎟️</div>
+        <h2>報名成功！</h2>
+        <p>電子票券已寄送至您的信箱，活動當天請憑信件 QR Code 入場。</p>
+        <div id="ticket-badge" class="ticket-badge"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="main.js"></script>
+</body>
+</html>
