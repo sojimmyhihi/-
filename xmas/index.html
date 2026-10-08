@@ -1,15 +1,17 @@
 <!DOCTYPE html>
-<html lang="zh-TW"> 
+<html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🎄 聖誕狂歡活動報名</title>
-  <!-- 版本號更新為 ?v=4 避免手機快取 -->
-  <link rel="stylesheet" href="style.css?v=3">
+  <!-- 版本號防快取 -->
+  <link rel="stylesheet" href="style.css?v=visual_pro">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <!-- 輕量彩帶特效庫 (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
-  <!-- 背景下雪 Canvas -->
+  <!-- 背景下雪與星塵 Canvas -->
   <canvas id="snow-canvas"></canvas>
 
   <!-- 音樂控制懸浮鈕 -->
@@ -18,9 +20,9 @@
     <source src="xmas-music.mp3" type="audio/mpeg">
   </audio>
 
-  <!-- 純 Logo 容器 -->
+  <!-- 獨立常駐 Logo（純圖片，首頁放大、換頁自動縮小靠頂） -->
   <div id="main-logo" class="brand-logo">
-    <img src="logo.png" alt="社團 Logo" class="logo-img">
+    <img src="logo.png" alt="Logo" class="logo-img">
   </div>
 
   <main class="container">
@@ -32,7 +34,6 @@
         <p class="subtitle">Winter Celebration 2026</p>
         <button id="btn-start" class="btn-touch">
           <span>TOUCH TO START</span>
-          <div class="btn-glow"></div>
         </button>
       </div>
     </section>
@@ -40,9 +41,9 @@
     <!-- 第二頁：票種選擇 -->
     <section id="step-2" class="page">
       <div class="content">
-        <!-- 頂部雙人跳舞小人區塊：已更新為 777685.jpg -->
-        <div class="dancer-wrapper">
-          <img src="777685.jpg" alt="Dancing Couple" class="pixel-dancers-img">
+        <!-- 頂部跳舞小人區塊（已套用過濾黑底樣式） -->
+        <div class="dance-pixel-container">
+          <img src="pixel-dancers.gif" alt="Dancing" class="pixel-dancers-img">
         </div>
 
         <h2 class="step-title">選擇報名票種</h2>
