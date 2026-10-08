@@ -10,7 +10,7 @@ const audio = document.getElementById("bg-music");
 const musicToggleBtn = document.getElementById("music-toggle");
 const mainLogo = document.getElementById("main-logo");
 
-// 1. 下雪背景特效
+// 1. 下雪與「金色星塵」特效
 const canvas = document.getElementById("snow-canvas");
 const ctx = canvas.getContext("2d");
 let flakes = [];
@@ -22,24 +22,36 @@ function resizeCanvas() {
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
 
-for (let i = 0; i < 70; i++) {
+for (let i = 0; i < 75; i++) {
   flakes.push({
     x: Math.random() * canvas.width,
     y: Math.random() * canvas.height,
-    r: Math.random() * 3 + 1,
-    d: Math.random() + 0.5
+    r: Math.random() * 3.2 + 1,
+    d: Math.random() + 0.5,
+    isStar: Math.random() < 0.2 // 20% 機率為金色星塵
   });
 }
 
 function drawSnow() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
-  ctx.beginPath();
+  
   for (let f of flakes) {
-    ctx.moveTo(f.x, f.y);
+    ctx.beginPath();
     ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2, true);
+
+    if (f.isStar) {
+      // 金色星斑與微光暈
+      ctx.fillStyle = "rgba(247, 208, 112, 0.88)";
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = "#f7d070";
+    } else {
+      // 純白自然雪花
+      ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
+      ctx.shadowBlur = 0;
+    }
+    ctx.fill();
   }
-  ctx.fill();
+  
   updateSnow();
   requestAnimationFrame(drawSnow);
 }
@@ -97,7 +109,7 @@ if (musicToggleBtn) {
   });
 }
 
-// === 頁面隱藏 / 切換分頁 / 關閉時自動暫停音樂 ===
+// 頁面關閉 / 切換背景時自動暫停音樂
 document.addEventListener("visibilitychange", () => {
   if (document.hidden && audio) {
     audio.pause();
@@ -106,15 +118,11 @@ document.addEventListener("visibilitychange", () => {
 });
 
 window.addEventListener("pagehide", () => {
-  if (audio) {
-    audio.pause();
-  }
+  if (audio) audio.pause();
 });
 
 window.addEventListener("beforeunload", () => {
-  if (audio) {
-    audio.pause();
-  }
+  if (audio) audio.pause();
 });
 
 // 換頁與 Logo 縮放聯動控制
@@ -150,7 +158,7 @@ document.getElementById("btn-to-step3").addEventListener("click", () => {
   goToStep(3);
 });
 
-// 4. 手機號碼格式驗證 (台灣 09xxxxxxxx)
+// 4. 手機號碼格式驗證
 const phoneInput = document.getElementById("cust-phone");
 const phoneHint = document.getElementById("phone-hint");
 
@@ -214,7 +222,7 @@ function startCountdown(sec) {
   }, 1000);
 }
 
-// 6. 送出報名並核驗
+// 6. 送出報名並核驗（加入 Confetti 節慶紙花）
 const btnSubmit = document.getElementById("btn-submit");
 btnSubmit.addEventListener("click", async () => {
   const name = document.getElementById("cust-name").value.trim();
@@ -253,6 +261,16 @@ btnSubmit.addEventListener("click", async () => {
     if (result.success) {
       document.getElementById("ticket-badge").innerText = "票券編號：" + result.ticketId;
       goToStep("success");
+
+      // 觸發聖誕主題紙花噴灑
+      if (typeof confetti === "function") {
+        confetti({
+          particleCount: 90,
+          spread: 75,
+          origin: { y: 0.6 },
+          colors: ['#c41e3a', '#f7d070', '#165b33', '#ffffff']
+        });
+      }
     } else {
       alert(result.message);
       btnSubmit.disabled = false;
