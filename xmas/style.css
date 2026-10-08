@@ -14,12 +14,12 @@ html, body {
 body {
   font-family: 'Noto Sans TC', 'Montserrat', sans-serif;
   background-color: #0b1f14;
-  background-image: radial-gradient(circle at 50% 30%, #153826 0%, #08170e 100%);
+  background-image: radial-gradient(circle at 50% 30%, #173d29 0%, #08170e 100%);
   color: #fff;
   position: relative;
 }
 
-/* 下雪 Canvas */
+/* 下雪與星塵 Canvas */
 #snow-canvas {
   position: fixed;
   top: 0;
@@ -37,7 +37,7 @@ body {
   right: 18px;
   z-index: 100;
   background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(247, 208, 112, 0.4);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   color: white;
@@ -49,15 +49,20 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4), 0 0 10px rgba(247, 208, 112, 0.2);
+  transition: transform 0.2s;
+}
+
+.music-btn:active {
+  transform: scale(0.9);
 }
 
 /* =====================================
-   獨立 Logo 樣式（首頁霸氣放大、填補上方空洞）
+   獨立 Logo 樣式（首頁大氣放大、平滑縮放常駐）
    ===================================== */
 .brand-logo {
   position: fixed;
-  top: 13%;                   /* 向上拉提，居中於上方空白區塊 */
+  top: 12%;
   left: 50%;
   transform: translateX(-50%) scale(1);
   z-index: 30;
@@ -70,22 +75,50 @@ body {
 }
 
 .brand-logo .logo-img {
-  width: auto;
-  max-width: 260px;           /* 顯著放大，更具份量感 */
-  max-height: 135px;
-  object-fit: contain;        /* 保持原圖長寬比，不變形 */
-  filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.65))
-          drop-shadow(0 0 28px rgba(247, 208, 112, 0.28)); /* 金光光暈效果 */
+  width: 270px !important;
+  max-width: 82vw !important;
+  height: auto !important;
+  max-height: 140px !important;
+  object-fit: contain !important;
+  filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.7))
+          drop-shadow(0 0 26px rgba(247, 208, 112, 0.3));
 }
 
 /* 第二頁及後續頁面的縮小常駐狀態 */
 .brand-logo.mini {
   top: 14px;
-  transform: translateX(-50%) scale(0.48); /* 縮小至頂端空檔處 */
+  transform: translateX(-50%) scale(0.46);
 }
 
 /* =====================================
-   主卡片容器（絕對居中）
+   跳舞像素小人（內建過濾黑底與踩拍擺動）
+   ===================================== */
+.dance-pixel-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 12px;
+  height: 70px;
+}
+
+.pixel-dancers-img {
+  height: 75px;
+  width: auto;
+  object-fit: contain;
+  image-rendering: pixelated;
+  mix-blend-mode: screen; /* 自動過濾黑色背景 */
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+  animation: dance-sway 1.2s infinite ease-in-out;
+  transform-origin: bottom center;
+}
+
+@keyframes dance-sway {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50% { transform: translateY(-6px) rotate(3deg); }
+}
+
+/* =====================================
+   主容器與精緻磨砂卡片
    ===================================== */
 .container {
   width: 100%;
@@ -99,7 +132,7 @@ body {
   top: 55%;
   left: 50%;
   transform: translate(-50%, -50%) scale(0.96);
-  width: calc(100% - 40px);
+  width: calc(100% - 36px);
   max-width: 380px;
   opacity: 0;
   pointer-events: none;
@@ -112,22 +145,18 @@ body {
   pointer-events: auto;
 }
 
-/* 第一頁主卡片微調垂直位置，與放大的 Logo 呈現協調間隔 */
 #step-1 {
   top: 61%;
 }
 
-/* 第二頁微調位置，讓上方頂部常駐 Logo 與小人有舒適間距 */
-#step-2 {
-  top: 57%;
-}
-
-/* 卡片玻璃質感外觀 */
+/* 卡片玻璃質感 + 四角金星芒裝飾 */
 .content {
+  position: relative;
   width: 100%;
   background: rgba(18, 38, 28, 0.94);
-  border: 1px solid rgba(247, 208, 112, 0.35);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65);
+  border: 1px solid rgba(247, 208, 112, 0.45);
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.7),
+              inset 0 0 25px rgba(247, 208, 112, 0.06);
   border-radius: 24px;
   padding: 30px 22px;
   backdrop-filter: blur(16px);
@@ -135,39 +164,24 @@ body {
   text-align: center;
 }
 
-/* =====================================
-   第二頁像素跳舞小人樣式與律動動畫
-   ===================================== */
-.dancer-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: -10px;
-  margin-bottom: 12px;
-  height: 90px;
+.content::before {
+  content: '✦';
+  position: absolute;
+  top: 10px;
+  left: 14px;
+  font-size: 11px;
+  color: rgba(247, 208, 112, 0.7);
+  text-shadow: 0 0 6px rgba(247, 208, 112, 0.9);
 }
 
-.pixel-dancers-img {
-  height: 85px;
-  width: auto;
-  object-fit: contain;
-  image-rendering: pixelated; /* 強化像素邊緣銳利清晰 */
-  mix-blend-mode: screen;     /* 關鍵：自動過濾黑色背景變透明 */
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
-  animation: dance-sway 1.2s infinite ease-in-out;
-  transform-origin: bottom center;
-}
-/* 雙人踩拍律動搖擺 */
-@keyframes dance-sway {
-  0% {
-    transform: rotate(-3deg) translateY(0);
-  }
-  50% {
-    transform: rotate(3deg) translateY(-4px);
-  }
-  100% {
-    transform: rotate(-3deg) translateY(0);
-  }
+.content::after {
+  content: '✦';
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  font-size: 11px;
+  color: rgba(247, 208, 112, 0.7);
+  text-shadow: 0 0 6px rgba(247, 208, 112, 0.9);
 }
 
 /* 第一頁封面內容 */
@@ -181,13 +195,14 @@ body {
   padding: 5px 14px;
   border-radius: 20px;
   margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(196, 30, 58, 0.5);
 }
 
 .main-title {
   font-size: 32px;
   line-height: 1.35;
   color: #f7d070;
-  text-shadow: 0 2px 10px rgba(247, 208, 112, 0.35);
+  text-shadow: 0 2px 10px rgba(247, 208, 112, 0.4);
   margin-bottom: 8px;
   font-weight: 800;
 }
@@ -199,7 +214,11 @@ body {
   margin-bottom: 26px;
 }
 
-.btn-touch {
+/* =====================================
+   聖誕流光按鈕（Shimmer Glow Effect）
+   ===================================== */
+.btn-touch, .btn-next {
+  position: relative;
   width: 100%;
   max-width: 250px;
   background: linear-gradient(135deg, #c41e3a, #99162c);
@@ -211,7 +230,48 @@ body {
   letter-spacing: 2px;
   border-radius: 50px;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(196, 30, 58, 0.6);
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(196, 30, 58, 0.6), 0 0 15px rgba(247, 208, 112, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-touch::after, .btn-next:not(:disabled)::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    60deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.28) 50%,
+    transparent 80%
+  );
+  transform: rotate(25deg);
+  animation: shimmer-swipe 3.5s infinite ease-in-out;
+  pointer-events: none;
+}
+
+@keyframes shimmer-swipe {
+  0% { transform: translate(-100%, -100%) rotate(25deg); }
+  35%, 100% { transform: translate(100%, 100%) rotate(25deg); }
+}
+
+.btn-touch:active, .btn-next:active {
+  transform: scale(0.97);
+}
+
+.btn-next {
+  max-width: 100%;
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.btn-next:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 /* 第二頁票券選擇 */
@@ -243,6 +303,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  transition: transform 0.2s ease;
 }
 
 .card-header {
@@ -294,6 +355,11 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background 0.2s;
+}
+
+.step-btn:active {
+  background: rgba(247, 208, 112, 0.4);
 }
 
 .count-val {
@@ -310,30 +376,12 @@ body {
   justify-content: space-between;
   font-size: 14px;
   margin-bottom: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .summary-total {
   color: #f7d070;
   font-weight: 700;
-}
-
-.btn-next {
-  width: 100%;
-  background: linear-gradient(135deg, #c41e3a, #99162c);
-  color: #fff;
-  border: none;
-  padding: 14px;
-  font-size: 15px;
-  font-weight: 700;
-  border-radius: 10px;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(196, 30, 58, 0.4);
-}
-
-.btn-next:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  box-shadow: none;
 }
 
 /* 第三頁表單 */
@@ -358,6 +406,11 @@ body {
   color: #fff;
   font-size: 14px;
   outline: none;
+  transition: border 0.2s;
+}
+
+.form-group input:focus {
+  border-color: #f7d070;
 }
 
 .email-input-wrap {
@@ -412,7 +465,7 @@ body {
 
 .ticket-badge {
   margin-top: 18px;
-  padding: 10px;
+  padding: 12px;
   background: rgba(247, 208, 112, 0.15);
   border: 1px dashed #f7d070;
   border-radius: 8px;
