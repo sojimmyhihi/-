@@ -32,7 +32,6 @@
       font-family: 'Noto Sans TC', sans-serif;
       color: var(--text);
       background-color: var(--bg);
-      /* 輕量浪漫小碎花背景紋理 */
       background-image: radial-gradient(circle at center, rgba(253, 251, 248, 0.85), rgba(253, 251, 248, 0.98)),
         url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23C67D78' fill-opacity='0.12' fill-rule='evenodd'%3E%3Cpath d='M30 20c-1.5 0-2.5 1-2.5 2.5 0-1.5-1-2.5-2.5-2.5 1.5 0 2.5-1 2.5-2.5 0 1.5 1 2.5 2.5 2.5zm0 5c-1.5 0-2.5 1-2.5 2.5 0-1.5-1-2.5-2.5-2.5 1.5 0 2.5-1 2.5-2.5 0 1.5 1 2.5 2.5 2.5zm-3-2.5c0 1.5-1 2.5-2.5 2.5 1.5 0 2.5 1 2.5 2.5 0-1.5 1-2.5 2.5-2.5-1.5 0-2.5-1-2.5-2.5zm6 0c0 1.5-1 2.5-2.5 2.5 1.5 0 2.5 1 2.5 2.5 0-1.5 1-2.5 2.5-2.5-1.5 0-2.5-1-2.5-2.5z'/%3E%3C/g%3E%3C/svg%3E");
       line-height: 1.6;
@@ -62,9 +61,7 @@
       100% { transform: translate(80px, 105vh) rotate(360deg); opacity: 0; }
     }
 
-    /* ===================================================
-       ★ 開場遮罩 (Touch to Start)
-       =================================================== */
+    /* 開場遮罩 (Touch to Start) */
     #startOverlay {
       position: fixed;
       inset: 0;
@@ -133,9 +130,7 @@
       margin-top: 14px;
     }
 
-    /* ===================================================
-       導覽列
-       =================================================== */
+    /* 導覽列 */
     header {
       position: sticky;
       top: 0;
@@ -177,12 +172,6 @@
       text-transform: uppercase;
       display: block;
     }
-
-    .nav-tools {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
     .music-btn {
       width: 36px;
       height: 36px;
@@ -201,12 +190,10 @@
       color: #fff;
     }
 
-    /* ===================================================
-       首頁橫幅 (Hero)
-       =================================================== */
+    /* Hero */
     .hero {
       text-align: center;
-      padding: 40px 20px 30px;
+      padding: 36px 20px 24px;
       position: relative;
       z-index: 2;
     }
@@ -245,17 +232,17 @@
       box-shadow: 0 4px 14px rgba(198, 125, 120, 0.3);
     }
 
-    /* ===================================================
-       ★ 新人作品橫向滑動區 (橫向翻頁修復)
-       =================================================== */
+    /* 通用區塊 */
     .section-wrap {
-      padding: 30px 16px;
+      padding: 32px 16px;
       position: relative;
       z-index: 2;
+      max-width: 960px;
+      margin: 0 auto;
     }
     .section-head {
       text-align: center;
-      margin-bottom: 18px;
+      margin-bottom: 20px;
     }
     .section-tag {
       font-size: 0.72rem;
@@ -276,34 +263,59 @@
       margin-top: 4px;
     }
 
-    /* 橫向滑動軌道核心設定 */
+    /* ★ 特色服務卡片 (零基礎、場地動線、服裝調整、影片指導) */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+    }
+    .feature-card {
+      background: #FFFFFF;
+      border: 1px solid rgba(198, 125, 120, 0.2);
+      border-radius: 16px;
+      padding: 20px 16px;
+      text-align: center;
+      box-shadow: 0 4px 14px rgba(142, 76, 71, 0.05);
+    }
+    .feature-icon {
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+      display: inline-block;
+    }
+    .feature-name {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--primary-dark);
+      margin-bottom: 6px;
+    }
+    .feature-detail {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* 橫向作品滑動軌道 */
     .carousel-container {
       width: 100%;
       overflow: hidden;
     }
     .carousel-track {
       display: flex;
-      flex-direction: row; /* 強制水平單排 */
-      flex-wrap: nowrap;     /* 禁止換行折下 */
+      flex-direction: row;
+      flex-wrap: nowrap;
       gap: 16px;
       overflow-x: auto;
       scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
-      padding: 10px 4px 20px 4px;
+      padding: 10px 4px 16px 4px;
+      scrollbar-width: none;
     }
-    /* 隱藏捲軸 */
     .carousel-track::-webkit-scrollbar {
       display: none;
     }
-    .carousel-track {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-
-    /* 影片卡片寬度精準固定 */
     .video-card {
-      flex: 0 0 78vw; /* 手機上固定吃 78% 螢幕寬，露出一點下一張提示滑動 */
-      max-width: 340px;
+      flex: 0 0 78vw;
+      max-width: 330px;
       scroll-snap-align: center;
       background: #FFFFFF;
       border-radius: 16px;
@@ -341,7 +353,7 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.25);
     }
     .card-content {
-      padding: 14px 14px 18px;
+      padding: 14px 14px 16px;
     }
     .card-tag {
       font-size: 0.75rem;
@@ -362,7 +374,6 @@
       color: var(--text-muted);
       line-height: 1.5;
     }
-
     .swipe-hint {
       text-align: center;
       font-size: 0.75rem;
@@ -370,16 +381,14 @@
       margin-top: 4px;
     }
 
-    /* ===================================================
-       預約表單區 (留下資訊)
-       =================================================== */
+    /* 預約表單 */
     .form-box {
       background: #FFFFFF;
       border-radius: 20px;
       padding: 24px 18px;
       border: 1px solid rgba(198, 125, 120, 0.2);
       box-shadow: 0 6px 20px rgba(142, 76, 71, 0.06);
-      max-width: 540px;
+      max-width: 520px;
       margin: 0 auto;
     }
     .form-item {
@@ -423,9 +432,7 @@
       box-shadow: 0 4px 14px rgba(198, 125, 120, 0.3);
     }
 
-    /* ===================================================
-       頁尾 (針對手機自適應微調)
-       =================================================== */
+    /* 頁尾 */
     footer {
       text-align: center;
       padding: 30px 16px 24px;
@@ -461,9 +468,7 @@
       color: #ABA0A0;
     }
 
-    /* ===================================================
-       YouTube 燈箱
-       =================================================== */
+    /* YouTube 燈箱 */
     #videoModal {
       position: fixed;
       inset: 0;
@@ -515,11 +520,9 @@
 </head>
 <body>
 
-  <!-- ===================================================
-       ★ 開場遮罩：Touch to Start
-       =================================================== -->
+  <!-- 開場遮罩：Touch to Start -->
   <div id="startOverlay">
-    <img src="wei ding dance studio.png" alt="唯定婚禮舞蹈 Logo" class="start-logo" onerror="this.style.display='none'">
+    <img src="wei ding dance studio.png" alt="Logo" class="start-logo" onerror="this.style.display='none'">
     <h1 class="start-title">唯定婚禮舞蹈</h1>
     <span class="start-sub">WeiDing Wedding Dance</span>
     <p class="start-desc">
@@ -532,7 +535,7 @@
   <!-- 飄落花瓣 -->
   <div class="petals-box" id="petalsBox"></div>
 
-  <!-- 音樂檔案元件 (預設讀取同目錄下的 wedding-bgm.mp3) -->
+  <!-- 背景音訊 -->
   <audio id="bgMusic" src="wedding-bgm.mp3" preload="auto" loop></audio>
 
   <!-- 導覽列 -->
@@ -549,7 +552,7 @@
     </div>
   </header>
 
-  <!-- 首頁簡介 -->
+  <!-- Hero 區 -->
   <section class="hero">
     <span class="hero-badge">Customized First Dance</span>
     <h2 class="hero-title">專屬新人的浪漫首舞<br>用步伐譜寫永恆回憶</h2>
@@ -557,9 +560,42 @@
     <a href="#contact" class="hero-btn">立即預約諮詢</a>
   </section>
 
-  <!-- ===================================================
-       ★ 新人作品區：橫向單排滑動
-       =================================================== -->
+  <!-- ★ 貼心教學特色區 (加回特色說明) -->
+  <section class="section-wrap">
+    <div class="section-head">
+      <span class="section-tag">Why Choose Us</span>
+      <h3 class="section-title">唯定為您準備的貼心教學</h3>
+      <p class="section-desc">無需擔心沒有舞蹈底子，陪伴您從第一步到紅毯上的完美亮相</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">✨</div>
+        <div class="feature-name">零基礎專屬編排</div>
+        <p class="feature-detail">依新人挑選的定情曲與節奏感量身設計，步法好記又優雅，新手也能輕鬆上手。</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🏛️</div>
+        <div class="feature-name">配合宴客場地動線</div>
+        <p class="feature-detail">考量飯店舞台、紅毯長度與賓客視角，精準規劃進場走位與旋轉亮點，兼具大器與安全。</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">👗</div>
+        <div class="feature-name">婚紗禮服與高跟鞋調校</div>
+        <p class="feature-detail">針對婚紗蓬度、長拖尾與高跟鞋高度量身微調動作，避免踩裙襬，保證舞步舒適流暢。</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📹</div>
+        <div class="feature-name">課後重點錄影指導</div>
+        <p class="feature-detail">每堂課結束錄製重點解析與老師示範影片，回家在客廳看著手機就能隨時複習。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 新人作品區：橫向單排滑動 -->
   <section class="section-wrap">
     <div class="section-head">
       <span class="section-tag">Showcase</span>
@@ -627,7 +663,7 @@
     </div>
   </section>
 
-  <!-- 預約諮詢區 -->
+  <!-- 預約表單區 -->
   <section class="section-wrap" id="contact">
     <div class="section-head">
       <span class="section-tag">Reservation</span>
@@ -693,7 +729,7 @@
   </div>
 
   <script>
-    /* 1. 飄落花瓣產生 */
+    /* 1. 飄落花瓣 */
     const petalsBox = document.getElementById('petalsBox');
     function addPetal() {
       const p = document.createElement('div');
@@ -706,7 +742,7 @@
     for (let i = 0; i < 10; i++) addPetal();
     setInterval(addPetal, 1400);
 
-    /* 2. 音樂核心引擎 (支援 MP3 + Web Audio 鋼琴備援) */
+    /* 2. 音樂核心引擎 */
     const bgMusic = document.getElementById('bgMusic');
     const musicBtn = document.getElementById('musicBtn');
     let isPlaying = false;
@@ -791,14 +827,14 @@
       else startMusic();
     });
 
-    /* 3. 開場遮罩點擊 (Touch to Start) */
+    /* 3. 開場遮罩點擊 */
     const startOverlay = document.getElementById('startOverlay');
     startOverlay.addEventListener('click', () => {
       startOverlay.classList.add('hide');
-      startMusic(); // 直接手勢觸發音訊，保證不被瀏覽器攔截
+      startMusic();
     });
 
-    /* 4. 關閉頁面/切換分頁生命週期保護 (徹底修復跳出仍有聲音問題) */
+    /* 4. 分頁跳轉/關閉視窗保護 */
     document.addEventListener('visibilitychange', () => {
       if (document.hidden && isPlaying) {
         pauseMusic();
@@ -807,7 +843,7 @@
     window.addEventListener('pagehide', () => pauseMusic());
     window.addEventListener('beforeunload', () => pauseMusic());
 
-    /* 5. YouTube 彈窗播放與關閉 */
+    /* 5. 影片燈箱聯動 */
     const videoModal = document.getElementById('videoModal');
     const videoIframe = document.getElementById('videoIframe');
     const closeModalBtn = document.getElementById('closeModalBtn');
