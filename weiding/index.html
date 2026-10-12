@@ -1,1461 +1,848 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
-<head> 
+<head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>唯定婚禮舞蹈 WeiDing Wedding Dance | 專屬新人的浪漫首舞</title>
-  <meta name="description" content="唯定婚禮舞蹈專為新人打造專屬婚禮首舞與進場舞蹈，零基礎輕鬆上手，用步伐譜寫永恆回憶。">
-
-  <!-- Google Fonts: Cormorant Garamond & Noto Sans TC -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>唯定婚禮舞蹈 WeiDing Wedding Dance</title>
+  
+  <!-- 字型引入 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400&family=Noto+Sans+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
 
   <style>
-    /* ===================================================
-       1. 全域變數與重設
-       =================================================== */
     :root {
-      --primary-rose: #C67D78;
+      --primary: #C67D78;
       --primary-dark: #8E4C47;
-      --champagne-gold: #D4AF37;
-      --gold-hover: #b59228;
-      --bg-cream: #FAF7F2;
-      --card-bg: rgba(255, 255, 255, 0.92);
-      --text-main: #332B2B;
-      --text-muted: #6B5E5E;
-      --shadow-soft: 0 10px 30px rgba(142, 76, 71, 0.08);
-      --shadow-hover: 0 16px 36px rgba(142, 76, 71, 0.16);
-      --border-rose: rgba(198, 125, 120, 0.25);
+      --gold: #C5A059;
+      --bg: #FDFBF8;
+      --card-bg: #FFFFFF;
+      --text: #3D3535;
+      --text-muted: #7A6F6F;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-    }
-
-    html {
-      scroll-behavior: smooth;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
-      font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      color: var(--text-main);
-      background-color: var(--bg-cream);
-      /* 浪漫精緻小碎花背景紋理 (向量 SVG Pattern) */
-      background-image: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.75), rgba(250, 247, 242, 0.95)),
-        url("data:image/svg+xml,%3Csvg width='70' height='70' viewBox='0 0 70 70' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23d99b9b' fill-opacity='0.16' fill-rule='evenodd'%3E%3Cpath d='M35 25c-1.6 0-3 1.3-3 3 0-1.7-1.4-3-3-3 1.6 0 3-1.3 3-3 0 1.7 1.4 3 3 3zm0 4c-1.6 0-3 1.3-3 3 0-1.7-1.4-3-3-3 1.6 0 3-1.3 3-3 0 1.7 1.4 3 3 3zm-4-2c0 1.6-1.3 3-3 3 1.7 0 3 1.4 3 3 0-1.6 1.3-3 3-3-1.7 0-3-1.4-3-3zm8 0c0 1.6-1.3 3-3 3 1.7 0 3 1.4 3 3 0-1.6 1.3-3 3-3-1.7 0-3-1.4-3-3z'/%3E%3Ccircle cx='35' cy='27' r='2' fill='%23D4AF37' fill-opacity='0.25'/%3E%3Cpath d='M10 55c-1 0-2 .8-2 2 0-1.2-1-2-2-2 1 0 2-.8 2-2 0 1.2 1 2 2 2zm15-35c-.8 0-1.5.7-1.5 1.5 0-.8-.7-1.5-1.5-1.5.8 0 1.5-.7 1.5-1.5 0 .8.7 1.5 1.5 1.5z'/%3E%3C/g%3E%3C/svg%3E");
-      background-repeat: repeat;
-      background-attachment: fixed;
-      line-height: 1.7;
+      font-family: 'Noto Sans TC', sans-serif;
+      color: var(--text);
+      background-color: var(--bg);
+      /* 輕量浪漫小碎花背景紋理 */
+      background-image: radial-gradient(circle at center, rgba(253, 251, 248, 0.85), rgba(253, 251, 248, 0.98)),
+        url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23C67D78' fill-opacity='0.12' fill-rule='evenodd'%3E%3Cpath d='M30 20c-1.5 0-2.5 1-2.5 2.5 0-1.5-1-2.5-2.5-2.5 1.5 0 2.5-1 2.5-2.5 0 1.5 1 2.5 2.5 2.5zm0 5c-1.5 0-2.5 1-2.5 2.5 0-1.5-1-2.5-2.5-2.5 1.5 0 2.5-1 2.5-2.5 0 1.5 1 2.5 2.5 2.5zm-3-2.5c0 1.5-1 2.5-2.5 2.5 1.5 0 2.5 1 2.5 2.5 0-1.5 1-2.5 2.5-2.5-1.5 0-2.5-1-2.5-2.5zm6 0c0 1.5-1 2.5-2.5 2.5 1.5 0 2.5 1 2.5 2.5 0-1.5 1-2.5 2.5-2.5-1.5 0-2.5-1-2.5-2.5z'/%3E%3C/g%3E%3C/svg%3E");
+      line-height: 1.6;
       overflow-x: hidden;
-      position: relative;
     }
 
-    /* ===================================================
-       ★ 前置引導頁：Touch to Start 浪漫開場覆蓋層
-       =================================================== */
-    .start-overlay {
+    /* 飄落花瓣 */
+    .petals-box {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: radial-gradient(circle at center, rgba(255, 252, 248, 0.98), rgba(247, 237, 235, 0.96));
-      z-index: 99999;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 2rem;
-      cursor: pointer;
-      transition: opacity 1.2s cubic-bezier(0.22, 1, 0.36, 1), visibility 1.2s ease;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-    }
-    .start-overlay.fade-out {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-    }
-    .start-content {
-      max-width: 520px;
-      animation: startFloat 3.2s ease-in-out infinite alternate;
-    }
-    @keyframes startFloat {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(-8px); }
-    }
-    .start-brand {
-      font-family: 'Cormorant Garamond', 'Noto Sans TC', serif;
-      font-size: 2.3rem;
-      color: var(--primary-dark);
-      letter-spacing: 0.18em;
-      margin-bottom: 0.5rem;
-    }
-    .start-sub {
-      font-size: 0.82rem;
-      color: var(--champagne-gold);
-      letter-spacing: 0.28em;
-      text-transform: uppercase;
-      font-weight: 600;
-      margin-bottom: 2.2rem;
-      display: block;
-    }
-    .start-quote {
-      font-size: 1.12rem;
-      color: var(--text-muted);
-      line-height: 2;
-      font-weight: 300;
-      margin-bottom: 3rem;
-    }
-    .start-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.75rem;
-      background: linear-gradient(135deg, var(--primary-rose), var(--primary-dark));
-      color: #fff;
-      padding: 0.95rem 2.6rem;
-      border-radius: 50px;
-      font-size: 1.05rem;
-      letter-spacing: 0.12em;
-      font-weight: 500;
-      box-shadow: 0 10px 28px rgba(198, 125, 120, 0.38);
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      animation: pulseBtn 2.2s infinite;
-    }
-    @keyframes pulseBtn {
-      0% { box-shadow: 0 0 0 0 rgba(198, 125, 120, 0.5); }
-      70% { box-shadow: 0 0 0 16px rgba(198, 125, 120, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(198, 125, 120, 0); }
-    }
-    .start-hint {
-      margin-top: 1.4rem;
-      font-size: 0.8rem;
-      color: #A39696;
-      letter-spacing: 0.08em;
-    }
-
-    /* 飄落花瓣容器 */
-    .petals-container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      inset: 0;
       pointer-events: none;
       z-index: 1;
       overflow: hidden;
     }
     .petal {
       position: absolute;
-      background: radial-gradient(circle, #fbdad9 30%, #e8a5a5 100%);
-      border-radius: 150% 0 150% 0;
-      opacity: 0.65;
-      animation: fall linear infinite;
+      width: 10px;
+      height: 14px;
+      background: radial-gradient(circle, #fcdada 20%, #e69d9d 100%);
+      border-radius: 120% 0 120% 0;
+      opacity: 0.6;
+      animation: fallAnim linear infinite;
     }
-    @keyframes fall {
-      0% {
-        transform: translate(0, -50px) rotate(0deg);
-        opacity: 0;
-      }
-      15% {
-        opacity: 0.7;
-      }
-      100% {
-        transform: translate(120px, 105vh) rotate(360deg);
-        opacity: 0;
-      }
+    @keyframes fallAnim {
+      0% { transform: translate(0, -20px) rotate(0deg); opacity: 0; }
+      15% { opacity: 0.7; }
+      100% { transform: translate(80px, 105vh) rotate(360deg); opacity: 0; }
     }
 
     /* ===================================================
-       2. 導覽列 (Navbar)
+       ★ 開場遮罩 (Touch to Start)
        =================================================== */
-    header.site-header {
+    #startOverlay {
+      position: fixed;
+      inset: 0;
+      background: #FAF6F3;
+      background-image: radial-gradient(circle, #FFFDFB 0%, #F5ECE8 100%);
+      z-index: 999999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+    }
+    #startOverlay.hide {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .start-logo {
+      width: 70px;
+      height: auto;
+      margin-bottom: 16px;
+    }
+    .start-title {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 1.8rem;
+      color: var(--primary-dark);
+      letter-spacing: 0.1em;
+      margin-bottom: 6px;
+    }
+    .start-sub {
+      font-size: 0.75rem;
+      color: var(--gold);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    .start-desc {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.9;
+      margin-bottom: 32px;
+    }
+    .start-btn {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      padding: 12px 28px;
+      border-radius: 40px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      box-shadow: 0 8px 20px rgba(198, 125, 120, 0.35);
+      animation: startPulse 2s infinite;
+    }
+    @keyframes startPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+      100% { transform: scale(1); }
+    }
+    .start-tip {
+      font-size: 0.75rem;
+      color: #A39696;
+      margin-top: 14px;
+    }
+
+    /* ===================================================
+       導覽列
+       =================================================== */
+    header {
       position: sticky;
       top: 0;
       width: 100%;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(198, 125, 120, 0.2);
       z-index: 100;
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border-rose);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-      transition: all 0.3s ease;
-    }
-
-    .nav-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0.75rem 1.5rem;
+      padding: 10px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
-
-    /* Logo 區域 */
-    .brand-logo-wrap {
+    .nav-brand {
       display: flex;
       align-items: center;
+      gap: 10px;
       text-decoration: none;
-      gap: 0.75rem;
     }
-    .brand-logo {
-      height: 48px;
+    .nav-brand img {
+      height: 42px;
       width: auto;
       object-fit: contain;
-      display: block;
-    }
-    .brand-text {
-      display: flex;
-      flex-direction: column;
     }
     .brand-title {
-      font-family: 'Cormorant Garamond', 'Noto Sans TC', serif;
-      font-size: 1.45rem;
+      font-family: 'Noto Serif TC', serif;
+      font-size: 1.25rem;
       font-weight: 600;
       color: var(--primary-dark);
-      letter-spacing: 0.12em;
+      letter-spacing: 0.05em;
+      display: block;
+      line-height: 1.2;
     }
-    .brand-sub {
-      font-size: 0.68rem;
+    .brand-en {
+      font-size: 0.62rem;
       color: var(--text-muted);
-      letter-spacing: 0.2em;
+      letter-spacing: 0.15em;
       text-transform: uppercase;
+      display: block;
     }
 
-    /* 導覽連結 */
-    .nav-menu {
+    .nav-tools {
       display: flex;
       align-items: center;
-      list-style: none;
-      gap: 1.75rem;
+      gap: 10px;
     }
-    .nav-menu a {
-      text-decoration: none;
-      color: var(--text-main);
-      font-weight: 400;
-      font-size: 0.95rem;
-      transition: color 0.25s ease;
-      position: relative;
-    }
-    .nav-menu a:hover {
-      color: var(--primary-rose);
-    }
-    .nav-menu a::after {
-      content: '';
-      position: absolute;
-      width: 0;
-      height: 2px;
-      bottom: -4px;
-      left: 0;
-      background: var(--primary-rose);
-      transition: width 0.25s ease;
-    }
-    .nav-menu a:hover::after {
-      width: 100%;
-    }
-
-    /* 功能控制群組：音樂鈕 + CTA 按鈕 */
-    .nav-actions {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .music-toggle-btn {
-      background: rgba(198, 125, 120, 0.12);
-      border: 1px solid var(--border-rose);
-      color: var(--primary-dark);
-      width: 38px;
-      height: 38px;
+    .music-btn {
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
-      cursor: pointer;
+      background: rgba(198, 125, 120, 0.1);
+      border: 1px solid rgba(198, 125, 120, 0.3);
+      color: var(--primary-dark);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1rem;
-      transition: all 0.3s ease;
-      position: relative;
-    }
-    .music-toggle-btn:hover {
-      background: var(--primary-rose);
-      color: #fff;
-      transform: scale(1.05);
-    }
-    .music-toggle-btn.playing {
-      box-shadow: 0 0 0 4px rgba(198, 125, 120, 0.2);
-      animation: pulseMusic 2s infinite;
-    }
-    @keyframes pulseMusic {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.08); }
-      100% { transform: scale(1); }
-    }
-
-    .btn-nav-cta {
-      background: linear-gradient(135deg, var(--champagne-gold), var(--gold-hover));
-      color: #fff !important;
-      padding: 0.55rem 1.25rem;
-      border-radius: 50px;
-      font-size: 0.9rem;
-      font-weight: 500;
-      text-decoration: none;
-      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
-      transition: all 0.3s ease;
-    }
-    .btn-nav-cta:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 18px rgba(212, 175, 55, 0.4);
-    }
-    .btn-nav-cta::after { display: none !important; }
-
-    .mobile-toggle {
-      display: none;
-      background: none;
-      border: none;
-      font-size: 1.6rem;
-      color: var(--primary-dark);
       cursor: pointer;
+      font-size: 1rem;
+    }
+    .music-btn.playing {
+      background: var(--primary);
+      color: #fff;
     }
 
     /* ===================================================
-       3. 橫幅首頁 (Hero Section)
+       首頁橫幅 (Hero)
        =================================================== */
-    .hero-section {
-      min-height: 85vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .hero {
       text-align: center;
-      padding: 5rem 1.5rem 4rem;
+      padding: 40px 20px 30px;
       position: relative;
       z-index: 2;
-    }
-    .hero-card {
-      max-width: 840px;
-      background: rgba(255, 255, 255, 0.88);
-      border: 1px solid var(--border-rose);
-      padding: 4rem 2.5rem;
-      border-radius: 28px;
-      box-shadow: var(--shadow-soft);
-      backdrop-filter: blur(10px);
     }
     .hero-badge {
       display: inline-block;
-      padding: 0.35rem 1.2rem;
-      background: rgba(198, 125, 120, 0.12);
+      font-size: 0.72rem;
       color: var(--primary-dark);
-      font-size: 0.85rem;
-      border-radius: 50px;
-      letter-spacing: 0.15em;
-      margin-bottom: 1.5rem;
+      background: rgba(198, 125, 120, 0.12);
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: 0.1em;
+      margin-bottom: 12px;
     }
     .hero-title {
-      font-family: 'Cormorant Garamond', 'Noto Sans TC', serif;
-      font-size: 3rem;
-      font-weight: 600;
+      font-family: 'Noto Serif TC', serif;
+      font-size: 1.85rem;
       color: var(--primary-dark);
-      line-height: 1.25;
-      margin-bottom: 1.2rem;
-      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+      line-height: 1.35;
     }
     .hero-subtitle {
-      font-size: 1.15rem;
+      font-size: 0.9rem;
       color: var(--text-muted);
-      max-width: 600px;
-      margin: 0 auto 2.5rem;
-      line-height: 1.8;
-      font-weight: 300;
+      line-height: 1.7;
+      max-width: 480px;
+      margin: 0 auto 20px;
     }
-    .hero-btn-group {
-      display: flex;
-      justify-content: center;
-      gap: 1.25rem;
-      flex-wrap: wrap;
-    }
-    .btn-main {
-      background: linear-gradient(135deg, var(--primary-rose), var(--primary-dark));
+    .hero-btn {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
       color: #fff;
-      padding: 0.85rem 2.2rem;
-      border-radius: 50px;
       text-decoration: none;
-      font-size: 1rem;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      box-shadow: 0 6px 20px rgba(198, 125, 120, 0.35);
-    }
-    .btn-main:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(198, 125, 120, 0.45);
-    }
-    .btn-outline {
-      background: #fff;
-      color: var(--primary-dark);
-      border: 1px solid var(--border-rose);
-      padding: 0.85rem 2rem;
-      border-radius: 50px;
-      text-decoration: none;
-      font-size: 1rem;
-      font-weight: 500;
-      transition: all 0.3s ease;
-    }
-    .btn-outline:hover {
-      background: rgba(198, 125, 120, 0.08);
-      transform: translateY(-2px);
+      padding: 10px 24px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 14px rgba(198, 125, 120, 0.3);
     }
 
     /* ===================================================
-       4. 通用區塊佈局 (Sections)
+       ★ 新人作品橫向滑動區 (橫向翻頁修復)
        =================================================== */
-    section {
-      padding: 5.5rem 1.5rem;
-      max-width: 1200px;
-      margin: 0 auto;
+    .section-wrap {
+      padding: 30px 16px;
       position: relative;
       z-index: 2;
     }
-    .section-header {
+    .section-head {
       text-align: center;
-      margin-bottom: 3rem;
+      margin-bottom: 18px;
     }
     .section-tag {
-      font-size: 0.82rem;
+      font-size: 0.72rem;
+      color: var(--gold);
+      letter-spacing: 0.15em;
       text-transform: uppercase;
-      letter-spacing: 0.25em;
-      color: var(--champagne-gold);
-      font-weight: 600;
-      margin-bottom: 0.5rem;
       display: block;
+      margin-bottom: 4px;
     }
     .section-title {
-      font-family: 'Cormorant Garamond', 'Noto Sans TC', serif;
-      font-size: 2.3rem;
+      font-family: 'Noto Serif TC', serif;
+      font-size: 1.5rem;
       color: var(--primary-dark);
-      letter-spacing: 0.05em;
-      position: relative;
-      display: inline-block;
     }
     .section-desc {
-      font-size: 0.98rem;
+      font-size: 0.82rem;
       color: var(--text-muted);
-      max-width: 580px;
-      margin: 0.75rem auto 0;
+      margin-top: 4px;
     }
 
-    /* ===================================================
-       ★ 5. 新人作品橫向滑動翻頁輪播 (Horizontal Scroll / Carousel)
-       =================================================== */
-    .gallery-carousel-wrapper {
-      position: relative;
-      margin: 0 -0.5rem;
+    /* 橫向滑動軌道核心設定 */
+    .carousel-container {
+      width: 100%;
+      overflow: hidden;
     }
-    .gallery-carousel {
+    .carousel-track {
       display: flex;
-      gap: 1.6rem;
+      flex-direction: row; /* 強制水平單排 */
+      flex-wrap: nowrap;     /* 禁止換行折下 */
+      gap: 16px;
       overflow-x: auto;
       scroll-snap-type: x mandatory;
-      padding: 1rem 0.5rem 2rem;
-      scrollbar-width: thin;
-      scrollbar-color: var(--primary-rose) rgba(198, 125, 120, 0.12);
       -webkit-overflow-scrolling: touch;
-      scroll-behavior: smooth;
+      padding: 10px 4px 20px 4px;
     }
-    .gallery-carousel::-webkit-scrollbar {
-      height: 6px;
+    /* 隱藏捲軸 */
+    .carousel-track::-webkit-scrollbar {
+      display: none;
     }
-    .gallery-carousel::-webkit-scrollbar-track {
-      background: rgba(198, 125, 120, 0.08);
-      border-radius: 10px;
+    .carousel-track {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
-    .gallery-carousel::-webkit-scrollbar-thumb {
-      background: var(--primary-rose);
-      border-radius: 10px;
-    }
-    
+
+    /* 影片卡片寬度精準固定 */
     .video-card {
-      flex: 0 0 calc(33.333% - 1.1rem);
-      min-width: 310px;
-      max-width: 390px;
-      scroll-snap-align: start;
-      background: var(--card-bg);
-      border-radius: 20px;
+      flex: 0 0 78vw; /* 手機上固定吃 78% 螢幕寬，露出一點下一張提示滑動 */
+      max-width: 340px;
+      scroll-snap-align: center;
+      background: #FFFFFF;
+      border-radius: 16px;
       overflow: hidden;
-      border: 1px solid var(--border-rose);
-      box-shadow: var(--shadow-soft);
-      transition: all 0.35s ease;
+      border: 1px solid rgba(198, 125, 120, 0.2);
+      box-shadow: 0 6px 18px rgba(142, 76, 71, 0.08);
       cursor: pointer;
-      display: flex;
-      flex-direction: column;
     }
-    .video-card:hover {
-      transform: translateY(-6px);
-      box-shadow: var(--shadow-hover);
-    }
-    .thumbnail-wrap {
+    .thumb-wrap {
       position: relative;
       width: 100%;
-      height: 220px;
-      overflow: hidden;
-      background: #eae2dc;
+      height: 180px;
+      background: #EBE5E1;
     }
-    .thumbnail-img {
+    .thumb-wrap img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transition: transform 0.6s ease;
+      display: block;
     }
-    .video-card:hover .thumbnail-img {
-      transform: scale(1.08);
-    }
-    .play-badge {
+    .play-btn {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 56px;
-      height: 56px;
-      background: rgba(255, 255, 255, 0.92);
+      width: 48px;
+      height: 48px;
+      background: rgba(255, 255, 255, 0.95);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #FF0000;
-      font-size: 1.4rem;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-      transition: all 0.3s ease;
-    }
-    .video-card:hover .play-badge {
-      transform: translate(-50%, -50%) scale(1.15);
-      background: #FF0000;
-      color: #fff;
-    }
-    .card-info {
-      padding: 1.5rem;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-    .card-category {
-      font-size: 0.78rem;
-      color: var(--primary-rose);
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      margin-bottom: 0.4rem;
-    }
-    .card-title {
+      color: #E60000;
       font-size: 1.2rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+    .card-content {
+      padding: 14px 14px 18px;
+    }
+    .card-tag {
+      font-size: 0.75rem;
+      color: var(--primary);
+      font-weight: 500;
+      margin-bottom: 4px;
+      display: block;
+    }
+    .card-name {
+      font-size: 1.05rem;
       font-weight: 600;
-      color: var(--text-main);
-      margin-bottom: 0.6rem;
+      color: var(--text);
+      margin-bottom: 6px;
+      line-height: 1.4;
     }
-    .card-excerpt {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-      line-height: 1.6;
-    }
-
-    /* 左右切換導引按鈕 */
-    .carousel-controls {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 1.2rem;
-      margin-top: 1.2rem;
-    }
-    .carousel-arrow {
-      background: rgba(255, 255, 255, 0.9);
-      border: 1px solid var(--border-rose);
-      color: var(--primary-dark);
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(142, 76, 71, 0.1);
-      transition: all 0.25s ease;
-      font-size: 1.2rem;
-    }
-    .carousel-arrow:hover {
-      background: var(--primary-rose);
-      color: #fff;
-      transform: scale(1.08);
-    }
-    .carousel-hint {
+    .card-text {
       font-size: 0.82rem;
       color: var(--text-muted);
-      letter-spacing: 0.05em;
+      line-height: 1.5;
     }
 
-    /* ===================================================
-       6. 服務特點與教學流程 (Features & Process)
-       =================================================== */
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 1.75rem;
-    }
-    .feature-box {
-      background: var(--card-bg);
-      border: 1px solid var(--border-rose);
-      padding: 2.2rem 1.8rem;
-      border-radius: 20px;
+    .swipe-hint {
       text-align: center;
-      box-shadow: var(--shadow-soft);
-      transition: all 0.3s ease;
-    }
-    .feature-box:hover {
-      transform: translateY(-4px);
-    }
-    .feature-icon {
-      font-size: 2.2rem;
-      margin-bottom: 1rem;
-      display: inline-block;
-    }
-    .feature-title {
-      font-size: 1.15rem;
-      font-weight: 600;
-      color: var(--primary-dark);
-      margin-bottom: 0.75rem;
-    }
-    .feature-text {
-      font-size: 0.9rem;
+      font-size: 0.75rem;
       color: var(--text-muted);
-      line-height: 1.7;
+      margin-top: 4px;
     }
 
     /* ===================================================
-       7. 留下資訊預約表單 (Contact Form)
+       預約表單區 (留下資訊)
        =================================================== */
-    .form-wrapper {
-      max-width: 760px;
-      margin: 0 auto;
-      background: var(--card-bg);
-      border: 1px solid var(--border-rose);
-      border-radius: 28px;
-      padding: 3.5rem 2.8rem;
-      box-shadow: var(--shadow-soft);
-      backdrop-filter: blur(8px);
-    }
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-      margin-bottom: 1.4rem;
-    }
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      margin-bottom: 1.4rem;
-    }
-    .form-group label {
-      font-size: 0.9rem;
-      font-weight: 500;
-      color: var(--primary-dark);
-      margin-bottom: 0.5rem;
-    }
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-      width: 100%;
-      padding: 0.85rem 1.1rem;
-      border: 1px solid #DCD3CB;
-      border-radius: 12px;
-      font-size: 0.95rem;
-      color: var(--text-main);
+    .form-box {
       background: #FFFFFF;
-      outline: none;
-      transition: border 0.25s, box-shadow 0.25s;
-      font-family: inherit;
+      border-radius: 20px;
+      padding: 24px 18px;
+      border: 1px solid rgba(198, 125, 120, 0.2);
+      box-shadow: 0 6px 20px rgba(142, 76, 71, 0.06);
+      max-width: 540px;
+      margin: 0 auto;
     }
-    .form-group input:focus,
-    .form-group select:focus,
-    .form-group textarea:focus {
-      border-color: var(--primary-rose);
-      box-shadow: 0 0 0 3px rgba(198, 125, 120, 0.15);
+    .form-item {
+      margin-bottom: 14px;
     }
-    .btn-submit {
+    .form-item label {
+      display: block;
+      font-size: 0.82rem;
+      color: var(--primary-dark);
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    .form-item input,
+    .form-item select,
+    .form-item textarea {
       width: 100%;
-      background: linear-gradient(135deg, var(--primary-rose), var(--primary-dark));
+      padding: 10px 12px;
+      border: 1px solid #DFD5CF;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      background: #FFF;
+      font-family: inherit;
+      outline: none;
+    }
+    .form-item input:focus,
+    .form-item select:focus,
+    .form-item textarea:focus {
+      border-color: var(--primary);
+    }
+    .submit-btn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
       color: #fff;
       border: none;
-      padding: 1rem;
-      border-radius: 50px;
-      font-size: 1.05rem;
+      padding: 12px;
+      border-radius: 30px;
+      font-size: 0.95rem;
       font-weight: 500;
       cursor: pointer;
-      box-shadow: 0 6px 20px rgba(198, 125, 120, 0.35);
-      transition: all 0.3s ease;
-      margin-top: 0.5rem;
-    }
-    .btn-submit:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(198, 125, 120, 0.45);
+      margin-top: 8px;
+      box-shadow: 0 4px 14px rgba(198, 125, 120, 0.3);
     }
 
     /* ===================================================
-       ★ 8. 頁尾 (Footer) 與手機自適應微調
+       頁尾 (針對手機自適應微調)
        =================================================== */
-    footer.site-footer {
-      background: rgba(255, 255, 255, 0.9);
-      border-top: 1px solid var(--border-rose);
-      padding: 3.5rem 1.5rem 2.5rem;
+    footer {
       text-align: center;
+      padding: 30px 16px 24px;
+      border-top: 1px solid rgba(198, 125, 120, 0.15);
+      background: #FFFFFF;
       position: relative;
       z-index: 2;
     }
     .footer-logo {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.8rem;
-      font-weight: 600;
+      font-family: 'Noto Serif TC', serif;
+      font-size: 1.2rem;
       color: var(--primary-dark);
-      margin-bottom: 0.5rem;
-      letter-spacing: 0.08em;
+      margin-bottom: 4px;
     }
     .footer-slogan {
+      font-size: 0.78rem;
       color: var(--text-muted);
-      font-size: 0.95rem;
-      line-height: 1.6;
+      margin-bottom: 12px;
     }
     .footer-links {
       display: flex;
       justify-content: center;
-      flex-wrap: wrap;
-      gap: 1.5rem;
-      margin: 1.5rem 0;
+      gap: 14px;
+      margin-bottom: 12px;
     }
     .footer-links a {
       color: var(--text-muted);
       text-decoration: none;
-      font-size: 0.9rem;
-      transition: color 0.25s;
-    }
-    .footer-links a:hover {
-      color: var(--primary-rose);
+      font-size: 0.78rem;
     }
     .footer-copy {
-      font-size: 0.8rem;
-      color: #9C8F8F;
-      margin-top: 1.5rem;
-      letter-spacing: 0.04em;
+      font-size: 0.68rem;
+      color: #ABA0A0;
     }
 
     /* ===================================================
-       9. 影片燈箱彈窗 (Video Modal)
+       YouTube 燈箱
        =================================================== */
-    .video-modal-overlay {
+    #videoModal {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.78);
-      backdrop-filter: blur(8px);
-      z-index: 1000;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 99999;
       display: none;
       align-items: center;
       justify-content: center;
-      padding: 1.5rem;
-      opacity: 0;
-      transition: opacity 0.3s ease;
+      padding: 16px;
     }
-    .video-modal-overlay.active {
+    #videoModal.open {
       display: flex;
-      opacity: 1;
     }
-    .modal-content-wrap {
-      background: #000;
+    .modal-inner {
       width: 100%;
-      max-width: 860px;
-      border-radius: 16px;
+      max-width: 680px;
+      background: #000;
+      border-radius: 12px;
       overflow: hidden;
       position: relative;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
     }
-    .modal-video-container {
+    .modal-close {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      background: rgba(0,0,0,0.6);
+      color: #fff;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-size: 1.2rem;
+      z-index: 10;
+      cursor: pointer;
+    }
+    .video-box {
       position: relative;
-      padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+      padding-bottom: 56.25%;
       height: 0;
     }
-    .modal-video-container iframe {
+    .video-box iframe {
       position: absolute;
-      top: 0;
-      left: 0;
+      inset: 0;
       width: 100%;
       height: 100%;
       border: 0;
-    }
-    .modal-close-btn {
-      position: absolute;
-      top: 12px;
-      right: 15px;
-      background: rgba(0, 0, 0, 0.6);
-      color: #fff;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 1.2rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
-      transition: background 0.25s;
-    }
-    .modal-close-btn:hover {
-      background: var(--primary-rose);
-    }
-
-    /* ===================================================
-       ★ 手機版響應式斷點 (RWD) 全面最佳化
-       =================================================== */
-    @media (max-width: 860px) {
-      .form-row {
-        grid-template-columns: 1fr;
-        gap: 0;
-      }
-      .form-wrapper {
-        padding: 2.2rem 1.4rem;
-        border-radius: 20px;
-      }
-      .hero-title {
-        font-size: 2.1rem;
-        line-height: 1.35;
-      }
-      .hero-card {
-        padding: 3rem 1.4rem;
-      }
-      .nav-menu {
-        display: none;
-        position: absolute;
-        top: 100%;
-        left: 0;
-        width: 100%;
-        background: rgba(255, 255, 255, 0.98);
-        flex-direction: column;
-        padding: 2rem 1.5rem;
-        gap: 1.2rem;
-        border-bottom: 1px solid var(--border-rose);
-      }
-      .nav-menu.mobile-open {
-        display: flex;
-      }
-      .mobile-toggle {
-        display: block;
-      }
-      .btn-nav-cta {
-        display: none;
-      }
-
-      /* 橫向滑動在手機上的間距與寬度 */
-      .video-card {
-        flex: 0 0 82%;
-        min-width: 270px;
-      }
-      .thumbnail-wrap {
-        height: 190px;
-      }
-
-      /* 底部字體因應手機規格調整大小 */
-      footer.site-footer {
-        padding: 2.5rem 1.2rem 2rem;
-      }
-      .footer-logo {
-        font-size: 1.45rem;
-      }
-      .footer-slogan {
-        font-size: 0.85rem;
-      }
-      .footer-links {
-        gap: 1rem;
-        margin: 1.2rem 0;
-      }
-      .footer-links a {
-        font-size: 0.82rem;
-        padding: 0.2rem 0.4rem;
-      }
-      .footer-copy {
-        font-size: 0.72rem;
-        line-height: 1.5;
-        margin-top: 1.2rem;
-      }
-
-      /* Touch to Start 手機字體調整 */
-      .start-brand {
-        font-size: 1.85rem;
-      }
-      .start-quote {
-        font-size: 0.96rem;
-        margin-bottom: 2.2rem;
-      }
-      .start-btn {
-        padding: 0.85rem 2rem;
-        font-size: 0.95rem;
-      }
     }
   </style>
 </head>
 <body>
 
   <!-- ===================================================
-       ★ 前置引導頁：Touch to Start 浪漫開場
-       =================================================== */
-  <div class="start-overlay" id="startOverlay">
-    <div class="start-content">
-      <h1 class="start-brand">唯定婚禮舞蹈</h1>
-      <span class="start-sub">WeiDing Wedding Dance</span>
-      <p class="start-quote">
-        「在音樂響起的那一刻，<br>與摯愛牽起雙手，步入永恆的浪漫篇章。」
-      </p>
-      <div class="start-btn">
-        <span>✨ 點擊開啟屬於你們的專屬旅程</span>
-      </div>
-      <div class="start-hint">Touch Anywhere to Start & Play Music ♪</div>
-    </div>
+       ★ 開場遮罩：Touch to Start
+       =================================================== -->
+  <div id="startOverlay">
+    <img src="wei ding dance studio.png" alt="唯定婚禮舞蹈 Logo" class="start-logo" onerror="this.style.display='none'">
+    <h1 class="start-title">唯定婚禮舞蹈</h1>
+    <span class="start-sub">WeiDing Wedding Dance</span>
+    <p class="start-desc">
+      「在音樂響起的那一刻，<br>與摯愛牽起雙手，步入永恆的浪漫篇章。」
+    </p>
+    <div class="start-btn">✨ 點擊開啟專屬浪漫旅程</div>
+    <div class="start-tip">Touch to Start & Play Music ♪</div>
   </div>
 
-  <!-- 浪漫飄落小花瓣動態背景 -->
-  <div class="petals-container" id="petalsBox"></div>
+  <!-- 飄落花瓣 -->
+  <div class="petals-box" id="petalsBox"></div>
 
-  <!-- 背景音樂音訊元素 (支援自訂音訊檔案) -->
+  <!-- 音樂檔案元件 (預設讀取同目錄下的 wedding-bgm.mp3) -->
   <audio id="bgMusic" src="wedding-bgm.mp3" preload="auto" loop></audio>
 
-  <!-- ===================================================
-       導覽列 (Navbar)
-       =================================================== */
-  <header class="site-header">
-    <div class="nav-container">
-      
-      <!-- 1. 左側品牌 Logo 替換區 -->
-      <a href="#home" class="brand-logo-wrap">
-        <img src="wei ding dance studio.png" alt="唯定婚禮舞蹈 Logo" class="brand-logo" id="mainLogo">
-        <div class="brand-text">
-          <span class="brand-title">唯定婚禮舞蹈</span>
-          <span class="brand-sub">WeiDing Wedding Dance</span>
-        </div>
-      </a>
-
-      <!-- 2. 中間/右上選單 (點擊平滑滑動至對應區塊) -->
-      <ul class="nav-menu" id="navMenu">
-        <li><a href="#services">舞碼風格</a></li>
-        <li><a href="#gallery">新人作品</a></li>
-        <li><a href="#process">教學流程</a></li>
-        <li><a href="#contact">預約諮詢</a></li>
-      </ul>
-
-      <!-- 3. 右側功能小按鈕 (鋼琴背景音樂開關 + CTA 按鈕) -->
-      <div class="nav-actions">
-        <button class="music-toggle-btn" id="musicBtn" title="點擊切換浪漫鋼琴音樂">
-          <span id="musicIcon">♪</span>
-        </button>
-
-        <a href="#contact" class="btn-nav-cta">預約檔期</a>
-        
-        <!-- 手機版選單切換按鈕 -->
-        <button class="mobile-toggle" id="mobileToggle" aria-label="選單開關">☰</button>
+  <!-- 導覽列 -->
+  <header>
+    <a href="#" class="nav-brand">
+      <img src="wei ding dance studio.png" alt="Logo" onerror="this.style.display='none'">
+      <div>
+        <span class="brand-title">唯定婚禮舞蹈</span>
+        <span class="brand-en">Wedding Dance</span>
       </div>
-
+    </a>
+    <div class="nav-tools">
+      <button class="music-btn" id="musicBtn" aria-label="切換音樂">♪</button>
     </div>
   </header>
 
-  <!-- ===================================================
-       Hero 橫幅首頁
-       =================================================== */
-  <main>
-    <section class="hero-section" id="home">
-      <div class="hero-card">
-        <span class="hero-badge">Customized First Dance</span>
-        <h1 class="hero-title">專屬新人的浪漫首舞<br>用步伐譜寫永恆回憶</h1>
-        <p class="hero-subtitle">
-          為您量身打造專屬於兩人的婚禮舞蹈。<br>零舞蹈基礎也能在音樂響起時，自信優雅地步入全場焦點。
-        </p>
-        <div class="hero-btn-group">
-          <a href="#gallery" class="btn-main">欣賞新人影片見證</a>
-          <a href="#contact" class="btn-outline">立即填表預約諮詢</a>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===================================================
-         ★ YouTube 影片見證區 (橫向滑動翻頁方式)
-         =================================================== */
-    <section id="gallery">
-      <div class="section-header">
-        <span class="section-tag">Video Showcase</span>
-        <h2 class="section-title">精選婚禮舞碼見證</h2>
-        <p class="section-desc">左右橫向滑動瀏覽每張新人紀錄照片，點擊即可觀看現場 YouTube 影片紀錄。</p>
-      </div>
-
-      <div class="gallery-carousel-wrapper">
-        <div class="gallery-carousel" id="galleryCarousel">
-          
-          <!-- 影片卡片 1 -->
-          <div class="video-card" data-video-id="eN6AYhat8UM" data-title="浪漫唯美華爾滋・新人進場首舞">
-            <div class="thumbnail-wrap">
-              <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80" alt="浪漫華爾滋" class="thumbnail-img">
-              <div class="play-badge">▶</div>
-            </div>
-            <div class="card-info">
-              <span class="card-category">Slow Waltz 華爾滋</span>
-              <h3 class="card-title">浪漫唯美華爾滋・深情相擁首舞</h3>
-              <p class="card-excerpt">適合婚紗裙擺展開的經典大器旋轉，零基礎 3 堂課快速掌握流暢步態。</p>
-            </div>
-          </div>
-
-          <!-- 影片卡片 2 -->
-          <div class="video-card" data-video-id="kJQP7kiw5Fk" data-title="深情慢拍倫巴・眼神專注對望">
-            <div class="thumbnail-wrap">
-              <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80" alt="深情倫巴" class="thumbnail-img">
-              <div class="play-badge">▶</div>
-            </div>
-            <div class="card-info">
-              <span class="card-category">Romantic Rumba 浪漫倫巴</span>
-              <h3 class="card-title">深情慢拍倫巴・眼神專注對望</h3>
-              <p class="card-excerpt">細膩的呼吸與肢體引導，讓兩人最真摯的愛意在音樂中自然流露。</p>
-            </div>
-          </div>
-
-          <!-- 影片卡片 3 -->
-          <div class="video-card" data-video-id="fJ9rUzIMcZQ" data-title="俏皮輕快二進・點燃婚禮派對熱情">
-            <div class="thumbnail-wrap">
-              <img src="https://images.unsplash.com/photo-1532712938310-34cb3982ef74?auto=format&fit=crop&w=800&q=80" alt="俏皮二進" class="thumbnail-img">
-              <div class="play-badge">▶</div>
-            </div>
-            <div class="card-info">
-              <span class="card-category">Swing / Pop 驚喜二進</span>
-              <h3 class="card-title">俏皮輕快二進・點燃派對熱情</h3>
-              <p class="card-excerpt">活潑歡樂的互動式進場，帶動全場賓客歡呼與拍照打卡的最高潮！</p>
-            </div>
-          </div>
-
-          <!-- 影片卡片 4 -->
-          <div class="video-card" data-video-id="eN6AYhat8UM" data-title="長輩感動敬茶・溫馨優雅慢舞">
-            <div class="thumbnail-wrap">
-              <img src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=800&q=80" alt="溫馨慢舞" class="thumbnail-img">
-              <div class="play-badge">▶</div>
-            </div>
-            <div class="card-info">
-              <span class="card-category">Tender Dance 溫馨慢舞</span>
-              <h3 class="card-title">父女牽手・動人傳承慢舞</h3>
-              <p class="card-excerpt">溫馨催淚的交手時刻，將感謝與祝福化作柔美動人的旋轉步伐。</p>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- 輪播箭頭切換控制 -->
-        <div class="carousel-controls">
-          <button class="carousel-arrow" id="prevSlide" aria-label="上一頁">‹</button>
-          <span class="carousel-hint">滑動或點擊切換舞碼</span>
-          <button class="carousel-arrow" id="nextSlide" aria-label="下一頁">›</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===================================================
-         服務特色與流程 (Process & Services)
-         =================================================== */
-    <section id="services">
-      <div class="section-header">
-        <span class="section-tag">Why Choose WeiDing</span>
-        <h2 class="section-title">唯定為您準備的貼心教學</h2>
-        <p class="section-desc">無需擔心沒有舞蹈底子，我們陪伴您從第一步到紅毯上的完美亮相。</p>
-      </div>
-
-      <div class="features-grid">
-        <div class="feature-box">
-          <div class="feature-icon">✨</div>
-          <h3 class="feature-title">量身編排專屬舞步</h3>
-          <p class="feature-text">依新人挑選的定情曲與喜好風格，設計最好記、最顯身形線條的專屬動作。</p>
-        </div>
-        <div class="feature-box">
-          <div class="feature-icon">👗</div>
-          <h3 class="feature-title">婚紗動線與走位調整</h3>
-          <p class="feature-text">針對婚紗蓬度、拖尾長度與高跟鞋高度量身微調，確保婚禮當天每一步都安全舒適。</p>
-        </div>
-        <div class="feature-box">
-          <div class="feature-icon">🎵</div>
-          <h3 class="feature-title">專業音樂剪輯把控</h3>
-          <p class="feature-text">免費協助新人剪輯進場歌曲、調整淡入淡出與節奏段落，無縫銜接現場氛圍。</p>
-        </div>
-        <div class="feature-box">
-          <div class="feature-icon">📹</div>
-          <h3 class="feature-title">課後影片練習複習</h3>
-          <p class="feature-text">每堂課結束均錄製重點解析與示範影片，回家在家客廳就能輕鬆回顧練習。</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===================================================
-         留下資訊預約表單 (Contact Form)
-         =================================================== */
-    <section id="contact">
-      <div class="section-header">
-        <span class="section-tag">Consultation</span>
-        <h2 class="section-title">預約專屬婚禮舞蹈諮詢</h2>
-        <p class="section-desc">請填寫基本資訊，唯定舞蹈顧問將會於 24 小時內透過 LINE 與您聯繫確認細節。</p>
-      </div>
-
-      <div class="form-wrapper">
-        <form id="bookingForm">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="groomName">新郎姓名</label>
-              <input type="text" id="groomName" placeholder="例如：林先生" required>
-            </div>
-            <div class="form-group">
-              <label for="brideName">新娘姓名</label>
-              <input type="text" id="brideName" placeholder="例如：陳小姐" required>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label for="contactPhone">聯絡電話</label>
-              <input type="tel" id="contactPhone" placeholder="0912-345-678" required>
-            </div>
-            <div class="form-group">
-              <label for="lineId">LINE ID (方便發送舞碼課綱)</label>
-              <input type="text" id="lineId" placeholder="您的 LINE ID" required>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label for="weddingDate">預計婚期 (或預計進場日期)</label>
-              <input type="date" id="weddingDate" required>
-            </div>
-            <div class="form-group">
-              <label for="danceType">期望舞碼形式</label>
-              <select id="danceType">
-                <option value="first_dance">一進浪漫首舞 (First Dance)</option>
-                <option value="second_entrance">二進驚喜熱舞 / 派對舞</option>
-                <option value="bridal_party">伴郎伴娘團體舞</option>
-                <option value="custom">尚未確定，想與老師討論</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="remarks">備註或期望指定曲目 (選填)</label>
-            <textarea id="remarks" rows="3" placeholder="例如：我們想使用 Ed Sheeran 的 Perfect，新娘婚紗是大澎裙..."></textarea>
-          </div>
-
-          <button type="submit" class="btn-submit">送出預約資訊</button>
-        </form>
-      </div>
-    </section>
-  </main>
+  <!-- 首頁簡介 -->
+  <section class="hero">
+    <span class="hero-badge">Customized First Dance</span>
+    <h2 class="hero-title">專屬新人的浪漫首舞<br>用步伐譜寫永恆回憶</h2>
+    <p class="hero-subtitle">為您量身打造專屬於兩人的進場舞蹈。零舞蹈基礎也能在音樂響起時，優雅自信地步入焦點。</p>
+    <a href="#contact" class="hero-btn">立即預約諮詢</a>
+  </section>
 
   <!-- ===================================================
-       ★ 頁尾 (Footer) 手機格式微調
-       =================================================== */
-  <footer class="site-footer">
+       ★ 新人作品區：橫向單排滑動
+       =================================================== -->
+  <section class="section-wrap">
+    <div class="section-head">
+      <span class="section-tag">Showcase</span>
+      <h3 class="section-title">精選新人舞碼見證</h3>
+      <p class="section-desc">左右滑動瀏覽每張作品，點擊即可觀看現場 YouTube 紀錄</p>
+    </div>
+
+    <div class="carousel-container">
+      <div class="carousel-track" id="carouselTrack">
+        
+        <!-- 作品 1 -->
+        <div class="video-card" data-video-id="eN6AYhat8UM">
+          <div class="thumb-wrap">
+            <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80" alt="浪漫華爾滋">
+            <div class="play-btn">▶</div>
+          </div>
+          <div class="card-content">
+            <span class="card-tag">Slow Waltz 華爾滋</span>
+            <div class="card-name">浪漫唯美華爾滋・深情首舞</div>
+            <p class="card-text">適合婚紗裙擺展開的經典大器旋轉，零基礎 3 堂課快速掌握流暢步態。</p>
+          </div>
+        </div>
+
+        <!-- 作品 2 -->
+        <div class="video-card" data-video-id="kJQP7kiw5Fk">
+          <div class="thumb-wrap">
+            <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=600&q=80" alt="深情倫巴">
+            <div class="play-btn">▶</div>
+          </div>
+          <div class="card-content">
+            <span class="card-tag">Romantic Rumba 浪漫倫巴</span>
+            <div class="card-name">深情慢拍倫巴・眼神專注對望</div>
+            <p class="card-text">細膩的呼吸與肢體引導，讓兩人最真摯的愛意在音樂中自然流露。</p>
+          </div>
+        </div>
+
+        <!-- 作品 3 -->
+        <div class="video-card" data-video-id="fJ9rUzIMcZQ">
+          <div class="thumb-wrap">
+            <img src="https://images.unsplash.com/photo-1532712938310-34cb3982ef74?auto=format&fit=crop&w=600&q=80" alt="俏皮二進">
+            <div class="play-btn">▶</div>
+          </div>
+          <div class="card-content">
+            <span class="card-tag">Swing / Pop 驚喜二進</span>
+            <div class="card-name">俏皮輕快二進・點燃派對熱情</div>
+            <p class="card-text">活潑歡樂的互動式進場，帶動全場賓客歡呼與拍照打卡的最高潮！</p>
+          </div>
+        </div>
+
+        <!-- 作品 4 -->
+        <div class="video-card" data-video-id="eN6AYhat8UM">
+          <div class="thumb-wrap">
+            <img src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=600&q=80" alt="溫馨慢舞">
+            <div class="play-btn">▶</div>
+          </div>
+          <div class="card-content">
+            <span class="card-tag">Tender Dance 溫馨慢舞</span>
+            <div class="card-name">父女牽手・動人傳承慢舞</div>
+            <p class="card-text">溫馨催淚的交手時刻，將感謝與祝福化作柔美動人的旋轉步伐。</p>
+          </div>
+        </div>
+
+      </div>
+      <div class="swipe-hint">← 左右滑動切換舞碼 →</div>
+    </div>
+  </section>
+
+  <!-- 預約諮詢區 -->
+  <section class="section-wrap" id="contact">
+    <div class="section-head">
+      <span class="section-tag">Reservation</span>
+      <h3 class="section-title">預約專屬婚禮舞蹈諮詢</h3>
+      <p class="section-desc">留下資訊，唯定專屬舞蹈顧問將透過 LINE 與您聯繫確認細節</p>
+    </div>
+
+    <div class="form-box">
+      <form id="bookForm">
+        <div class="form-item">
+          <label>新郎 / 新娘姓名</label>
+          <input type="text" id="nameInput" placeholder="例如：林先生 & 陳小姐" required>
+        </div>
+        <div class="form-item">
+          <label>聯絡電話</label>
+          <input type="tel" id="phoneInput" placeholder="0912-345-678" required>
+        </div>
+        <div class="form-item">
+          <label>LINE ID (方便發送舞碼課綱)</label>
+          <input type="text" id="lineInput" placeholder="您的 LINE ID" required>
+        </div>
+        <div class="form-item">
+          <label>預計婚期</label>
+          <input type="date" id="dateInput" required>
+        </div>
+        <div class="form-item">
+          <label>期望形式</label>
+          <select id="typeSelect">
+            <option>一進浪漫首舞 (First Dance)</option>
+            <option>二進驚喜熱舞 / 派對舞</option>
+            <option>伴郎伴娘團體舞</option>
+            <option>尚未確定，想與老師討論</option>
+          </select>
+        </div>
+        <div class="form-item">
+          <label>備註 / 期望曲目 (選填)</label>
+          <textarea id="memoInput" rows="2" placeholder="例如：想使用 Perfect 這首歌..."></textarea>
+        </div>
+        <button type="submit" class="submit-btn">送出預約資訊</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- 頁尾 -->
+  <footer>
     <div class="footer-logo">WeiDing Wedding Dance</div>
     <p class="footer-slogan">唯定婚禮舞蹈・用愛起舞，定格永恆</p>
-    
     <div class="footer-links">
-      <a href="#services">服務介紹</a>
-      <a href="#gallery">新人作品</a>
       <a href="https://line.me" target="_blank" rel="noopener">官方 LINE</a>
       <a href="https://www.youtube.com" target="_blank" rel="noopener">YouTube 頻道</a>
     </div>
-
-    <div class="footer-copy">
-      &copy; 2026 唯定婚禮舞蹈 WeiDing Wedding Dance. All Rights Reserved.
-    </div>
+    <div class="footer-copy">&copy; 2026 唯定婚禮舞蹈. All Rights Reserved.</div>
   </footer>
 
-  <!-- ===================================================
-       YouTube 影片彈窗 (Video Modal)
-       =================================================== */
-  <div class="video-modal-overlay" id="videoModal">
-    <div class="modal-content-wrap">
-      <button class="modal-close-btn" id="modalCloseBtn" aria-label="關閉影片">&times;</button>
-      <div class="modal-video-container">
-        <iframe id="modalIframe" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  <!-- YouTube 彈窗 -->
+  <div id="videoModal">
+    <div class="modal-inner">
+      <button class="modal-close" id="closeModalBtn">&times;</button>
+      <div class="video-box">
+        <iframe id="videoIframe" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
       </div>
     </div>
   </div>
 
-  <!-- ===================================================
-       JavaScript 互動腳本
-       =================================================== */
   <script>
-    /* ----------------------------------------------------
-       1. 飄落粉嫩花瓣生成效果
-       ---------------------------------------------------- */
+    /* 1. 飄落花瓣產生 */
     const petalsBox = document.getElementById('petalsBox');
-    function createPetal() {
-      const petal = document.createElement('div');
-      petal.className = 'petal';
-      const size = Math.random() * 12 + 8;
-      petal.style.width = size + 'px';
-      petal.style.height = (size * 1.3) + 'px';
-      petal.style.left = (Math.random() * 100) + 'vw';
-      petal.style.animationDuration = (Math.random() * 6 + 6) + 's';
-      petal.style.animationDelay = (Math.random() * 3) + 's';
-      petalsBox.appendChild(petal);
-
-      setTimeout(() => {
-        petal.remove();
-      }, 13000);
+    function addPetal() {
+      const p = document.createElement('div');
+      p.className = 'petal';
+      p.style.left = Math.random() * 100 + 'vw';
+      p.style.animationDuration = (Math.random() * 5 + 6) + 's';
+      petalsBox.appendChild(p);
+      setTimeout(() => p.remove(), 11000);
     }
-    for (let i = 0; i < 16; i++) {
-      createPetal();
-    }
-    setInterval(createPetal, 1200);
+    for (let i = 0; i < 10; i++) addPetal();
+    setInterval(addPetal, 1400);
 
-    /* ----------------------------------------------------
-       2. 音樂播放邏輯 (支援自訂音訊 + Web Audio API 鋼琴備援)
-       ---------------------------------------------------- */
+    /* 2. 音樂核心引擎 (支援 MP3 + Web Audio 鋼琴備援) */
     const bgMusic = document.getElementById('bgMusic');
     const musicBtn = document.getElementById('musicBtn');
-    const musicIcon = document.getElementById('musicIcon');
     let isPlaying = false;
-    let userHasStarted = false; // 是否已點擊進入網站
     let usingWebAudio = false;
-
-    // Web Audio API 鋼琴琶音備援
     let audioCtx = null;
-    let musicInterval = null;
-    const romanticNotes = [
-      261.63, 329.63, 392.00, 523.25, // C - E - G - C
-      196.00, 293.66, 392.00, 493.88, // G - D - G - B
-      220.00, 261.63, 329.63, 440.00, // A - C - E - A
-      174.61, 261.63, 349.23, 440.00  // F - C - F - A
-    ];
+    let pianoTimer = null;
+    const pianoNotes = [261.63, 329.63, 392.00, 523.25, 196.00, 293.66, 392.00, 493.88, 220.00, 261.63, 329.63, 440.00, 174.61, 261.63, 349.23, 440.00];
     let noteIdx = 0;
 
-    function playSoftPianoNote(freq) {
+    function playNote(freq) {
       if (!audioCtx || audioCtx.state !== 'running') return;
       try {
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.type = 'triangle';
         osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-
         gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.12, audioCtx.currentTime + 0.08);
-        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.2);
-
+        gain.gain.exponentialRampToValueAtTime(0.1, audioCtx.currentTime + 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.0);
         osc.connect(gain);
         gain.connect(audioCtx.destination);
         osc.start();
-        osc.stop(audioCtx.currentTime + 2.3);
-      } catch (e) {
-        console.error(e);
-      }
+        osc.stop(audioCtx.currentTime + 2.1);
+      } catch(e){}
     }
 
-    function startWebAudioBgm() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
+    function startWebAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
       usingWebAudio = true;
       isPlaying = true;
       musicBtn.classList.add('playing');
-      musicIcon.textContent = '⏸';
-      
-      if (musicInterval) clearInterval(musicInterval);
-      musicInterval = setInterval(() => {
-        playSoftPianoNote(romanticNotes[noteIdx % romanticNotes.length]);
-        noteIdx++;
-      }, 700);
+      musicBtn.textContent = '⏸';
+      if (!pianoTimer) {
+        pianoTimer = setInterval(() => {
+          playNote(pianoNotes[noteIdx % pianoNotes.length]);
+          noteIdx++;
+        }, 800);
+      }
     }
 
-    function stopWebAudioBgm() {
-      if (musicInterval) {
-        clearInterval(musicInterval);
-        musicInterval = null;
+    function stopWebAudio() {
+      if (pianoTimer) {
+        clearInterval(pianoTimer);
+        pianoTimer = null;
       }
-      if (audioCtx && audioCtx.state === 'running') {
-        audioCtx.suspend();
-      }
+      if (audioCtx && audioCtx.state === 'running') audioCtx.suspend();
+      usingWebAudio = false;
       isPlaying = false;
       musicBtn.classList.remove('playing');
-      musicIcon.textContent = '♪';
+      musicBtn.textContent = '♪';
     }
 
-    function playMusic() {
-      if (bgMusic && bgMusic.src) {
+    function startMusic() {
+      if (bgMusic && bgMusic.src && bgMusic.src.includes('.mp3')) {
         bgMusic.play().then(() => {
           isPlaying = true;
           usingWebAudio = false;
           musicBtn.classList.add('playing');
-          musicIcon.textContent = '⏸';
-        }).catch(err => {
-          console.warn("自訂音訊播放受限，切換至鋼琴和弦備援：", err);
-          startWebAudioBgm();
+          musicBtn.textContent = '⏸';
+        }).catch(() => {
+          startWebAudio();
         });
       } else {
-        startWebAudioBgm();
+        startWebAudio();
       }
     }
 
     function pauseMusic() {
       if (usingWebAudio) {
-        stopWebAudioBgm();
+        stopWebAudio();
       } else {
         if (bgMusic) bgMusic.pause();
         isPlaying = false;
         musicBtn.classList.remove('playing');
-        musicIcon.textContent = '♪';
+        musicBtn.textContent = '♪';
       }
     }
 
-    function toggleMusic() {
-      if (isPlaying) {
-        pauseMusic();
-      } else {
-        playMusic();
-      }
-    }
-    musicBtn.addEventListener('click', toggleMusic);
-
-    /* ----------------------------------------------------
-       ★ 音樂生命週期修復：防止跳出分頁/關閉視窗後繼續播放
-       ---------------------------------------------------- */
-    // 1. 監聽分頁切換 (跳到別的分頁或縮小視窗時自動暫停)
-    let wasPlayingBeforeHidden = false;
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) {
-        if (isPlaying) {
-          wasPlayingBeforeHidden = true;
-          pauseMusic();
-        }
-      } else {
-        // 回到分頁且先前有在播放時平順恢復
-        if (wasPlayingBeforeHidden && userHasStarted) {
-          wasPlayingBeforeHidden = false;
-          playMusic();
-        }
-      }
+    musicBtn.addEventListener('click', () => {
+      if (isPlaying) pauseMusic();
+      else startMusic();
     });
 
-    // 2. 監聽關閉頁面 / 導航跳轉 (確保銷毀背景計時器與音訊)
-    window.addEventListener('pagehide', () => {
-      pauseMusic();
-      if (audioCtx) {
-        audioCtx.close();
-        audioCtx = null;
-      }
-    });
-    window.addEventListener('beforeunload', () => {
-      pauseMusic();
-    });
-
-    /* ----------------------------------------------------
-       3. 前置引導頁 (Touch to Start) 點擊事件
-       ---------------------------------------------------- */
+    /* 3. 開場遮罩點擊 (Touch to Start) */
     const startOverlay = document.getElementById('startOverlay');
     startOverlay.addEventListener('click', () => {
-      userHasStarted = true;
-      startOverlay.classList.add('fade-out');
-      playMusic();
-      setTimeout(() => {
-        startOverlay.style.display = 'none';
-      }, 1200);
+      startOverlay.classList.add('hide');
+      startMusic(); // 直接手勢觸發音訊，保證不被瀏覽器攔截
     });
 
-    /* ----------------------------------------------------
-       4. 新人作品橫向滑動輪播翻頁控制
-       ---------------------------------------------------- */
-    const galleryCarousel = document.getElementById('galleryCarousel');
-    const prevSlide = document.getElementById('prevSlide');
-    const nextSlide = document.getElementById('nextSlide');
+    /* 4. 關閉頁面/切換分頁生命週期保護 (徹底修復跳出仍有聲音問題) */
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && isPlaying) {
+        pauseMusic();
+      }
+    });
+    window.addEventListener('pagehide', () => pauseMusic());
+    window.addEventListener('beforeunload', () => pauseMusic());
 
-    if (prevSlide && nextSlide && galleryCarousel) {
-      prevSlide.addEventListener('click', () => {
-        const cardWidth = galleryCarousel.querySelector('.video-card').offsetWidth + 26;
-        galleryCarousel.scrollBy({ left: -cardWidth, behavior: 'smooth' });
-      });
+    /* 5. YouTube 彈窗播放與關閉 */
+    const videoModal = document.getElementById('videoModal');
+    const videoIframe = document.getElementById('videoIframe');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    let wasMusicPlaying = false;
 
-      nextSlide.addEventListener('click', () => {
-        const cardWidth = galleryCarousel.querySelector('.video-card').offsetWidth + 26;
-        galleryCarousel.scrollBy({ left: cardWidth, behavior: 'smooth' });
-      });
-    }
-
-    /* ----------------------------------------------------
-       5. YouTube 影片彈窗 (Modal) 與音訊聯動
-       ---------------------------------------------------- */
-    const modal = document.getElementById('videoModal');
-    const modalIframe = document.getElementById('modalIframe');
-    const modalCloseBtn = document.getElementById('modalCloseBtn');
-    const videoCards = document.querySelectorAll('.video-card');
-    let wasPlayingBeforeVideo = false;
-
-    videoCards.forEach(card => {
+    document.querySelectorAll('.video-card').forEach(card => {
       card.addEventListener('click', () => {
-        const videoId = card.getAttribute('data-video-id');
-        // 看影片時自動暫停背景音樂，避免聲音疊加
+        const vid = card.dataset.videoId;
         if (isPlaying) {
-          wasPlayingBeforeVideo = true;
+          wasMusicPlaying = true;
           pauseMusic();
         }
-        modalIframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
-        modal.classList.add('active');
+        videoIframe.src = `https://www.youtube.com/embed/${vid}?autoplay=1`;
+        videoModal.classList.add('open');
       });
     });
 
-    function closeModal() {
-      modal.classList.remove('active');
-      modalIframe.src = '';
-      // 關閉影片後恢復背景音樂
-      if (wasPlayingBeforeVideo) {
-        wasPlayingBeforeVideo = false;
-        playMusic();
+    function closeVideo() {
+      videoModal.classList.remove('open');
+      videoIframe.src = '';
+      if (wasMusicPlaying) {
+        wasMusicPlaying = false;
+        startMusic();
       }
     }
-
-    modalCloseBtn.addEventListener('click', closeModal);
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        closeModal();
-      }
+    closeModalBtn.addEventListener('click', closeVideo);
+    videoModal.addEventListener('click', (e) => {
+      if (e.target === videoModal) closeVideo();
     });
 
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && modal.classList.contains('active')) {
-        closeModal();
-      }
-    });
-
-    /* ----------------------------------------------------
-       6. 手機版選單切換
-       ---------------------------------------------------- */
-    const mobileToggle = document.getElementById('mobileToggle');
-    const navMenu = document.getElementById('navMenu');
-    mobileToggle.addEventListener('click', () => {
-      navMenu.classList.toggle('mobile-open');
-    });
-
-    document.querySelectorAll('.nav-menu a').forEach(link => {
-      link.addEventListener('click', () => {
-        navMenu.classList.remove('mobile-open');
-      });
-    });
-
-    /* ----------------------------------------------------
-       7. 預約表單送出互動回饋
-       ---------------------------------------------------- */
-    const bookingForm = document.getElementById('bookingForm');
-    bookingForm.addEventListener('submit', (e) => {
+    /* 6. 表單送出 */
+    document.getElementById('bookForm').addEventListener('submit', (e) => {
       e.preventDefault();
-      const groom = document.getElementById('groomName').value;
-      const bride = document.getElementById('brideName').value;
-      alert(`感謝 ${groom} 先生與 ${bride} 小姐！\n我們已收到您的婚禮舞蹈預約諮詢，唯定專屬舞蹈顧問將儘速透過 LINE 與您聯繫！`);
-      bookingForm.reset();
+      alert('已收到您的預約諮詢資訊！唯定舞蹈顧問將儘速透過 LINE 與您聯繫。');
+      e.target.reset();
     });
   </script>
 </body>
