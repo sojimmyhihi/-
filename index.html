@@ -92,7 +92,7 @@
 
   <!-- 3. 右上角浮動音樂切換按鈕 -->
   <div class="fixed top-4 right-4 z-30">
-    <button id="toggle-music-btn" class="w-9 h-9 rounded-full bg-white/90 backdrop-blur-md shadow-md border border-slate-200 flex items-center justify-center text-slate-600 hover:text-amber-600 active:scale-90 transition">
+    <button id="toggle-music-btn" title="音樂開關" class="w-9 h-9 rounded-full bg-white/90 backdrop-blur-md shadow-md border border-slate-200 flex items-center justify-center text-slate-600 hover:text-amber-600 active:scale-90 transition">
       <span id="music-icon" class="text-sm">🎵</span>
     </button>
   </div>
@@ -152,7 +152,7 @@
           
           <div class="relative cursor-pointer flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-50/70 border border-amber-200 text-amber-900 hover:bg-amber-100/80 transition">
             <span class="text-xs">📅</span>
-            <span id="date-picker-display" class="text-xs font-black font-eng-serif">2026-10-05</span>
+            <span id="date-picker-display" class="text-xs font-black font-eng-serif">2026-10-13</span>
             <input type="date" id="date-picker-input" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
           </div>
 
@@ -302,6 +302,9 @@
     const RATE_HALF_HOUR_INDIVIDUAL = 175;
     const RATE_HALF_HOUR_GROUP = 225;
 
+    // 前端本地快取池（切換日期即刻響應，防止反覆請求 GAS）
+    const localScheduleCache = {};
+
     let currentUser = {
       userId: 'guest_user',
       lineName: '訪客',
@@ -337,6 +340,23 @@
       TIME_SLOTS.push({ start: `${hStr}:30`, end: `${nextHStr}:00`, group: grp });
     }
 
+    // 具備超時中止與自動重試的網路請求函式 (大幅降低讀取失敗率)
+    async function fetchWithRetry(url, options = {}, retries = 2, delay = 700) {
+      for (let i = 0; i <= retries; i++) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 7500); // 7.5 秒超時自動中斷
+          const res = await fetch(url, { ...options, signal: controller.signal });
+          clearTimeout(timeoutId);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return await res.json();
+        } catch (err) {
+          if (i === retries) throw err;
+          await new Promise(r => setTimeout(r, delay));
+        }
+      }
+    }
+
     window.addEventListener('DOMContentLoaded', async () => {
       document.getElementById('date-picker-input').value = selectedDate;
       document.getElementById('date-picker-display').textContent = selectedDate;
@@ -369,13 +389,20 @@
         authLoading.classList.remove('hidden');
         authLoading.style.opacity = '1';
 
-        await initLineAuth();
-        await loadInitialData();
+        // 並行處理：同時執行 LIFF 初始化與載入初始資料，縮減等待時間
+        try {
+          await Promise.all([
+            initLineAuth(),
+            loadInitialData()
+          ]);
+        } catch (e) {
+          console.warn('並行載入狀態:', e);
+        }
 
         setTimeout(() => {
           authLoading.style.opacity = '0';
           setTimeout(() => authLoading.classList.add('hidden'), 800);
-        }, 600);
+        }, 500);
       });
 
       toggleBtn.addEventListener('click', () => {
@@ -396,25 +423,23 @@
     async function initLineAuth() {
       try {
         await liff.init({ liffId: LIFF_ID });
-        if (!liff.isLoggedIn()) {
-          liff.login();
-          return;
-        }
-        const profile = await liff.getProfile();
-        if (profile && profile.userId) {
-          currentUser.userId = profile.userId;
-          currentUser.lineName = profile.displayName || 'LINE 用戶';
-          currentUser.pictureUrl = profile.pictureUrl || '';
+        if (liff.isLoggedIn()) {
+          const profile = await liff.getProfile();
+          if (profile && profile.userId) {
+            currentUser.userId = profile.userId;
+            currentUser.lineName = profile.displayName || 'LINE 用戶';
+            currentUser.pictureUrl = profile.pictureUrl || '';
 
-          document.getElementById('user-display').textContent = profile.displayName;
-          if (profile.pictureUrl) {
-            const img = document.getElementById('user-avatar');
-            img.src = profile.pictureUrl;
-            img.classList.remove('hidden');
+            document.getElementById('user-display').textContent = profile.displayName;
+            if (profile.pictureUrl) {
+              const img = document.getElementById('user-avatar');
+              img.src = profile.pictureUrl;
+              img.classList.remove('hidden');
+            }
           }
         }
       } catch (err) {
-        console.warn('LINE LIFF 外部載入：', err);
+        console.warn('LINE LIFF 初始化回退：', err);
       }
     }
 
@@ -437,8 +462,7 @@
       try {
         const t = new Date().getTime();
         const url = `${GAS_API_URL}?action=getInitialData&date=${selectedDate}&dayOfWeek=${dayOfWeek}&lineUserId=${encodeURIComponent(currentUser.userId)}&roomId=${selectedRoomId || ''}&_t=${t}`;
-        const res = await fetch(url);
-        const data = await res.json();
+        const data = await fetchWithRetry(url);
 
         if (data.member && data.member.registered) {
           currentUser.isRegistered = true;
@@ -472,10 +496,13 @@
           });
         }
 
-        await fetchAndRenderSlots();
+        // 寫入當天快取
+        const cacheKey = `${selectedDate}_${selectedRoomId}`;
+        localScheduleCache[cacheKey] = { bookings: data.bookings || [], recurrings: data.recurrings || [] };
 
+        renderAvailableSlots(data.bookings || [], data.recurrings || []);
       } catch (e) {
-        container.innerHTML = '<p class="text-center text-red-500 text-xs py-8">載入失敗，請點選日期重新整理</p>';
+        container.innerHTML = '<p class="text-center text-red-500 text-xs py-8">載入稍慢，請點選日期重新整理</p>';
       }
     }
 
@@ -485,8 +512,17 @@
       updateBottomBar();
 
       const container = document.getElementById('slot-container');
-      container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">更新狀態中...</p>';
+      const cacheKey = `${selectedDate}_${selectedRoomId}`;
+
       document.getElementById('current-date-title').textContent = `${selectedDate} 可借用時段`;
+
+      // 若快取中已有該日資料，直接極速渲染
+      if (localScheduleCache[cacheKey]) {
+        renderAvailableSlots(localScheduleCache[cacheKey].bookings, localScheduleCache[cacheKey].recurrings);
+        return;
+      }
+
+      container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">更新狀態中...</p>';
 
       const thisRequestId = ++currentRequestId;
       const targetDate = selectedDate;
@@ -495,15 +531,16 @@
 
       try {
         const t = new Date().getTime();
-        const res = await fetch(`${GAS_API_URL}?action=getSchedule&roomId=${encodeURIComponent(selectedRoomId)}&date=${targetDate}&dayOfWeek=${dayOfWeek}&_t=${t}`);
-        const data = await res.json();
+        const url = `${GAS_API_URL}?action=getSchedule&roomId=${encodeURIComponent(selectedRoomId)}&date=${targetDate}&dayOfWeek=${dayOfWeek}&_t=${t}`;
+        const data = await fetchWithRetry(url);
 
         if (thisRequestId !== currentRequestId || targetDate !== selectedDate) return;
 
+        localScheduleCache[cacheKey] = { bookings: data.bookings || [], recurrings: data.recurrings || [] };
         renderAvailableSlots(data.bookings || [], data.recurrings || []);
       } catch (err) {
         if (thisRequestId === currentRequestId) {
-          container.innerHTML = '<p class="text-center text-red-500 text-xs py-8">連線稍慢，請重新點選載入</p>';
+          container.innerHTML = '<p class="text-center text-red-500 text-xs py-8">連線稍慢，請重新點選日期</p>';
         }
       }
     }
@@ -522,7 +559,6 @@
       return (h || 0) * 60 + (m || 0);
     }
 
-    // 渲染滿版單欄多選時段
     function renderAvailableSlots(bookings, recurrings) {
       const container = document.getElementById('slot-container');
       container.innerHTML = '';
@@ -652,7 +688,6 @@
       });
     }
 
-    // 時段點擊勾選與取消
     function toggleSlotSelection(slot) {
       if (selectedSlotStarts.has(slot.start)) {
         selectedSlotStarts.delete(slot.start);
@@ -675,7 +710,6 @@
       updateBottomBar();
     }
 
-    // 更新底部浮動確認列
     function updateBottomBar() {
       const bar = document.getElementById('bottom-booking-bar');
       if (selectedSlotStarts.size === 0) {
@@ -695,7 +729,6 @@
       bar.classList.remove('translate-y-full');
     }
 
-    // 將已選的開始時間聚合為連續區間
     function getContinuousIntervalsFromStarts() {
       if (selectedSlotStarts.size === 0) return [];
       const starts = Array.from(selectedSlotStarts).sort();
@@ -737,7 +770,6 @@
       return intervals;
     }
 
-    // 檢查已選時段：支援非連續時段，但每個獨立區間必須滿 1 小時 (>= 2 格)
     function validateContinuousSelection() {
       if (selectedSlotStarts.size === 0) {
         alert('請先勾選欲租借之時段！');
@@ -746,7 +778,7 @@
 
       const intervals = getContinuousIntervalsFromStarts();
 
-      // 檢查是否每個區間都至少滿 1 小時 (slotsCount >= 2)
+      // 檢查是否每個分段區間都滿足 >= 1 小時
       const invalidInterval = intervals.find(item => item.slotsCount < 2);
       if (invalidInterval) {
         alert(`預約限制提示：\n時段【${invalidInterval.startTime} - ${invalidInterval.endTime}】僅 0.5 小時。\n每個分開的租借區間皆須至少滿 1 小時！`);
@@ -779,14 +811,12 @@
       document.getElementById('modal-room-name').textContent = room ? room.name : '--';
       document.getElementById('modal-date').textContent = selectedDate;
 
-      // 格式化顯示多區間時段
       const timeDisplay = validData.intervals.map(i => `${i.startTime} - ${i.endTime}`).join('、');
       document.getElementById('modal-time').textContent = timeDisplay;
       document.getElementById('modal-hours-span').textContent = validData.totalHours.toFixed(1);
       document.getElementById('modal-user-info').textContent = `${currentUser.realName} (${currentUser.phone})`;
       document.getElementById('booking-purpose').value = '';
 
-      // 若選取區間內有任何一格已有人個人練習，禁止切換成「團體包場」
       let hasSharedSlot = false;
       validData.starts.forEach(st => {
         const sl = currentAvailableSlotsMap.get(st);
@@ -854,9 +884,13 @@
           document.getElementById('booking-modal').classList.add('hidden');
           selectedSlotStarts.clear();
           updateBottomBar();
+
+          // 清除該日快取，強制重新抓取最新時段
+          delete localScheduleCache[`${selectedDate}_${selectedRoomId}`];
           await fetchAndRenderSlots();
         } else {
           alert(result.error || '預約失敗，所選時段可能已被佔用');
+          delete localScheduleCache[`${selectedDate}_${selectedRoomId}`];
           await fetchAndRenderSlots();
         }
       } catch (err) {
@@ -878,8 +912,8 @@
 
       try {
         const t = new Date().getTime();
-        const res = await fetch(`${GAS_API_URL}?action=getMyBookings&lineUserId=${encodeURIComponent(currentUser.userId)}&_t=${t}`);
-        const records = await res.json();
+        const url = `${GAS_API_URL}?action=getMyBookings&lineUserId=${encodeURIComponent(currentUser.userId)}&_t=${t}`;
+        const records = await fetchWithRetry(url);
 
         if (!records || records.length === 0) {
           container.innerHTML = `
@@ -935,8 +969,8 @@
 
       try {
         const t = new Date().getTime();
-        const res = await fetch(`${GAS_API_URL}?action=getAllBookingsForAdmin&lineUserId=${encodeURIComponent(currentUser.userId)}&_t=${t}`);
-        const list = await res.json();
+        const url = `${GAS_API_URL}?action=getAllBookingsForAdmin&lineUserId=${encodeURIComponent(currentUser.userId)}&_t=${t}`;
+        const list = await fetchWithRetry(url);
 
         if (!list || list.length === 0) {
           container.innerHTML = '<div class="text-center py-8 text-slate-400 text-xs bg-white rounded-2xl border">目前尚無任何預約紀錄</div>';
@@ -1129,6 +1163,7 @@
       // 點擊底部多選預約按鈕
       document.getElementById('open-multi-booking-modal-btn').addEventListener('click', openBookingModalWithSelection);
 
+      // 分頁切換
       document.getElementById('tab-booking-view').addEventListener('click', () => {
         document.getElementById('booking-section').classList.remove('hidden');
         document.getElementById('records-section').classList.add('hidden');
