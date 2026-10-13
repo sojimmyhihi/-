@@ -389,14 +389,12 @@
         authLoading.classList.remove('hidden');
         authLoading.style.opacity = '1';
 
-        // 並行處理：同時執行 LIFF 初始化與載入初始資料，縮減等待時間
+        // 循序執行：務必先取得使用者 LINE 身分，再載入教室與會員權限（徹底杜絕誤判實名制）
         try {
-          await Promise.all([
-            initLineAuth(),
-            loadInitialData()
-          ]);
+          await initLineAuth();
+          await loadInitialData();
         } catch (e) {
-          console.warn('並行載入狀態:', e);
+          console.warn('初始化載入異常:', e);
         }
 
         setTimeout(() => {
@@ -471,8 +469,6 @@
           document.getElementById('user-display').textContent = data.member.real_name;
           document.getElementById('verify-badge').textContent = '已認證';
           document.getElementById('verify-badge').className = 'block text-[9px] text-emerald-600 font-semibold';
-        } else if (currentUser.userId !== 'guest_user') {
-          openProfileModal();
         }
 
         currentUser.isAdmin = !!(data.member && data.member.is_admin === true);
