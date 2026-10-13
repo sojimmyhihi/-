@@ -167,7 +167,7 @@
         <div class="flex justify-between items-center mb-3">
           <div>
             <h2 id="current-date-title" class="font-extrabold text-sm text-slate-800">可借用時段</h2>
-            <p class="text-[11px] text-slate-400">勾選時段多選 · 每次預約至少 1 小時（須連續）</p>
+            <p class="text-[11px] text-slate-400">可多選時段 · 每個分開的時段皆須至少滿 1 小時</p>
           </div>
           <button id="clear-selected-btn" class="text-xs text-slate-400 hover:text-slate-600 font-medium">清除選取</button>
         </div>
@@ -204,7 +204,7 @@
     </div>
   </main>
 
-  <!-- 底部多選確認浮動列 (選取滿 1 小時連續時段後展開) -->
+  <!-- 底部多選確認浮動列 -->
   <div id="bottom-booking-bar" class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 p-3.5 shadow-2xl z-40 transform translate-y-full transition-transform duration-300">
     <div class="max-w-md mx-auto flex items-center justify-between gap-3">
       <div>
@@ -296,7 +296,7 @@
 
   <script>
     const LIFF_ID = '2011761541-hL5HCl1Q'; 
-    const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbyV6fcIFzpwv5uUGWCb1GPcNrE7s6ETXmS7I-R6RUhiSBdhqRlSUoVomtzyFefSo7bDEg/exec';
+    const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbyV6fclFzpwv5uUGWCb1GPcNrE7s6ETXmS7I-R6RUhiSBdhqR/exec';
 
     // 費率標準：半小時基準 (個人 175 元/30分 = 350/時；團體 225 元/30分 = 450/時)
     const RATE_HALF_HOUR_INDIVIDUAL = 175;
@@ -660,7 +660,6 @@
         selectedSlotStarts.add(slot.start);
       }
 
-      // 更新目前被點擊行外觀
       const row = document.getElementById(`slot-row-${slot.start.replace(':', '')}`);
       if (row) {
         const chk = row.querySelector('input[type="checkbox"]');
@@ -687,48 +686,82 @@
       const count = selectedSlotStarts.size;
       const hours = (count * 0.5).toFixed(1);
       
-      const starts = Array.from(selectedSlotStarts).sort();
-      const firstSlot = currentAvailableSlotsMap.get(starts[0]);
-      const lastSlot = currentAvailableSlotsMap.get(starts[starts.length - 1]);
+      const intervals = getContinuousIntervalsFromStarts();
+      const timeDisplay = intervals.map(i => `${i.startTime} - ${i.endTime}`).join('、');
 
-      document.getElementById('bar-summary-text').textContent = `已勾選 ${count} 個時段 (共 ${hours} 小時)`;
-      document.getElementById('bar-time-range').textContent = firstSlot && lastSlot ? `${firstSlot.start} ~ ${lastSlot.end}` : '--';
+      document.getElementById('bar-summary-text').textContent = `已選 ${count} 個時段 (共 ${hours} 小時)`;
+      document.getElementById('bar-time-range').textContent = timeDisplay || '--';
 
       bar.classList.remove('translate-y-full');
     }
 
-    // 檢查已選時段是否符合：1. 至少一小時 (>=2格) 2. 必須連續
-    function validateContinuousSelection() {
-      if (selectedSlotStarts.size < 2) {
-        alert('每次預約至少需滿 1 小時（請至少勾選 2 個時段）！');
-        return null;
-      }
-
-      // 按時間升冪排序
+    // 將已選的開始時間聚合為連續區間
+    function getContinuousIntervalsFromStarts() {
+      if (selectedSlotStarts.size === 0) return [];
       const starts = Array.from(selectedSlotStarts).sort();
-      for (let i = 0; i < starts.length - 1; i++) {
+      const intervals = [];
+
+      let curStart = starts[0];
+      let curLastStart = starts[0];
+      let count = 1;
+
+      for (let i = 1; i < starts.length; i++) {
+        const prevMin = toMinutes(starts[i - 1]);
         const curMin = toMinutes(starts[i]);
-        const nextMin = toMinutes(starts[i + 1]);
-        if (nextMin - curMin !== 30) {
-          alert('所選時段必須為「連續時間」，不可跳選！\n請重新檢查您的選取。');
-          return null;
+
+        if (curMin - prevMin === 30) {
+          curLastStart = starts[i];
+          count++;
+        } else {
+          const lastSlot = currentAvailableSlotsMap.get(curLastStart);
+          intervals.push({
+            startTime: curStart,
+            endTime: lastSlot ? lastSlot.end : '--',
+            slotsCount: count,
+            hours: count * 0.5
+          });
+          curStart = starts[i];
+          curLastStart = starts[i];
+          count = 1;
         }
       }
 
-      const firstStart = starts[0];
-      const lastStart = starts[starts.length - 1];
-      const lastSlotObj = currentAvailableSlotsMap.get(lastStart);
+      const lastSlot = currentAvailableSlotsMap.get(curLastStart);
+      intervals.push({
+        startTime: curStart,
+        endTime: lastSlot ? lastSlot.end : '--',
+        slotsCount: count,
+        hours: count * 0.5
+      });
+
+      return intervals;
+    }
+
+    // 檢查已選時段：支援非連續時段，但每個獨立區間必須滿 1 小時 (>= 2 格)
+    function validateContinuousSelection() {
+      if (selectedSlotStarts.size === 0) {
+        alert('請先勾選欲租借之時段！');
+        return null;
+      }
+
+      const intervals = getContinuousIntervalsFromStarts();
+
+      // 檢查是否每個區間都至少滿 1 小時 (slotsCount >= 2)
+      const invalidInterval = intervals.find(item => item.slotsCount < 2);
+      if (invalidInterval) {
+        alert(`預約限制提示：\n時段【${invalidInterval.startTime} - ${invalidInterval.endTime}】僅 0.5 小時。\n每個分開的租借區間皆須至少滿 1 小時！`);
+        return null;
+      }
 
       return {
-        startTime: firstStart,
-        endTime: lastSlotObj ? lastSlotObj.end : '--',
-        slotsCount: starts.length,
-        hours: starts.length * 0.5,
-        starts: starts
+        intervals: intervals,
+        totalSlotsCount: selectedSlotStarts.size,
+        totalHours: selectedSlotStarts.size * 0.5,
+        starts: Array.from(selectedSlotStarts).sort()
       };
     }
 
-    let verifiedBookingRange = null;
+    let verifiedBookingData = null;
 
     function openBookingModalWithSelection() {
       if (!currentUser.isRegistered) {
@@ -737,22 +770,25 @@
         return;
       }
 
-      const validRange = validateContinuousSelection();
-      if (!validRange) return;
+      const validData = validateContinuousSelection();
+      if (!validData) return;
 
-      verifiedBookingRange = validRange;
+      verifiedBookingData = validData;
 
       const room = classrooms.find(r => String(r.id) === String(selectedRoomId));
       document.getElementById('modal-room-name').textContent = room ? room.name : '--';
       document.getElementById('modal-date').textContent = selectedDate;
-      document.getElementById('modal-time').textContent = `${validRange.startTime} - ${validRange.endTime}`;
-      document.getElementById('modal-hours-span').textContent = validRange.hours.toFixed(1);
+
+      // 格式化顯示多區間時段
+      const timeDisplay = validData.intervals.map(i => `${i.startTime} - ${i.endTime}`).join('、');
+      document.getElementById('modal-time').textContent = timeDisplay;
+      document.getElementById('modal-hours-span').textContent = validData.totalHours.toFixed(1);
       document.getElementById('modal-user-info').textContent = `${currentUser.realName} (${currentUser.phone})`;
       document.getElementById('booking-purpose').value = '';
 
       // 若選取區間內有任何一格已有人個人練習，禁止切換成「團體包場」
       let hasSharedSlot = false;
-      validRange.starts.forEach(st => {
+      validData.starts.forEach(st => {
         const sl = currentAvailableSlotsMap.get(st);
         if (sl && sl.individualCount > 0) hasSharedSlot = true;
       });
@@ -771,16 +807,16 @@
     }
 
     function updateModalPrice() {
-      if (!verifiedBookingRange) return;
+      if (!verifiedBookingData) return;
       const type = document.querySelector('input[name="booking-type"]:checked').value;
-      const halfHours = verifiedBookingRange.slotsCount;
+      const halfHours = verifiedBookingData.totalSlotsCount;
       const ratePerHalf = (type === '團體/開課包場' || type === '團體包場') ? RATE_HALF_HOUR_GROUP : RATE_HALF_HOUR_INDIVIDUAL;
       const total = halfHours * ratePerHalf;
       document.getElementById('modal-price').textContent = `NT$ ${total}`;
     }
 
     async function submitBooking() {
-      if (!verifiedBookingRange) return;
+      if (!verifiedBookingData) return;
 
       const bookingType = document.querySelector('input[name="booking-type"]:checked').value;
       const purpose = document.getElementById('booking-purpose').value.trim() || bookingType;
@@ -798,8 +834,10 @@
           phone: currentUser.phone,
           booking_type: bookingType,
           booking_date: selectedDate,
-          start_time: verifiedBookingRange.startTime,
-          end_time: verifiedBookingRange.endTime,
+          intervals: verifiedBookingData.intervals.map(i => ({
+            start_time: i.startTime,
+            end_time: i.endTime
+          })),
           purpose: purpose
         };
 
@@ -811,7 +849,8 @@
         const result = await res.json();
 
         if (result.success) {
-          alert(`【${bookingType}】已成功送出申請！\n\n時段：${selectedDate} ${verifiedBookingRange.startTime}-${verifiedBookingRange.endTime} (${verifiedBookingRange.hours}小時)\n請記得於 6 小時內完成匯款確認。`);
+          const timeDisplay = verifiedBookingData.intervals.map(i => `${i.startTime}-${i.endTime}`).join('、');
+          alert(`【${bookingType}】已成功送出申請！\n\n日期：${selectedDate}\n時段：${timeDisplay} (共 ${verifiedBookingData.totalHours} 小時)\n請記得於 6 小時內完成匯款確認。`);
           document.getElementById('booking-modal').classList.add('hidden');
           selectedSlotStarts.clear();
           updateBottomBar();
@@ -1081,7 +1120,7 @@
       document.getElementById('clear-selected-btn').addEventListener('click', () => {
         selectedSlotStarts.clear();
         document.querySelectorAll('#slot-container input[type="checkbox"]').forEach(c => c.checked = false);
-        document.querySelectorAll('#slot-container .slot-card, #slot-container [id^="slot-row-"]').forEach(row => {
+        document.querySelectorAll('#slot-container [id^="slot-row-"]').forEach(row => {
           row.className = 'w-full flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl hover:border-amber-400 hover:shadow-sm cursor-pointer transition select-none';
         });
         updateBottomBar();
