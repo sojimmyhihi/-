@@ -123,19 +123,19 @@
   </header>
 
   <main class="max-w-md mx-auto p-4 space-y-4">
-    <!-- 主導覽分頁列 (含固定團體班) -->
-    <div class="flex bg-slate-200/80 p-1 rounded-2xl shadow-inner text-center">
-      <button id="tab-booking-view" class="flex-1 py-2 text-xs font-black rounded-xl bg-white text-indigo-600 shadow-sm transition">
-        📅 預約空間
+    <!-- 主導覽分頁列 (優化手機排列：4欄等寬、不折行) -->
+    <div class="grid grid-cols-4 bg-slate-200/80 p-1 rounded-2xl shadow-inner text-center gap-1">
+      <button id="tab-booking-view" class="py-2 text-xs font-black rounded-xl bg-white text-indigo-600 shadow-sm transition flex flex-col sm:flex-row items-center justify-center gap-0.5">
+        <span>📅</span><span>預約</span>
       </button>
-      <button id="tab-schedule-view" class="flex-1 py-2 text-xs font-black rounded-xl text-slate-600 hover:text-indigo-600 transition">
-        🏛️ 固定團體班
+      <button id="tab-schedule-view" class="py-2 text-xs font-black rounded-xl text-slate-600 hover:text-indigo-600 transition flex flex-col sm:flex-row items-center justify-center gap-0.5">
+        <span>🏛️</span><span>團班</span>
       </button>
-      <button id="tab-my-records" class="flex-1 py-2 text-xs font-black rounded-xl text-slate-600 hover:text-indigo-600 transition">
-        📋 我的紀錄
+      <button id="tab-my-records" class="py-2 text-xs font-black rounded-xl text-slate-600 hover:text-indigo-600 transition flex flex-col sm:flex-row items-center justify-center gap-0.5">
+        <span>📋</span><span>紀錄</span>
       </button>
-      <button id="tab-admin-view" class="hidden flex-1 py-2 text-xs font-black rounded-xl text-slate-600 hover:text-indigo-600 transition">
-        ⚙️ 管理後台
+      <button id="tab-admin-view" class="hidden py-2 text-xs font-black rounded-xl text-slate-600 hover:text-indigo-600 transition flex flex-col sm:flex-row items-center justify-center gap-0.5">
+        <span>⚙️</span><span>後台</span>
       </button>
     </div>
 
@@ -193,21 +193,21 @@
       </div>
     </div>
 
-    <!-- ===== 分頁 2：固定團體班 (連動教室 + is_public 篩選) ===== -->
+    <!-- ===== 分頁 2：固定團體班 (僅顯示 is_public 為 TRUE 之公開課程) ===== -->
     <div id="schedule-section" class="space-y-3 hidden">
-      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center">
+      <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center">
         <div>
-          <h2 id="weekly-room-title" class="font-extrabold text-sm text-slate-800">固定團體班課表</h2>
-          <p class="text-[11px] text-slate-400 mt-0.5">每週常態開課時段保留，報名請洽櫃台或官方 LINE</p>
+          <h2 id="weekly-room-title" class="font-extrabold text-sm text-slate-800">公開團體班課表</h2>
+          <p class="text-[11px] text-slate-400 mt-0.5">常態開課時段保留，報名請洽櫃台或官方 LINE</p>
         </div>
         <button id="refresh-weekly-btn" class="text-xs text-indigo-600 font-bold bg-indigo-50 px-2.5 py-1.5 rounded-lg active:scale-95 transition">🔄 整理</button>
       </div>
       <div id="weekly-schedule-container" class="space-y-3">
-        <p class="text-center text-slate-400 text-xs py-8">正在載入本教室課表...</p>
+        <p class="text-center text-slate-400 text-xs py-8">正在載入公開團課清單...</p>
       </div>
     </div>
 
-    <!-- ===== 分頁 3：個人預約紀錄 (加入多維度排序與時間篩選) ===== -->
+    <!-- ===== 分頁 3：個人預約紀錄 (優化緊湊卡片、消除重複備註) ===== -->
     <div id="records-section" class="space-y-3 hidden">
       <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
         <!-- 狀態標籤 -->
@@ -279,8 +279,8 @@
           <div class="flex items-center gap-1 text-slate-500 font-bold">
             <span>排序：</span>
             <select id="admin-sort-select" onchange="handleAdminSortChange(this.value)" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-slate-700 outline-none">
-              <option value="NEWEST">最新日期優先</option>
-              <option value="OLDEST">最舊日期優先</option>
+              <option value="NEWEST">最新預約優先</option>
+              <option value="OLDEST">最舊預約優先</option>
             </select>
           </div>
 
@@ -665,7 +665,7 @@
       return (h || 0) * 60 + (m || 0);
     }
 
-    // ⭐ 2 欄 Grid 卡片展示（預約空間介面純淨，固定課統一標註「🔒 固定課」）
+    // 2 欄 Grid 卡片展示 (預約日曆保持「🔒 固定課」，不對外公開名稱)
     function renderAvailableSlots(bookings, recurrings) {
       const container = document.getElementById('slot-container');
       container.innerHTML = '';
@@ -1036,7 +1036,7 @@
       const roomName = currentRoom ? currentRoom.name : '當前空間';
 
       titleSpan.textContent = `【${roomName}】固定團體班課表`;
-      container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">正在載入專屬團課名單...</p>';
+      container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">正在載入公開團課清單...</p>';
 
       try {
         const t = new Date().getTime();
@@ -1073,7 +1073,7 @@
             card.innerHTML = `
               <div class="flex items-center gap-2 border-b border-slate-100 pb-1.5">
                 <span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-indigo-600 text-white">${d.label}</span>
-                <span class="text-xs text-slate-400 font-medium">共 ${courses.length} 堂固定課程</span>
+                <span class="text-xs text-slate-400 font-medium">共 ${courses.length} 堂公開課程</span>
               </div>
               <div class="space-y-1.5 pt-1">${listHtml}</div>
             `;
@@ -1095,7 +1095,7 @@
       }
     }
 
-    // ⭐ 個人紀錄：多維度排序與時間篩選
+    // ⭐ 個人紀錄：多維度排序、時間篩選、去除重複冗餘字
     async function loadMyRecords() {
       const container = document.getElementById('records-container');
       container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">載入紀錄中...</p>';
@@ -1194,8 +1194,8 @@
 
       // 3. 排序 (最新 / 最舊)
       filtered.sort((a, b) => {
-        const timeA = new Date(`${a.booking_date}T${a.start_time}:00`).getTime();
-        const timeB = new Date(`${b.booking_date}T${b.start_time}:00`).getTime();
+        const timeA = new Date(`${a.booking_date}T${a.start_time}:00`).getTime() || 0;
+        const timeB = new Date(`${b.booking_date}T${b.start_time}:00`).getTime() || 0;
         return currentRecSort === 'NEWEST' ? timeB - timeA : timeA - timeB;
       });
 
@@ -1213,27 +1213,33 @@
           badgeHtml = '<span class="text-[11px] px-2 py-0.5 bg-rose-100 text-rose-700 rounded-md font-bold">✕ 退件</span>';
         }
 
+        // 精簡教室名稱（去除長篇括號）
+        const cleanRoomName = String(r.room_name).replace(/（.*?）|\(.*?\)/g, '').trim();
+
+        // 避免重複顯示備註
+        const isDuplicatePurpose = (!r.purpose || r.purpose === r.booking_type || r.purpose === '個人練習' || r.purpose === '團體/開課包場');
+
         const card = document.createElement('div');
-        card.className = 'bg-white p-3 rounded-2xl border border-slate-200 shadow-xs space-y-1';
+        card.className = 'bg-white p-3 rounded-2xl border border-slate-200 shadow-xs space-y-1.5';
         card.innerHTML = `
           <div class="flex justify-between items-center">
             <div class="flex items-center gap-1.5">
-              <span class="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">${r.booking_type || '個人練習'}</span>
-              <h3 class="font-black text-slate-800 text-xs">${r.room_name}</h3>
+              <span class="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">${r.booking_type || '個人練習'}</span>
+              <span class="text-[11px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">${cleanRoomName}</span>
             </div>
             ${badgeHtml}
           </div>
-          <div class="flex items-center justify-between text-xs text-slate-600 pt-0.5 font-eng-serif">
-            <span>📅 ${r.booking_date}</span>
-            <span class="font-bold text-indigo-600">${r.start_time} - ${r.end_time}</span>
+          <div class="flex items-center justify-between text-xs pt-0.5">
+            <span class="font-bold text-slate-800 font-eng-serif">📅 ${r.booking_date}</span>
+            <span class="font-black text-indigo-600 font-eng-serif text-sm">${r.start_time} - ${r.end_time}</span>
           </div>
-          ${r.purpose ? `<p class="text-[11px] text-slate-400 truncate pt-0.5 font-sans">備註：${r.purpose}</p>` : ''}
+          ${!isDuplicatePurpose ? `<p class="text-[11px] text-slate-400 truncate pt-0.5 font-sans">備註：${r.purpose}</p>` : ''}
         `;
         container.appendChild(card);
       });
     }
 
-    // ⭐ 管理後台：多維度排序與時間篩選
+    // ⭐ 管理後台：多維度排序、時間篩選、俐落卡片
     async function loadAdminBookings() {
       const container = document.getElementById('admin-bookings-container');
       container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">正在載入審核名單...</p>';
@@ -1262,7 +1268,7 @@
       ['pending', 'approved', 'all'].forEach(s => {
         const btn = document.getElementById(`filter-admin-${s}`);
         if (s === status.toLowerCase()) {
-          btn.className = 'flex-1 py-1 text-xs font-bold rounded-lg bg-indigo-600 text-white shadow-xs';
+          btn.className = 'flex-1 py-1 text-xs font-bold rounded-lg bg-amber-500 text-white shadow-xs';
         } else {
           btn.className = 'flex-1 py-1 text-xs font-bold rounded-lg bg-slate-100 text-slate-600';
         }
@@ -1336,8 +1342,8 @@
 
       // 3. 排序 (最新 / 最舊)
       filtered.sort((a, b) => {
-        const timeA = new Date(`${a.booking_date}T${a.start_time}:00`).getTime();
-        const timeB = new Date(`${b.booking_date}T${b.start_time}:00`).getTime();
+        const timeA = new Date(`${a.booking_date}T${a.start_time}:00`).getTime() || 0;
+        const timeB = new Date(`${b.booking_date}T${b.start_time}:00`).getTime() || 0;
         return currentAdminSort === 'NEWEST' ? timeB - timeA : timeA - timeB;
       });
 
@@ -1352,6 +1358,9 @@
         let badgeHtml = '<span class="text-[11px] px-2 py-0.5 rounded-md font-bold bg-amber-100 text-amber-800">⏳ 待審核</span>';
         if (item.status === '申請成功') badgeHtml = '<span class="text-[11px] px-2 py-0.5 rounded-md font-bold bg-emerald-100 text-emerald-700">✓ 已核准</span>';
         if (item.status === '未付款請重新申請') badgeHtml = '<span class="text-[11px] px-2 py-0.5 rounded-md font-bold bg-rose-100 text-rose-700">✕ 已退件</span>';
+
+        const cleanRoomName = String(item.room_name).replace(/（.*?）|\(.*?\)/g, '').trim();
+        const isDuplicatePurpose = (!item.purpose || item.purpose === item.booking_type || item.purpose === '個人練習' || item.purpose === '團體/開課包場');
 
         const card = document.createElement('div');
         card.className = `p-3 rounded-2xl border shadow-xs space-y-1.5 transition ${isPending ? 'bg-amber-50/30 border-amber-200' : 'bg-white border-slate-200'}`;
@@ -1382,7 +1391,7 @@
             <span>📅 ${item.booking_date}</span>
             <span class="font-bold text-indigo-600">${item.start_time} - ${item.end_time}</span>
           </div>
-          <p class="text-[11px] text-slate-500 truncate font-sans">空間：${item.room_name} ${item.purpose ? `| 備註：${item.purpose}` : ''}</p>
+          <p class="text-[11px] text-slate-500 truncate font-sans">空間：${cleanRoomName} ${!isDuplicatePurpose ? `| 備註：${item.purpose}` : ''}</p>
           ${actionButtons}
         `;
         container.appendChild(card);
@@ -1553,10 +1562,10 @@
             const b = document.getElementById(t.id);
             const s = document.getElementById(t.section);
             if (t.id === tab.id) {
-              b.className = 'flex-1 py-2 text-xs font-black rounded-xl bg-white text-indigo-600 shadow-sm transition';
+              b.className = 'py-2 text-xs font-black rounded-xl bg-white text-indigo-600 shadow-sm transition flex flex-col sm:flex-row items-center justify-center gap-0.5';
               s.classList.remove('hidden');
             } else {
-              b.className = 'flex-1 py-2 text-xs font-black rounded-xl text-slate-600 hover:text-indigo-600 transition';
+              b.className = 'py-2 text-xs font-black rounded-xl text-slate-600 hover:text-indigo-600 transition flex flex-col sm:flex-row items-center justify-center gap-0.5';
               s.classList.add('hidden');
             }
           });
