@@ -123,7 +123,7 @@
   </header>
 
   <main class="max-w-md mx-auto p-4 space-y-4">
-    <!-- 主導覽分頁列 (優化手機排列：4欄等寬、不折行) -->
+    <!-- 主導覽分頁列 (4欄等寬) -->
     <div class="grid grid-cols-4 bg-slate-200/80 p-1 rounded-2xl shadow-inner text-center gap-1">
       <button id="tab-booking-view" class="py-2 text-xs font-black rounded-xl bg-white text-indigo-600 shadow-sm transition flex flex-col sm:flex-row items-center justify-center gap-0.5">
         <span>📅</span><span>預約</span>
@@ -150,7 +150,7 @@
       </select>
     </div>
 
-    <!-- ===== 分頁 1：預約空間一覽 (優雅雙欄網格) ===== -->
+    <!-- ===== 分頁 1：預約空間一覽 ===== -->
     <div id="booking-section" class="space-y-3.5">
       <!-- 日曆選擇器 + 週分頁 -->
       <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
@@ -193,12 +193,12 @@
       </div>
     </div>
 
-    <!-- ===== 分頁 2：固定團體班 (僅顯示 is_public 為 TRUE 之公開課程) ===== -->
+    <!-- ===== 分頁 2：固定團體班 (已優化：去除重複教室、右側老師大頭照、點擊查看介紹) ===== -->
     <div id="schedule-section" class="space-y-3 hidden">
       <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center">
         <div>
-          <h2 id="weekly-room-title" class="font-extrabold text-sm text-slate-800">公開團體班課表</h2>
-          <p class="text-[11px] text-slate-400 mt-0.5">常態開課時段保留，報名請洽櫃台或官方 LINE</p>
+          <h2 class="font-extrabold text-sm text-slate-800">常態固定團體班</h2>
+          <p class="text-[11px] text-slate-400 mt-0.5">點擊課程卡片可查看課程詳細介紹與大綱</p>
         </div>
         <button id="refresh-weekly-btn" class="text-xs text-indigo-600 font-bold bg-indigo-50 px-2.5 py-1.5 rounded-lg active:scale-95 transition">🔄 整理</button>
       </div>
@@ -207,10 +207,9 @@
       </div>
     </div>
 
-    <!-- ===== 分頁 3：個人預約紀錄 (優化緊湊卡片、消除重複備註) ===== -->
+    <!-- ===== 分頁 3：個人預約紀錄 ===== -->
     <div id="records-section" class="space-y-3 hidden">
       <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
-        <!-- 狀態標籤 -->
         <div class="flex items-center justify-between gap-2">
           <div class="flex gap-1.5 flex-1">
             <button onclick="filterRecordsStatus('ALL')" id="filter-rec-all" class="flex-1 py-1 text-xs font-bold rounded-lg bg-indigo-600 text-white">全部</button>
@@ -220,9 +219,7 @@
           <button id="refresh-records-btn" class="text-xs text-indigo-600 font-bold bg-indigo-50 px-2.5 py-1 rounded-lg">🔄</button>
         </div>
 
-        <!-- 時間控制面板：排序與區間 -->
         <div class="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs">
-          <!-- 排序選單 -->
           <div class="flex items-center gap-1 text-slate-500 font-bold">
             <span>排序：</span>
             <select id="records-sort-select" onchange="handleRecordsSortChange(this.value)" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-slate-700 outline-none">
@@ -231,7 +228,6 @@
             </select>
           </div>
 
-          <!-- 時間區間標籤 -->
           <div class="flex items-center gap-1">
             <button onclick="filterRecordsRange('ALL')" id="btn-rec-range-all" class="px-2 py-1 rounded-lg font-bold text-[11px] bg-indigo-50 text-indigo-600">全部</button>
             <button onclick="filterRecordsRange('7D')" id="btn-rec-range-7d" class="px-2 py-1 rounded-lg font-bold text-[11px] bg-slate-100 text-slate-600">一週內</button>
@@ -240,7 +236,6 @@
           </div>
         </div>
 
-        <!-- 自訂起訖日期選擇器 (預設隱藏) -->
         <div id="records-custom-date-box" class="pt-2 border-t border-dashed border-slate-200 hidden flex items-center gap-2 text-xs">
           <input type="date" id="rec-date-start" class="flex-1 bg-slate-50 border border-slate-200 rounded-lg p-1.5 text-slate-700 font-eng-serif">
           <span class="text-slate-400">至</span>
@@ -254,10 +249,9 @@
       </div>
     </div>
 
-    <!-- ===== 分頁 4：管理後台 (加入多維度排序與時間篩選) ===== -->
+    <!-- ===== 分頁 4：管理後台 ===== -->
     <div id="admin-section" class="space-y-3 hidden">
       <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
-        <!-- 狀態標籤與待審核數 -->
         <div class="flex items-center justify-between gap-2">
           <div class="flex gap-1.5 flex-1">
             <button onclick="filterAdminStatus('PENDING')" id="filter-admin-pending" class="flex-1 py-1 text-xs font-bold rounded-lg bg-amber-500 text-white shadow-xs">
@@ -273,9 +267,7 @@
           <button id="refresh-admin-btn" class="text-xs text-indigo-600 font-bold bg-indigo-50 px-2.5 py-1 rounded-lg">🔄</button>
         </div>
 
-        <!-- 時間控制面板：排序與區間 -->
         <div class="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs">
-          <!-- 排序選單 -->
           <div class="flex items-center gap-1 text-slate-500 font-bold">
             <span>排序：</span>
             <select id="admin-sort-select" onchange="handleAdminSortChange(this.value)" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-slate-700 outline-none">
@@ -284,7 +276,6 @@
             </select>
           </div>
 
-          <!-- 時間區間標籤 -->
           <div class="flex items-center gap-1">
             <button onclick="filterAdminRange('ALL')" id="btn-admin-range-all" class="px-2 py-1 rounded-lg font-bold text-[11px] bg-indigo-50 text-indigo-600">全部</button>
             <button onclick="filterAdminRange('7D')" id="btn-admin-range-7d" class="px-2 py-1 rounded-lg font-bold text-[11px] bg-slate-100 text-slate-600">一週內</button>
@@ -293,7 +284,6 @@
           </div>
         </div>
 
-        <!-- 自訂起訖日期選擇器 (預設隱藏) -->
         <div id="admin-custom-date-box" class="pt-2 border-t border-dashed border-slate-200 hidden flex items-center gap-2 text-xs">
           <input type="date" id="admin-date-start" class="flex-1 bg-slate-50 border border-slate-200 rounded-lg p-1.5 text-slate-700 font-eng-serif">
           <span class="text-slate-400">至</span>
@@ -317,6 +307,37 @@
       </div>
       <button id="open-multi-booking-modal-btn" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md active:scale-95 transition">
         確認預約 →
+      </button>
+    </div>
+  </div>
+
+  <!-- 課程介紹彈窗 (Course Detail Modal) -->
+  <div id="course-detail-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-5 space-y-4 shadow-2xl relative">
+      <div class="flex items-center justify-between border-b pb-3">
+        <div class="flex items-center gap-3">
+          <img id="detail-teacher-img" src="" class="w-12 h-12 rounded-full object-cover border-2 border-indigo-200 shadow-xs">
+          <div>
+            <h3 id="detail-course-title" class="font-extrabold text-base text-slate-900">課程名稱</h3>
+            <span id="detail-course-time" class="inline-block mt-0.5 text-xs font-bold text-indigo-600 font-eng-serif bg-indigo-50 px-2 py-0.5 rounded-md">--:-- - --:--</span>
+          </div>
+        </div>
+        <button id="close-course-modal" class="text-slate-400 hover:text-slate-600 text-2xl font-bold p-1 leading-none">&times;</button>
+      </div>
+
+      <div class="space-y-2 text-xs">
+        <label class="block font-bold text-slate-500">課程介紹與適合程度</label>
+        <div id="detail-course-desc" class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-slate-700 leading-relaxed max-h-48 overflow-y-auto whitespace-pre-wrap">
+          無詳細說明
+        </div>
+      </div>
+
+      <div class="bg-amber-50/70 border border-amber-200 rounded-xl p-2.5 text-[11px] text-amber-900 leading-normal">
+        💡 <strong>報名指引：</strong> 常態固定班請洽詢現場櫃台或透過官方 LINE 訊息洽詢開班進度！
+      </div>
+
+      <button id="confirm-course-modal-btn" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-md transition">
+        我知道了
       </button>
     </div>
   </div>
@@ -1028,14 +1049,12 @@
       }
     }
 
-    // ⭐ 固定團體班：依上方選擇的教室即時過濾渲染
+    // ⭐ 固定團體班：加入 1:1 圓形頭像與點擊彈出課程介紹
     async function loadWeeklySchedule() {
       const container = document.getElementById('weekly-schedule-container');
-      const titleSpan = document.getElementById('weekly-room-title');
       const currentRoom = classrooms.find(r => String(r.id) === String(selectedRoomId));
       const roomName = currentRoom ? currentRoom.name : '當前空間';
 
-      titleSpan.textContent = `【${roomName}】固定團體班課表`;
       container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">正在載入公開團課清單...</p>';
 
       try {
@@ -1063,20 +1082,39 @@
             const card = document.createElement('div');
             card.className = 'bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm space-y-2';
             
-            let listHtml = courses.map(c => `
-              <div class="flex items-center justify-between p-2 rounded-xl bg-purple-50/70 border border-purple-100 text-xs">
-                <span class="font-black text-purple-900">${c.title}</span>
-                <span class="font-eng-serif font-bold text-purple-700 bg-white px-2 py-0.5 rounded-md border border-purple-200">${c.start_time} - ${c.end_time}</span>
-              </div>
-            `).join('');
+            const listWrapper = document.createElement('div');
+            listWrapper.className = 'space-y-1.5 pt-1';
+
+            courses.forEach(c => {
+              const row = document.createElement('div');
+              row.className = 'flex items-center justify-between p-2.5 rounded-xl bg-purple-50/70 border border-purple-100 hover:border-purple-300 hover:bg-purple-50 cursor-pointer active:scale-[0.99] transition';
+              
+              // 老師 1:1 頭像 (若無提供則顯示預設 Icon)
+              const avatarSrc = c.teacher_img || 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=120&h=120&q=80';
+
+              row.innerHTML = `
+                <div class="space-y-0.5">
+                  <span class="font-black text-purple-900 text-xs block">${c.title}</span>
+                  <span class="font-eng-serif font-bold text-purple-700 bg-white px-2 py-0.5 rounded-md border border-purple-200 text-[11px] inline-block">${c.start_time} - ${c.end_time}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-[10px] text-purple-500 font-bold bg-purple-100/60 px-1.5 py-0.5 rounded">詳情 ▸</span>
+                  <img src="${avatarSrc}" onerror="this.onerror=null; this.src='https://placehold.co/100x100/purple/white?text=Dance';" class="w-9 h-9 rounded-full object-cover border border-purple-200 shadow-2xs">
+                </div>
+              `;
+
+              // 點擊彈出課程介紹
+              row.onclick = () => openCourseDetailModal(c);
+              listWrapper.appendChild(row);
+            });
 
             card.innerHTML = `
               <div class="flex items-center gap-2 border-b border-slate-100 pb-1.5">
                 <span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-indigo-600 text-white">${d.label}</span>
                 <span class="text-xs text-slate-400 font-medium">共 ${courses.length} 堂公開課程</span>
               </div>
-              <div class="space-y-1.5 pt-1">${listHtml}</div>
             `;
+            card.appendChild(listWrapper);
             container.appendChild(card);
           }
         });
@@ -1084,8 +1122,8 @@
         if (!hasAnyCourse) {
           container.innerHTML = `
             <div class="text-center py-10 bg-white rounded-2xl border border-dashed border-slate-200 text-slate-400 text-xs space-y-1">
-              <p class="font-bold">【${roomName}】目前尚無常態公開團體班</p>
-              <p class="text-[11px] text-slate-400">時段全數開放個人練習或包場預約</p>
+              <p class="font-bold">目前尚無常態公開團體班</p>
+              <p class="text-[11px] text-slate-400">時段皆開放租借預約</p>
             </div>
           `;
         }
@@ -1093,6 +1131,18 @@
       } catch (err) {
         container.innerHTML = '<p class="text-center text-rose-500 text-xs py-8">課表載入失敗，請點選重新整理</p>';
       }
+    }
+
+    function openCourseDetailModal(course) {
+      document.getElementById('detail-course-title').textContent = course.title || '常態團班';
+      document.getElementById('detail-course-time').textContent = `${course.start_time} - ${course.end_time}`;
+      document.getElementById('detail-course-desc').textContent = course.description || '本課程提供循序漸進的技巧指導與舞步排練，歡迎聯繫舞室報名體驗！';
+      
+      const teacherImg = document.getElementById('detail-teacher-img');
+      teacherImg.src = course.teacher_img || 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=120&h=120&q=80';
+      teacherImg.onerror = () => { teacherImg.src = 'https://placehold.co/100x100/purple/white?text=Dance'; };
+
+      document.getElementById('course-detail-modal').classList.remove('hidden');
     }
 
     // ⭐ 個人紀錄：多維度排序、時間篩選、去除重複冗餘字
@@ -1213,10 +1263,7 @@
           badgeHtml = '<span class="text-[11px] px-2 py-0.5 bg-rose-100 text-rose-700 rounded-md font-bold">✕ 退件</span>';
         }
 
-        // 精簡教室名稱（去除長篇括號）
         const cleanRoomName = String(r.room_name).replace(/（.*?）|\(.*?\)/g, '').trim();
-
-        // 避免重複顯示備註
         const isDuplicatePurpose = (!r.purpose || r.purpose === r.booking_type || r.purpose === '個人練習' || r.purpose === '團體/開課包場');
 
         const card = document.createElement('div');
@@ -1524,6 +1571,14 @@
     }
 
     function bindEvents() {
+      // 課程介紹彈窗關閉按鈕
+      document.getElementById('close-course-modal').addEventListener('click', () => {
+        document.getElementById('course-detail-modal').classList.add('hidden');
+      });
+      document.getElementById('confirm-course-modal-btn').addEventListener('click', () => {
+        document.getElementById('course-detail-modal').classList.add('hidden');
+      });
+
       // 日曆連動
       document.getElementById('date-picker-input').addEventListener('change', (e) => {
         if (!e.target.value) return;
