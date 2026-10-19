@@ -44,35 +44,61 @@
     .fade-transition {
       transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
     }
+
+    /* ⭐ 封面 Logo 金色旋轉流光環動效 */
+    @keyframes goldShimmerSpin {
+      0% { transform: rotate(0deg); opacity: 0.75; }
+      50% { transform: rotate(180deg); opacity: 1; filter: drop-shadow(0 0 10px rgba(217, 119, 6, 0.4)); }
+      100% { transform: rotate(360deg); opacity: 0.75; }
+    }
+    .gold-stream-ring {
+      position: absolute;
+      inset: -12px;
+      border-radius: 9999px;
+      padding: 2.5px;
+      background: conic-gradient(from 0deg, transparent 0%, #d97706 20%, #fef3c7 45%, #ffffff 50%, #fef3c7 55%, #d97706 80%, transparent 100%);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      -webkit-mask-composite: destination-out;
+      animation: goldShimmerSpin 4.5s linear infinite;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen pb-28 antialiased selection:bg-amber-100">
 
   <!-- 背景鋼琴音樂 -->
   <audio id="bg-music" loop preload="auto">
-    <source src="bg-music.mp3" type="audio/mp3">
+    <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=piano-moment-9835.mp3" type="audio/mp3">
   </audio>
 
-  <!-- 1. 開場全螢幕封面 (保持原本設計) -->
+  <!-- 1. 開場全螢幕封面 (含金色流光圈動效) -->
   <div id="splash-screen" class="fixed inset-0 z-50 marble-bg flex flex-col justify-between items-center py-16 px-6 fade-transition cursor-pointer select-none">
-    <div class="w-full flex justify-center pt-8">
+    <div class="w-full flex justify-center pt-6">
       <div class="h-0.5 w-12 bg-amber-400/60 tracking-widest"></div>
     </div>
-    <div class="text-center space-y-4">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber-300/60 bg-amber-50/50 backdrop-blur-sm text-[11px] font-medium tracking-[0.25em] text-amber-800 uppercase font-eng-serif">
+
+    <!-- 中央 Logo 與金色流光動效外圈 -->
+    <div class="relative text-center space-y-4 my-auto">
+      <!-- 金色一圈流光環 (自適應環繞中央核心) -->
+      <div class="gold-stream-ring"></div>
+
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber-300/60 bg-amber-50/70 backdrop-blur-sm text-[10px] font-medium tracking-[0.25em] text-amber-800 uppercase font-eng-serif">
         Tainan Dance Studio
       </div>
       <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-wider">
         TheDanceHouse<br><span class="text-2xl text-amber-900 font-normal">Tainan</span>
       </h1>
-      <p class="text-xs text-slate-500 font-eng-serif tracking-[0.35em] uppercase">
+      <p class="text-[11px] text-slate-500 font-eng-serif tracking-[0.35em] uppercase">
         Studio Booking & Group Classes
       </p>
       <div class="pt-2 flex justify-center">
         <span class="inline-block w-8 h-[1px] bg-slate-300"></span>
       </div>
     </div>
-    <div class="text-center space-y-2 pulse-touch pb-6">
+
+    <div class="text-center space-y-2 pulse-touch pb-4">
       <p class="text-sm font-bold text-slate-700 tracking-widest">點擊開始</p>
       <p class="text-[10px] font-eng-serif tracking-[0.3em] uppercase text-slate-400">TOUCH TO START</p>
     </div>
@@ -90,70 +116,73 @@
     </div>
   </div>
 
-  <!-- ⭐ 3. 主介面 Header (左側使用 header-logo.png，寬度適中不破版，右側按鈕水平並排) -->
-  <header class="marble-bg text-slate-800 pt-3.5 pb-3.5 px-4 shadow-sm rounded-b-3xl border-b border-slate-300/80 relative overflow-hidden">
+  <!-- 3. 右上角音樂按鈕 (與 Header 平行微調) -->
+  <div class="fixed top-3.5 right-3.5 z-30">
+    <button id="toggle-music-btn" title="音樂開關" class="w-8 h-8 rounded-full bg-white/95 backdrop-blur-md shadow-md border border-slate-200 flex items-center justify-center text-slate-600 hover:text-amber-600 active:scale-90 transition">
+      <span id="music-icon" class="text-xs">🎵</span>
+    </button>
+  </div>
+
+  <!-- 主介面 Header (優化：寬度縮減、字級緊湊、防重疊遮擋) -->
+  <header class="marble-bg text-slate-800 pt-3.5 pb-4 px-4 shadow-sm rounded-b-3xl border-b border-slate-300/80 relative overflow-hidden">
     <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200"></div>
 
-    <div class="max-w-md mx-auto flex items-center justify-between gap-2">
-      <!-- 左側：使用 header-logo.png，寬度設定 max-w-[165px] 剛好佔畫面一半左右，清晰不擠壓[cite: 27] -->
-      <div class="flex items-center gap-2 min-w-0 max-w-[54%]">
-        <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.7)] shrink-0"></span>
-        <img src="header-logo.png" alt="TheDanceHouse Tainan" class="h-7 sm:h-8 w-auto max-w-[165px] object-contain object-left shrink-0">
+    <div class="max-w-xs sm:max-w-sm mx-auto flex items-center justify-between pr-8">
+      <div class="space-y-0.5">
+        <div class="flex items-center gap-1.5">
+          <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.6)]"></span>
+          <h1 class="text-sm font-black tracking-wide text-slate-900 font-eng-serif">TheDanceHouse</h1>
+        </div>
+        <p class="text-[8.5px] text-slate-500 font-bold tracking-[0.15em] uppercase">
+          舞的店 · 空間租借與課表
+        </p>
       </div>
 
-      <!-- 右側群組：會員認證按鈕 + 音樂控制鈕 (水平緊湊並排，絕不遮擋) -->
-      <div class="flex items-center gap-1.5 shrink-0">
-        <!-- 會員認證按鈕 -->
-        <button id="open-profile-btn" class="flex items-center gap-1.5 bg-white/95 backdrop-blur-md px-2.5 py-1.5 rounded-full border border-slate-300 shadow-xs active:scale-95 transition">
-          <img id="user-avatar" src="https://via.placeholder.com/28" class="w-5 h-5 rounded-full object-cover hidden border border-slate-200">
-          <div class="text-left">
-            <span id="user-display" class="block text-xs font-bold text-slate-800 max-w-[56px] truncate leading-tight">訪客</span>
-            <span id="verify-badge" class="block text-[8.5px] text-amber-600 font-semibold leading-none">未認證</span>
-          </div>
-        </button>
-
-        <!-- 音樂切換鈕 -->
-        <button id="toggle-music-btn" title="音樂開關" class="w-8 h-8 rounded-full bg-white/95 backdrop-blur-md shadow-xs border border-slate-200 flex items-center justify-center text-slate-600 hover:text-amber-600 active:scale-90 transition">
-          <span id="music-icon" class="text-xs">🎵</span>
-        </button>
-      </div>
+      <button id="open-profile-btn" class="flex items-center gap-1.5 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full border border-slate-300 shadow-xs active:scale-95 transition">
+        <img id="user-avatar" src="https://via.placeholder.com/28" class="w-5 h-5 rounded-full object-cover hidden border border-slate-200">
+        <div class="text-left">
+          <span id="user-display" class="block text-[11px] font-bold text-slate-800 max-w-[65px] truncate">訪客</span>
+          <span id="verify-badge" class="block text-[8.5px] text-amber-600 font-semibold leading-none">未認證</span>
+        </div>
+      </button>
     </div>
   </header>
 
-  <main class="max-w-md mx-auto p-4 space-y-4">
+  <!-- 主容器 (寬度收斂至 max-w-sm，更貼合手機窄屏) -->
+  <main class="max-w-xs sm:max-w-sm mx-auto p-3 space-y-3.5">
     <!-- 主導覽分頁列 (4欄等寬) -->
     <div class="grid grid-cols-4 bg-slate-200/80 p-1 rounded-2xl shadow-inner text-center gap-1">
-      <button id="tab-booking-view" class="py-2 text-xs font-black rounded-xl bg-white text-indigo-600 shadow-sm transition flex flex-col sm:flex-row items-center justify-center gap-0.5">
+      <button id="tab-booking-view" class="py-1.5 text-xs font-black rounded-xl bg-white text-indigo-600 shadow-sm transition flex flex-col sm:flex-row items-center justify-center gap-0.5">
         <span>📅</span><span>預約</span>
       </button>
-      <button id="tab-schedule-view" class="py-2 text-xs font-black rounded-xl text-slate-600 hover:text-indigo-600 transition flex flex-col sm:flex-row items-center justify-center gap-0.5">
+      <button id="tab-schedule-view" class="py-1.5 text-xs font-black rounded-xl text-slate-600 hover:text-indigo-600 transition flex flex-col sm:flex-row items-center justify-center gap-0.5">
         <span>🏛️</span><span>團班</span>
       </button>
-      <button id="tab-my-records" class="py-2 text-xs font-black rounded-xl text-slate-600 hover:text-indigo-600 transition flex flex-col sm:flex-row items-center justify-center gap-0.5">
+      <button id="tab-my-records" class="py-1.5 text-xs font-black rounded-xl text-slate-600 hover:text-indigo-600 transition flex flex-col sm:flex-row items-center justify-center gap-0.5">
         <span>📋</span><span>紀錄</span>
       </button>
-      <button id="tab-admin-view" class="hidden py-2 text-xs font-black rounded-xl text-slate-600 hover:text-indigo-600 transition flex flex-col sm:flex-row items-center justify-center gap-0.5">
+      <button id="tab-admin-view" class="hidden py-1.5 text-xs font-black rounded-xl text-slate-600 hover:text-indigo-600 transition flex flex-col sm:flex-row items-center justify-center gap-0.5">
         <span>⚙️</span><span>後台</span>
       </button>
     </div>
 
     <!-- 教室空間選擇器 -->
-    <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200">
+    <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200">
       <div class="flex justify-between items-center mb-1">
-        <label class="block text-xs font-bold text-slate-400">目前選擇教室空間</label>
-        <span class="text-[10px] text-indigo-600 font-medium bg-indigo-50 px-2 py-0.5 rounded-md">課表與時段同步切換</span>
+        <label class="block text-[11px] font-bold text-slate-400">目前選擇空間</label>
+        <span class="text-[9.5px] text-indigo-600 font-medium bg-indigo-50 px-2 py-0.5 rounded-md">課表與時段同步切換</span>
       </div>
-      <select id="classroom-select" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      <select id="classroom-select" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2 text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
         <option value="">讀取教室中...</option>
       </select>
     </div>
 
     <!-- ===== 分頁 1：預約空間一覽 ===== -->
-    <div id="booking-section" class="space-y-3.5">
+    <div id="booking-section" class="space-y-3">
       <!-- 日曆選擇器 + 週分頁 -->
-      <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+      <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 space-y-2.5">
         <div class="flex justify-between items-center px-1">
-          <button id="prev-week" class="px-2.5 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-bold">← 上週</button>
+          <button id="prev-week" class="px-2 py-1 text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-bold">← 上週</button>
           
           <div class="relative cursor-pointer flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-50/70 border border-amber-200 text-amber-900 hover:bg-amber-100/80 transition">
             <span class="text-xs">📅</span>
@@ -161,31 +190,31 @@
             <input type="date" id="date-picker-input" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
           </div>
 
-          <button id="next-week" class="px-2.5 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-bold">下週 →</button>
+          <button id="next-week" class="px-2 py-1 text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-bold">下週 →</button>
         </div>
 
         <div id="weekday-tabs" class="grid grid-cols-7 gap-1 text-center"></div>
       </div>
 
       <!-- 可借用時段一覽 (雙欄 Grid 卡片展示) -->
-      <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+      <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200 space-y-2.5">
         <div class="flex justify-between items-center pb-2 border-b border-slate-100">
           <div>
-            <h2 id="current-date-title" class="font-extrabold text-sm text-slate-800">可借用時段</h2>
-            <p class="text-[11px] text-slate-400 mt-0.5">點選時段多選 · 每次預約至少滿 1 小時</p>
+            <h2 id="current-date-title" class="font-extrabold text-xs text-slate-800">可借用時段</h2>
+            <p class="text-[10px] text-slate-400 mt-0.5">點選時段多選 · 每次預約至少滿 1 小時</p>
           </div>
           <button id="clear-selected-btn" class="text-xs text-indigo-600 hover:text-indigo-800 font-bold bg-indigo-50 px-2.5 py-1 rounded-lg">清除選取</button>
         </div>
 
         <!-- 圖例說明 -->
-        <div class="flex flex-wrap items-center gap-2.5 text-[10px] text-slate-500 bg-slate-50 p-2 rounded-xl border border-slate-100">
-          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-md bg-white border border-slate-300"></span> 可選</span>
-          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-md bg-amber-100 border border-amber-300"></span> 共享 (餘1)</span>
-          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-md bg-purple-100 border border-purple-200"></span> 固定課</span>
-          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-md bg-slate-200"></span> 已額滿/過去</span>
+        <div class="flex flex-wrap items-center gap-2 text-[9.5px] text-slate-500 bg-slate-50 p-2 rounded-xl border border-slate-100">
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-md bg-white border border-slate-300"></span> 可選</span>
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-md bg-amber-100 border border-amber-300"></span> 共享 (餘1)</span>
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-md bg-purple-100 border border-purple-200"></span> 固定課</span>
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-md bg-slate-200"></span> 已額滿/過去</span>
         </div>
         
-        <div id="slot-container" class="space-y-4 pt-1">
+        <div id="slot-container" class="space-y-3.5 pt-1">
           <p class="text-center text-slate-400 text-xs py-8">正在載入即時空檔...</p>
         </div>
       </div>
@@ -193,14 +222,14 @@
 
     <!-- ===== 分頁 2：固定團體班 ===== -->
     <div id="schedule-section" class="space-y-3 hidden">
-      <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center">
+      <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center">
         <div>
-          <h2 class="font-extrabold text-sm text-slate-800">常態固定團體班</h2>
-          <p class="text-[11px] text-slate-400 mt-0.5">點擊課程卡片可查看課程詳細介紹與大綱</p>
+          <h2 class="font-extrabold text-xs text-slate-800">常態固定團體班</h2>
+          <p class="text-[10px] text-slate-400 mt-0.5">點擊課程卡片可查看課程詳細介紹與大綱</p>
         </div>
         <button id="refresh-weekly-btn" class="text-xs text-indigo-600 font-bold bg-indigo-50 px-2.5 py-1.5 rounded-lg active:scale-95 transition">🔄 整理</button>
       </div>
-      <div id="weekly-schedule-container" class="space-y-3">
+      <div id="weekly-schedule-container" class="space-y-2.5">
         <p class="text-center text-slate-400 text-xs py-8">正在載入公開團課清單...</p>
       </div>
     </div>
@@ -220,17 +249,17 @@
         <div class="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs">
           <div class="flex items-center gap-1 text-slate-500 font-bold">
             <span>排序：</span>
-            <select id="records-sort-select" onchange="handleRecordsSortChange(this.value)" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-slate-700 outline-none">
+            <select id="records-sort-select" onchange="handleRecordsSortChange(this.value)" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-0.5 text-slate-700 outline-none">
               <option value="NEWEST">最新日期優先</option>
               <option value="OLDEST">最舊日期優先</option>
             </select>
           </div>
 
           <div class="flex items-center gap-1">
-            <button onclick="filterRecordsRange('ALL')" id="btn-rec-range-all" class="px-2 py-1 rounded-lg font-bold text-[11px] bg-indigo-50 text-indigo-600">全部</button>
-            <button onclick="filterRecordsRange('7D')" id="btn-rec-range-7d" class="px-2 py-1 rounded-lg font-bold text-[11px] bg-slate-100 text-slate-600">一週內</button>
-            <button onclick="filterRecordsRange('30D')" id="btn-rec-range-30d" class="px-2 py-1 rounded-lg font-bold text-[11px] bg-slate-100 text-slate-600">一個月內</button>
-            <button onclick="toggleRecordsCustomDate()" id="btn-rec-range-custom" class="px-2 py-1 rounded-lg font-bold text-[11px] bg-slate-100 text-slate-600">指定區間</button>
+            <button onclick="filterRecordsRange('ALL')" id="btn-rec-range-all" class="px-2 py-0.5 rounded-lg font-bold text-[10px] bg-indigo-50 text-indigo-600">全部</button>
+            <button onclick="filterRecordsRange('7D')" id="btn-rec-range-7d" class="px-2 py-0.5 rounded-lg font-bold text-[10px] bg-slate-100 text-slate-600">一週內</button>
+            <button onclick="filterRecordsRange('30D')" id="btn-rec-range-30d" class="px-2 py-0.5 rounded-lg font-bold text-[10px] bg-slate-100 text-slate-600">一個月內</button>
+            <button onclick="toggleRecordsCustomDate()" id="btn-rec-range-custom" class="px-2 py-0.5 rounded-lg font-bold text-[10px] bg-slate-100 text-slate-600">指定</button>
           </div>
         </div>
 
@@ -268,17 +297,17 @@
         <div class="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs">
           <div class="flex items-center gap-1 text-slate-500 font-bold">
             <span>排序：</span>
-            <select id="admin-sort-select" onchange="handleAdminSortChange(this.value)" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-slate-700 outline-none">
+            <select id="admin-sort-select" onchange="handleAdminSortChange(this.value)" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-0.5 text-slate-700 outline-none">
               <option value="NEWEST">最新預約優先</option>
               <option value="OLDEST">最舊預約優先</option>
             </select>
           </div>
 
           <div class="flex items-center gap-1">
-            <button onclick="filterAdminRange('ALL')" id="btn-admin-range-all" class="px-2 py-1 rounded-lg font-bold text-[11px] bg-indigo-50 text-indigo-600">全部</button>
-            <button onclick="filterAdminRange('7D')" id="btn-admin-range-7d" class="px-2 py-1 rounded-lg font-bold text-[11px] bg-slate-100 text-slate-600">一週內</button>
-            <button onclick="filterAdminRange('30D')" id="btn-admin-range-30d" class="px-2 py-1 rounded-lg font-bold text-[11px] bg-slate-100 text-slate-600">一個月內</button>
-            <button onclick="toggleAdminCustomDate()" id="btn-admin-range-custom" class="px-2 py-1 rounded-lg font-bold text-[11px] bg-slate-100 text-slate-600">指定區間</button>
+            <button onclick="filterAdminRange('ALL')" id="btn-admin-range-all" class="px-2 py-0.5 rounded-lg font-bold text-[10px] bg-indigo-50 text-indigo-600">全部</button>
+            <button onclick="filterAdminRange('7D')" id="btn-admin-range-7d" class="px-2 py-0.5 rounded-lg font-bold text-[10px] bg-slate-100 text-slate-600">一週內</button>
+            <button onclick="filterAdminRange('30D')" id="btn-admin-range-30d" class="px-2 py-0.5 rounded-lg font-bold text-[10px] bg-slate-100 text-slate-600">一個月內</button>
+            <button onclick="toggleAdminCustomDate()" id="btn-admin-range-custom" class="px-2 py-0.5 rounded-lg font-bold text-[10px] bg-slate-100 text-slate-600">指定</button>
           </div>
         </div>
 
@@ -297,13 +326,13 @@
   </main>
 
   <!-- 底部多選確認浮動列 -->
-  <div id="bottom-booking-bar" class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 p-3.5 shadow-2xl z-40 transform translate-y-full transition-transform duration-300">
-    <div class="max-w-md mx-auto flex items-center justify-between gap-3">
+  <div id="bottom-booking-bar" class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 p-3 shadow-2xl z-40 transform translate-y-full transition-transform duration-300">
+    <div class="max-w-xs sm:max-w-sm mx-auto flex items-center justify-between gap-2">
       <div>
         <p id="bar-summary-text" class="text-xs font-black text-slate-800">已選 2 個時段 (共 1.0 小時)</p>
-        <p id="bar-time-range" class="text-[11px] font-bold text-indigo-600 font-eng-serif">--:-- ~ --:--</p>
+        <p id="bar-time-range" class="text-[10px] font-bold text-indigo-600 font-eng-serif">--:-- ~ --:--</p>
       </div>
-      <button id="open-multi-booking-modal-btn" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md active:scale-95 transition">
+      <button id="open-multi-booking-modal-btn" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md active:scale-95 transition">
         確認預約 →
       </button>
     </div>
@@ -681,7 +710,7 @@
       return (h || 0) * 60 + (m || 0);
     }
 
-    // 2 欄 Grid 卡片展示
+    // 2 欄 Grid 卡片展示 (預約日曆保持「🔒 固定課」，不對外公開名稱)
     function renderAvailableSlots(bookings, recurrings) {
       const container = document.getElementById('slot-container');
       container.innerHTML = '';
@@ -980,10 +1009,50 @@
       document.getElementById('booking-modal').classList.remove('hidden');
     }
 
+    // ⭐ 支援 11/15 新舊制切換之連續時長計費計算
+    function calculateIntervalPrice(hours, isGroup, isNewRate) {
+      if (!isNewRate) {
+        // 舊制試營運優惠 (2026/11/15 含以前)
+        const ratePerHour = isGroup ? 450 : 350;
+        return hours * ratePerHour;
+      }
+
+      // 新制收費 (2026/11/16 起)
+      if (isGroup) {
+        // 團體 / 包場方案
+        if (hours >= 3) {
+          return hours * 450;
+        } else if (hours === 2.5) {
+          return 1200; // 平滑定價
+        } else if (hours === 2.0) {
+          return 1000;
+        } else if (hours === 1.5) {
+          return 825;
+        } else {
+          return 550; // 1.0 小時
+        }
+      } else {
+        // 個人方案 (4人含以下)
+        if (hours >= 3) {
+          return hours * 350;
+        } else if (hours === 2.5) {
+          return 950;
+        } else if (hours === 2.0) {
+          return 750;
+        } else if (hours === 1.5) {
+          return 600;
+        } else {
+          return 400; // 1.0 小時
+        }
+      }
+    }
+
     function updateModalPrice() {
       if (!verifiedBookingData) return;
       const type = document.querySelector('input[name="booking-type"]:checked').value;
       const isGroup = (type.indexOf('團體') !== -1 || type.indexOf('包場') !== -1);
+
+      // 以預約使用日期為基準：大於 2026-11-15 採用新制
       const isNewRate = (selectedDate > '2026-11-15');
 
       let totalPrice = 0;
@@ -992,27 +1061,6 @@
       });
 
       document.getElementById('modal-price').textContent = `NT$ ${totalPrice}`;
-    }
-
-    function calculateIntervalPrice(hours, isGroup, isNewRate) {
-      if (!isNewRate) {
-        const ratePerHour = isGroup ? 450 : 350;
-        return hours * ratePerHour;
-      }
-
-      if (isGroup) {
-        if (hours >= 3) return hours * 450;
-        if (hours === 2.5) return 1200;
-        if (hours === 2.0) return 1000;
-        if (hours === 1.5) return 825;
-        return 550;
-      } else {
-        if (hours >= 3) return hours * 350;
-        if (hours === 2.5) return 950;
-        if (hours === 2.0) return 750;
-        if (hours === 1.5) return 600;
-        return 400;
-      }
     }
 
     async function submitBooking() {
@@ -1070,6 +1118,7 @@
       }
     }
 
+    // ⭐ 固定團體班：加入 1:1 圓形頭像與點擊彈出課程介紹
     async function loadWeeklySchedule() {
       const container = document.getElementById('weekly-schedule-container');
       container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">正在載入公開團課清單...</p>';
@@ -1097,7 +1146,7 @@
           if (courses.length > 0) {
             hasAnyCourse = true;
             const card = document.createElement('div');
-            card.className = 'bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm space-y-2';
+            card.className = 'bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-2';
             
             const listWrapper = document.createElement('div');
             listWrapper.className = 'space-y-1.5 pt-1';
@@ -1160,6 +1209,7 @@
       document.getElementById('course-detail-modal').classList.remove('hidden');
     }
 
+    // ⭐ 個人紀錄：多維度排序、時間篩選、去除重複冗餘字
     async function loadMyRecords() {
       const container = document.getElementById('records-container');
       container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">載入紀錄中...</p>';
@@ -1202,9 +1252,9 @@
       ['all', '7d', '30d', 'custom'].forEach(r => {
         const btn = document.getElementById(`btn-rec-range-${r}`);
         if (r === range.toLowerCase()) {
-          btn.className = 'px-2 py-0.5 rounded-lg font-bold text-[11px] bg-indigo-50 text-indigo-600';
+          btn.className = 'px-2 py-0.5 rounded-lg font-bold text-[10px] bg-indigo-50 text-indigo-600';
         } else {
-          btn.className = 'px-2 py-0.5 rounded-lg font-bold text-[11px] bg-slate-100 text-slate-600';
+          btn.className = 'px-2 py-0.5 rounded-lg font-bold text-[10px] bg-slate-100 text-slate-600';
         }
       });
 
@@ -1237,12 +1287,14 @@
       const container = document.getElementById('records-container');
       let filtered = [...cachedMyRecords];
 
+      // 1. 狀態篩選
       if (currentRecStatus === 'PENDING') {
         filtered = filtered.filter(r => r.status === '審核中');
       } else if (currentRecStatus === 'APPROVED') {
         filtered = filtered.filter(r => r.status === '申請成功');
       }
 
+      // 2. 時間區間篩選
       const now = new Date();
       if (currentRecRange === '7D') {
         const past7 = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -1254,6 +1306,7 @@
         filtered = filtered.filter(r => r.booking_date >= recCustomStart && r.booking_date <= recCustomEnd);
       }
 
+      // 3. 排序 (最新 / 最舊)
       filtered.sort((a, b) => {
         const timeA = new Date(`${a.booking_date}T${a.start_time}:00`).getTime() || 0;
         const timeB = new Date(`${b.booking_date}T${b.start_time}:00`).getTime() || 0;
@@ -1297,6 +1350,7 @@
       });
     }
 
+    // ⭐ 管理後台：多維度排序、時間篩選、俐落卡片
     async function loadAdminBookings() {
       const container = document.getElementById('admin-bookings-container');
       container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">正在載入審核名單...</p>';
@@ -1343,9 +1397,9 @@
       ['all', '7d', '30d', 'custom'].forEach(r => {
         const btn = document.getElementById(`btn-admin-range-${r}`);
         if (r === range.toLowerCase()) {
-          btn.className = 'px-2 py-0.5 rounded-lg font-bold text-[11px] bg-indigo-50 text-indigo-600';
+          btn.className = 'px-2 py-0.5 rounded-lg font-bold text-[10px] bg-indigo-50 text-indigo-600';
         } else {
-          btn.className = 'px-2 py-0.5 rounded-lg font-bold text-[11px] bg-slate-100 text-slate-600';
+          btn.className = 'px-2 py-0.5 rounded-lg font-bold text-[10px] bg-slate-100 text-slate-600';
         }
       });
 
@@ -1378,12 +1432,14 @@
       const container = document.getElementById('admin-bookings-container');
       let filtered = [...cachedAdminList];
 
+      // 1. 狀態篩選
       if (currentAdminStatus === 'PENDING') {
         filtered = filtered.filter(item => item.status === '審核中');
       } else if (currentAdminStatus === 'APPROVED') {
         filtered = filtered.filter(item => item.status === '申請成功');
       }
 
+      // 2. 時間區間篩選
       const now = new Date();
       if (currentAdminRange === '7D') {
         const past7 = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -1395,6 +1451,7 @@
         filtered = filtered.filter(item => item.booking_date >= adminCustomStart && item.booking_date <= adminCustomEnd);
       }
 
+      // 3. 排序 (最新 / 最舊)
       filtered.sort((a, b) => {
         const timeA = new Date(`${a.booking_date}T${a.start_time}:00`).getTime() || 0;
         const timeB = new Date(`${b.booking_date}T${b.start_time}:00`).getTime() || 0;
@@ -1578,6 +1635,7 @@
     }
 
     function bindEvents() {
+      // 課程介紹彈窗關閉按鈕
       document.getElementById('close-course-modal').addEventListener('click', () => {
         document.getElementById('course-detail-modal').classList.add('hidden');
       });
@@ -1585,6 +1643,7 @@
         document.getElementById('course-detail-modal').classList.add('hidden');
       });
 
+      // 日曆連動
       document.getElementById('date-picker-input').addEventListener('change', (e) => {
         if (!e.target.value) return;
         selectedDate = e.target.value;
@@ -1594,14 +1653,17 @@
         fetchAndRenderSlots();
       });
 
+      // 清除多選 (連動外觀還原)
       document.getElementById('clear-selected-btn').addEventListener('click', () => {
         selectedSlotStarts.clear();
         fetchAndRenderSlots();
         updateBottomBar();
       });
 
+      // 點擊底部多選預約按鈕
       document.getElementById('open-multi-booking-modal-btn').addEventListener('click', openBookingModalWithSelection);
 
+      // 分頁切換 (4個分頁平滑切換)
       const navTabs = [
         { id: 'tab-booking-view', section: 'booking-section' },
         { id: 'tab-schedule-view', section: 'schedule-section', onLoad: loadWeeklySchedule },
@@ -1619,10 +1681,10 @@
             const b = document.getElementById(t.id);
             const s = document.getElementById(t.section);
             if (t.id === tab.id) {
-              b.className = 'py-2 text-xs font-black rounded-xl bg-white text-indigo-600 shadow-sm transition flex flex-col sm:flex-row items-center justify-center gap-0.5';
+              b.className = 'py-1.5 text-xs font-black rounded-xl bg-white text-indigo-600 shadow-sm transition flex flex-col sm:flex-row items-center justify-center gap-0.5';
               s.classList.remove('hidden');
             } else {
-              b.className = 'py-2 text-xs font-black rounded-xl text-slate-600 hover:text-indigo-600 transition flex flex-col sm:flex-row items-center justify-center gap-0.5';
+              b.className = 'py-1.5 text-xs font-black rounded-xl text-slate-600 hover:text-indigo-600 transition flex flex-col sm:flex-row items-center justify-center gap-0.5';
               s.classList.add('hidden');
             }
           });
@@ -1643,6 +1705,7 @@
       });
       document.getElementById('save-profile-btn').addEventListener('click', saveProfile);
       
+      // 教室切換連動：同時刷新預約時段與常態固定課表
       document.getElementById('classroom-select').addEventListener('change', (e) => {
         selectedRoomId = e.target.value;
         fetchAndRenderSlots();
