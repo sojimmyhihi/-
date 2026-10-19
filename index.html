@@ -27,12 +27,13 @@
         linear-gradient(125deg, transparent 40%, rgba(212, 175, 55, 0.08) 47%, rgba(255, 255, 255, 0.9) 50%, transparent 53%),
         radial-gradient(circle at 50% 50%, #ffffff 0%, #f1f5f9 100%);
     }
+    /* 點擊開始呼吸動態：調整為 2.8 秒更沉穩優雅 */
     @keyframes elegantPulse {
       0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.45; transform: scale(0.98); }
+      50% { opacity: 0.4; transform: scale(0.97); }
     }
     .pulse-touch {
-      animation: elegantPulse 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      animation: elegantPulse 2.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
     @keyframes slowSpin {
       from { transform: rotate(0deg); }
@@ -48,25 +49,26 @@
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen pb-28 antialiased selection:bg-amber-100">
 
-  <!-- 背景鋼琴音樂 (維持原有來源) -->
+  <!-- 背景鋼琴音樂 -->
   <audio id="bg-music" loop preload="auto">
-    <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=piano-moment-9835.mp3" type="audio/mp3">
+    <source src="bg-music.mp3" type="audio/mp3">
   </audio>
 
-  <!-- 1. 開場全螢幕封面 (使用 brand-logo.png) -->
+  <!-- 1. 開場全螢幕封面 (奢華香檳金暈影與字體呼吸感升級) -->
   <div id="splash-screen" class="fixed inset-0 z-50 marble-bg flex flex-col justify-between items-center py-16 px-6 fade-transition cursor-pointer select-none">
     <div class="w-full flex justify-center pt-6">
       <div class="h-0.5 w-12 bg-amber-400/60 tracking-widest"></div>
     </div>
 
-    <!-- 中央圓形 Logo -->
     <div class="relative flex flex-col items-center justify-center space-y-4 my-auto">
-      <div class="relative w-36 h-36 sm:w-44 sm:h-44 rounded-full flex items-center justify-center p-2 shadow-xl bg-white/80 backdrop-blur-sm border border-amber-300/40">
+      <!-- 圓形 Logo 加上奢華香檳金柔和暈影 -->
+      <div class="relative w-36 h-36 sm:w-44 sm:h-44 rounded-full flex items-center justify-center p-2 shadow-[0_12px_35px_rgba(217,119,6,0.18)] bg-white/90 backdrop-blur-md border border-amber-300/50">
         <img src="brand-logo.png" alt="TheDanceHouse Tainan" class="w-full h-full object-cover rounded-full">
       </div>
 
-      <div class="text-center space-y-1.5 pt-2">
-        <div class="inline-flex items-center gap-2 px-3 py-0.5 rounded-full border border-amber-300/60 bg-amber-50/70 backdrop-blur-sm text-[10px] font-medium tracking-[0.25em] text-amber-800 uppercase font-eng-serif">
+      <div class="text-center space-y-2 pt-2">
+        <!-- 藥丸標籤加入微透光與拉開字體間距 -->
+        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-amber-300/60 bg-amber-50/80 backdrop-blur-md text-[10px] font-medium tracking-[0.3em] text-amber-800 uppercase font-eng-serif shadow-xs">
           Tainan Dance Studio
         </div>
         <p class="text-[11px] text-slate-500 font-eng-serif tracking-[0.35em] uppercase">
@@ -93,20 +95,17 @@
     </div>
   </div>
 
-  <!-- ⭐ 3. 主介面 Header (左側使用 header-logo.png，右側按鈕水平並排) -->
+  <!-- 3. 主介面 Header (頂標下方的金色漸層分隔線加粗並帶微光流動感) -->
   <header class="marble-bg text-slate-800 pt-3.5 pb-3.5 px-4 shadow-sm rounded-b-3xl border-b border-slate-300/80 relative overflow-hidden">
-    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200"></div>
+    <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-200 via-amber-500 to-amber-200 shadow-[0_1px_4px_rgba(217,119,6,0.3)]"></div>
 
     <div class="max-w-md mx-auto flex items-center justify-between gap-2">
-      <!-- 左側：頂標 Logo 圖檔 header-logo.png -->
-      <div class="flex items-center gap-2 min-w-0 max-w-[55%]">
+      <div class="flex items-center gap-2 min-w-0 max-w-[54%]">
         <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.7)] shrink-0"></span>
         <img src="header-logo.png" alt="TheDanceHouse Tainan" class="h-7 sm:h-8 w-auto max-w-[170px] object-contain object-left shrink-0">
       </div>
 
-      <!-- 右側群組：會員認證按鈕 + 音樂控制鈕 -->
       <div class="flex items-center gap-1.5 shrink-0">
-        <!-- 會員認證按鈕 -->
         <button id="open-profile-btn" class="flex items-center gap-1.5 bg-white/95 backdrop-blur-md px-2.5 py-1.5 rounded-full border border-slate-300 shadow-xs active:scale-95 transition">
           <img id="user-avatar" src="https://via.placeholder.com/28" class="w-5 h-5 rounded-full object-cover hidden border border-slate-200">
           <div class="text-left">
@@ -115,7 +114,6 @@
           </div>
         </button>
 
-        <!-- 音樂切換鈕 -->
         <button id="toggle-music-btn" title="音樂開關" class="w-8 h-8 rounded-full bg-white/95 backdrop-blur-md shadow-xs border border-slate-200 flex items-center justify-center text-slate-600 hover:text-amber-600 active:scale-90 transition">
           <span id="music-icon" class="text-xs">🎵</span>
         </button>
@@ -124,18 +122,18 @@
   </header>
 
   <main class="max-w-md mx-auto p-4 space-y-4">
-    <!-- 主導覽分頁列 (4欄等寬) -->
-    <div class="grid grid-cols-4 bg-slate-200/80 p-1 rounded-2xl shadow-inner text-center gap-1">
-      <button id="tab-booking-view" class="py-2 text-xs font-black rounded-xl bg-white text-indigo-600 shadow-sm transition flex flex-col sm:flex-row items-center justify-center gap-0.5">
+    <!-- 主導覽分頁列 (選中分頁帶內陰影與琥珀雙色漸層感，未選中文字改為沉穩 #475569) -->
+    <div class="grid grid-cols-4 bg-slate-200/90 p-1 rounded-2xl shadow-inner text-center gap-1">
+      <button id="tab-booking-view" class="py-2 text-xs font-black rounded-xl bg-white text-indigo-600 shadow-[0_2px_6px_rgba(79,70,229,0.15)] ring-1 ring-indigo-500/20 transition flex flex-col sm:flex-row items-center justify-center gap-0.5">
         <span>📅</span><span>預約</span>
       </button>
-      <button id="tab-schedule-view" class="py-2 text-xs font-black rounded-xl text-slate-600 hover:text-indigo-600 transition flex flex-col sm:flex-row items-center justify-center gap-0.5">
+      <button id="tab-schedule-view" class="py-2 text-xs font-black rounded-xl text-[#475569] hover:text-indigo-600 transition flex flex-col sm:flex-row items-center justify-center gap-0.5">
         <span>🏛️</span><span>團班</span>
       </button>
-      <button id="tab-my-records" class="py-2 text-xs font-black rounded-xl text-slate-600 hover:text-indigo-600 transition flex flex-col sm:flex-row items-center justify-center gap-0.5">
+      <button id="tab-my-records" class="py-2 text-xs font-black rounded-xl text-[#475569] hover:text-indigo-600 transition flex flex-col sm:flex-row items-center justify-center gap-0.5">
         <span>📋</span><span>紀錄</span>
       </button>
-      <button id="tab-admin-view" class="hidden py-2 text-xs font-black rounded-xl text-slate-600 hover:text-indigo-600 transition flex flex-col sm:flex-row items-center justify-center gap-0.5">
+      <button id="tab-admin-view" class="hidden py-2 text-xs font-black rounded-xl text-[#475569] hover:text-indigo-600 transition flex flex-col sm:flex-row items-center justify-center gap-0.5">
         <span>⚙️</span><span>後台</span>
       </button>
     </div>
@@ -153,7 +151,6 @@
 
     <!-- ===== 分頁 1：預約空間一覽 ===== -->
     <div id="booking-section" class="space-y-3.5">
-      <!-- 日曆選擇器 + 週分頁 -->
       <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
         <div class="flex justify-between items-center px-1">
           <button id="prev-week" class="px-2.5 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-bold">← 上週</button>
@@ -170,7 +167,6 @@
         <div id="weekday-tabs" class="grid grid-cols-7 gap-1 text-center"></div>
       </div>
 
-      <!-- 可借用時段一覽 (雙欄 Grid 卡片展示) -->
       <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 space-y-3">
         <div class="flex justify-between items-center pb-2 border-b border-slate-100">
           <div>
@@ -312,7 +308,7 @@
     </div>
   </div>
 
-  <!-- 課程介紹彈窗 (Course Detail Modal) -->
+  <!-- 課程介紹彈窗 -->
   <div id="course-detail-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl max-w-sm w-full p-5 space-y-4 shadow-2xl relative">
       <div class="flex items-center justify-between border-b pb-3">
@@ -683,7 +679,6 @@
       return (h || 0) * 60 + (m || 0);
     }
 
-    // 2 欄 Grid 卡片展示
     function renderAvailableSlots(bookings, recurrings) {
       const container = document.getElementById('slot-container');
       container.innerHTML = '';
@@ -1204,9 +1199,9 @@
       ['all', '7d', '30d', 'custom'].forEach(r => {
         const btn = document.getElementById(`btn-rec-range-${r}`);
         if (r === range.toLowerCase()) {
-          btn.className = 'px-2 py-0.5 rounded-lg font-bold text-[10px] bg-indigo-50 text-indigo-600';
+          btn.className = 'px-2 py-0.5 rounded-lg font-bold text-[11px] bg-indigo-50 text-indigo-600';
         } else {
-          btn.className = 'px-2 py-0.5 rounded-lg font-bold text-[10px] bg-slate-100 text-slate-600';
+          btn.className = 'px-2 py-0.5 rounded-lg font-bold text-[11px] bg-slate-100 text-slate-600';
         }
       });
 
@@ -1345,9 +1340,9 @@
       ['all', '7d', '30d', 'custom'].forEach(r => {
         const btn = document.getElementById(`btn-admin-range-${r}`);
         if (r === range.toLowerCase()) {
-          btn.className = 'px-2 py-0.5 rounded-lg font-bold text-[10px] bg-indigo-50 text-indigo-600';
+          btn.className = 'px-2 py-0.5 rounded-lg font-bold text-[11px] bg-indigo-50 text-indigo-600';
         } else {
-          btn.className = 'px-2 py-0.5 rounded-lg font-bold text-[10px] bg-slate-100 text-slate-600';
+          btn.className = 'px-2 py-0.5 rounded-lg font-bold text-[11px] bg-slate-100 text-slate-600';
         }
       });
 
