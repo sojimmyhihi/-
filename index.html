@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>TheDanceHouse Tainan - 教室租借與固定團班</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
@@ -53,40 +53,26 @@
     <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=piano-moment-9835.mp3" type="audio/mp3">
   </audio>
 
-  <!-- 1. 開場全螢幕封面 (大理石風格 + 官方圓形 Logo + 呼吸動態文字) -->
-  <div id="splash-screen" class="fixed inset-0 z-50 marble-bg flex flex-col justify-between items-center py-14 px-6 fade-transition cursor-pointer select-none">
-    <!-- 頂部金色裝飾線 -->
-    <div class="w-full flex justify-center pt-4">
+  <!-- 1. 開場全螢幕封面 (保持原本設計) -->
+  <div id="splash-screen" class="fixed inset-0 z-50 marble-bg flex flex-col justify-between items-center py-16 px-6 fade-transition cursor-pointer select-none">
+    <div class="w-full flex justify-center pt-8">
       <div class="h-0.5 w-12 bg-amber-400/60 tracking-widest"></div>
     </div>
-
-    <!-- 中央核心視覺：圓形品牌 Logo 與字體 -->
-    <div class="text-center space-y-4 flex flex-col items-center">
-      <!-- 官方圓形 Logo -->
-      <div class="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full shadow-xl p-1 bg-white/40 backdrop-blur-sm border border-amber-300/40">
-        <img src="brand-logo.png" alt="The Dance House Logo" class="w-full h-full object-contain rounded-full">
-      </div>
-
-      <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-amber-300/60 bg-amber-50/60 backdrop-blur-sm text-[11px] font-medium tracking-[0.25em] text-amber-900 uppercase font-eng-serif">
+    <div class="text-center space-y-4">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber-300/60 bg-amber-50/50 backdrop-blur-sm text-[11px] font-medium tracking-[0.25em] text-amber-800 uppercase font-eng-serif">
         Tainan Dance Studio
       </div>
-
-      <div>
-        <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-wider font-eng-serif">
-          TheDanceHouse
-        </h1>
-        <p class="text-xs text-amber-900/80 font-bold tracking-[0.3em] uppercase mt-1">
-          空間租借 · 固定團班
-        </p>
-      </div>
-
-      <div class="pt-1 flex justify-center">
+      <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-wider">
+        TheDanceHouse<br><span class="text-2xl text-amber-900 font-normal">Tainan</span>
+      </h1>
+      <p class="text-xs text-slate-500 font-eng-serif tracking-[0.35em] uppercase">
+        Studio Booking & Group Classes
+      </p>
+      <div class="pt-2 flex justify-center">
         <span class="inline-block w-8 h-[1px] bg-slate-300"></span>
       </div>
     </div>
-
-    <!-- 底部呼吸動態文字 -->
-    <div class="text-center space-y-2 pulse-touch pb-4">
+    <div class="text-center space-y-2 pulse-touch pb-6">
       <p class="text-sm font-bold text-slate-700 tracking-widest">點擊開始</p>
       <p class="text-[10px] font-eng-serif tracking-[0.3em] uppercase text-slate-400">TOUCH TO START</p>
     </div>
@@ -104,44 +90,45 @@
     </div>
   </div>
 
-  <!-- 3. 右上角音樂按鈕 -->
-  <div class="fixed top-4 right-4 z-30">
-    <button id="toggle-music-btn" title="音樂開關" class="w-8 h-8 rounded-full bg-white/95 backdrop-blur-md shadow-md border border-slate-200 flex items-center justify-center text-slate-600 hover:text-amber-600 active:scale-90 transition">
-      <span id="music-icon" class="text-xs">🎵</span>
-    </button>
-  </div>
-
-  <!-- 主介面 Header (⭐ 圖檔縮小為 h-3.5 sm:h-4、寬度上限 105px，右側留足安全距離，徹底杜絕碰撞遮擋) -->
+  <!-- ⭐ 3. 主介面 Header (寬度佔畫面一半約 50%，右側按鈕水平排列，零遮擋) -->
   <header class="marble-bg text-slate-800 pt-4 pb-4 px-4 shadow-sm rounded-b-3xl border-b border-slate-300/80 relative overflow-hidden">
     <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200"></div>
 
-    <div class="max-w-md mx-auto flex items-center justify-between gap-2 pr-10">
-      <div class="space-y-0.5 min-w-0 flex-1">
+    <div class="max-w-md mx-auto flex items-center justify-between gap-2">
+      <!-- 左側：寬度達到畫面一半 (佔約 52%)，文字/Logo 清楚大氣 -->
+      <div class="w-[52%] shrink-0">
         <div class="flex items-center gap-1.5">
-          <!-- 狀態小綠燈 -->
           <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.7)] shrink-0"></span>
-          
-          <!-- ⭐ 精準縮小圖檔：高度嚴格限制在 14px~16px，最大寬度 105px 等比縮放 -->
-          <img src="header-logo.png" alt="The Dance House Tainan" class="h-3.5 sm:h-4 w-auto max-w-[105px] sm:max-w-[125px] object-contain shrink-0">
+          <h1 class="text-base sm:text-lg font-black tracking-tight text-slate-900 font-eng-serif leading-none truncate">
+            The Dance House <span class="text-xs text-amber-800 font-normal">Tainan</span>
+          </h1>
         </div>
-        <p class="text-[8px] sm:text-[9px] text-slate-500 font-bold tracking-[0.15em] uppercase pl-3.5 truncate">
+        <p class="text-[9.5px] text-slate-500 font-bold tracking-[0.12em] uppercase truncate mt-1 pl-3.5">
           舞的店 · 空間租借與課表
         </p>
       </div>
 
-      <!-- 右側身分認證按鈕 (鎖定不壓縮 shrink-0) -->
-      <button id="open-profile-btn" class="flex items-center gap-1.5 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full border border-slate-300 shadow-xs active:scale-95 transition shrink-0">
-        <img id="user-avatar" src="https://via.placeholder.com/28" class="w-5 h-5 rounded-full object-cover hidden border border-slate-200">
-        <div class="text-left">
-          <span id="user-display" class="block text-[11px] font-bold text-slate-800 max-w-[65px] truncate leading-tight">訪客</span>
-          <span id="verify-badge" class="block text-[8px] text-amber-600 font-semibold leading-none">未認證</span>
-        </div>
-      </button>
+      <!-- 右側群組：個人認證按鈕 + 音樂控制鈕 (水平緊湊排列，絕不漂浮遮擋) -->
+      <div class="flex items-center gap-2 shrink-0">
+        <!-- 會員認證按鈕 -->
+        <button id="open-profile-btn" class="flex items-center gap-1.5 bg-white/95 backdrop-blur-md px-2.5 py-1.5 rounded-full border border-slate-300 shadow-xs active:scale-95 transition">
+          <img id="user-avatar" src="https://via.placeholder.com/28" class="w-5 h-5 rounded-full object-cover hidden border border-slate-200">
+          <div class="text-left">
+            <span id="user-display" class="block text-xs font-bold text-slate-800 max-w-[58px] truncate leading-tight">訪客</span>
+            <span id="verify-badge" class="block text-[8.5px] text-amber-600 font-semibold leading-none">未認證</span>
+          </div>
+        </button>
+
+        <!-- 音樂切換鈕 (緊跟在個人大頭貼右側) -->
+        <button id="toggle-music-btn" title="音樂開關" class="w-8 h-8 rounded-full bg-white/95 backdrop-blur-md shadow-xs border border-slate-200 flex items-center justify-center text-slate-600 hover:text-amber-600 active:scale-90 transition">
+          <span id="music-icon" class="text-xs">🎵</span>
+        </button>
+      </div>
     </div>
   </header>
 
   <main class="max-w-md mx-auto p-4 space-y-4">
-    <!-- 主導覽分頁列 (4欄等寬、不折行) -->
+    <!-- 主導覽分頁列 (4欄等寬) -->
     <div class="grid grid-cols-4 bg-slate-200/80 p-1 rounded-2xl shadow-inner text-center gap-1">
       <button id="tab-booking-view" class="py-2 text-xs font-black rounded-xl bg-white text-indigo-600 shadow-sm transition flex flex-col sm:flex-row items-center justify-center gap-0.5">
         <span>📅</span><span>預約</span>
@@ -157,7 +144,7 @@
       </button>
     </div>
 
-    <!-- 教室空間選擇器 (頂部共用) -->
+    <!-- 教室空間選擇器 -->
     <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200">
       <div class="flex justify-between items-center mb-1">
         <label class="block text-xs font-bold text-slate-400">目前選擇教室空間</label>
@@ -168,7 +155,7 @@
       </select>
     </div>
 
-    <!-- ===== 分頁 1：預約空間一覽 (優雅雙欄網格) ===== -->
+    <!-- ===== 分頁 1：預約空間一覽 ===== -->
     <div id="booking-section" class="space-y-3.5">
       <!-- 日曆選擇器 + 週分頁 -->
       <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
@@ -211,7 +198,7 @@
       </div>
     </div>
 
-    <!-- ===== 分頁 2：固定團體班 (無重複教室名、右側頭像、點擊看簡介) ===== -->
+    <!-- ===== 分頁 2：固定團體班 ===== -->
     <div id="schedule-section" class="space-y-3 hidden">
       <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center">
         <div>
@@ -225,10 +212,9 @@
       </div>
     </div>
 
-    <!-- ===== 分頁 3：個人預約紀錄 (多維度排序、時間篩選、俐落卡片) ===== -->
+    <!-- ===== 分頁 3：個人預約紀錄 ===== -->
     <div id="records-section" class="space-y-3 hidden">
       <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
-        <!-- 狀態標籤 -->
         <div class="flex items-center justify-between gap-2">
           <div class="flex gap-1.5 flex-1">
             <button onclick="filterRecordsStatus('ALL')" id="filter-rec-all" class="flex-1 py-1 text-xs font-bold rounded-lg bg-indigo-600 text-white">全部</button>
@@ -238,11 +224,10 @@
           <button id="refresh-records-btn" class="text-xs text-indigo-600 font-bold bg-indigo-50 px-2.5 py-1 rounded-lg">🔄</button>
         </div>
 
-        <!-- 排序與時間區間 -->
         <div class="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs">
           <div class="flex items-center gap-1 text-slate-500 font-bold">
             <span>排序：</span>
-            <select id="records-sort-select" onchange="handleRecordsSortChange(this.value)" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-slate-700 outline-none font-bold">
+            <select id="records-sort-select" onchange="handleRecordsSortChange(this.value)" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-slate-700 outline-none">
               <option value="NEWEST">最新日期優先</option>
               <option value="OLDEST">最舊日期優先</option>
             </select>
@@ -256,7 +241,6 @@
           </div>
         </div>
 
-        <!-- 自訂區間面板 -->
         <div id="records-custom-date-box" class="pt-2 border-t border-dashed border-slate-200 hidden flex items-center gap-2 text-xs">
           <input type="date" id="rec-date-start" class="flex-1 bg-slate-50 border border-slate-200 rounded-lg p-1.5 text-slate-700 font-eng-serif">
           <span class="text-slate-400">至</span>
@@ -270,7 +254,7 @@
       </div>
     </div>
 
-    <!-- ===== 分頁 4：管理後台 (多維度排序、時間篩選、預設待審核) ===== -->
+    <!-- ===== 分頁 4：管理後台 ===== -->
     <div id="admin-section" class="space-y-3 hidden">
       <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
         <div class="flex items-center justify-between gap-2">
@@ -291,7 +275,7 @@
         <div class="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs">
           <div class="flex items-center gap-1 text-slate-500 font-bold">
             <span>排序：</span>
-            <select id="admin-sort-select" onchange="handleAdminSortChange(this.value)" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-slate-700 outline-none font-bold">
+            <select id="admin-sort-select" onchange="handleAdminSortChange(this.value)" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-slate-700 outline-none">
               <option value="NEWEST">最新預約優先</option>
               <option value="OLDEST">最舊預約優先</option>
             </select>
@@ -704,7 +688,7 @@
       return (h || 0) * 60 + (m || 0);
     }
 
-    // 2 欄 Grid 卡片展示 (預約日曆保持「🔒 固定課」，不對外公開名稱)
+    // 2 欄 Grid 卡片展示
     function renderAvailableSlots(bookings, recurrings) {
       const container = document.getElementById('slot-container');
       container.innerHTML = '';
@@ -1003,40 +987,40 @@
       document.getElementById('booking-modal').classList.remove('hidden');
     }
 
-    // 核心新制計費邏輯 (2026/11/15 前為試營運，11/16 起按連續時長階梯計費)
+    // ⭐ 支援 11/15 新舊制切換之連續時長計費計算
     function calculateIntervalPrice(hours, isGroup, isNewRate) {
       if (!isNewRate) {
-        // 試營運優惠 (2026/11/15 含以前)
+        // 舊制試營運優惠 (2026/11/15 含以前)
         const ratePerHour = isGroup ? 450 : 350;
         return hours * ratePerHour;
       }
 
-      // 正式新制收費 (2026/11/16 起)
+      // 新制收費 (2026/11/16 起)
       if (isGroup) {
         // 團體 / 包場方案
         if (hours >= 3) {
           return hours * 450;
         } else if (hours === 2.5) {
-          return 1200; // 2.5 小時 1200元
+          return 1200; // 平滑定價
         } else if (hours === 2.0) {
-          return 1000; // 2.0 小時 1000元
+          return 1000;
         } else if (hours === 1.5) {
-          return 825;  // 1.5 小時 825元
+          return 825;
         } else {
-          return 550;  // 1.0 小時 550元
+          return 550; // 1.0 小時
         }
       } else {
         // 個人方案 (4人含以下)
         if (hours >= 3) {
           return hours * 350;
         } else if (hours === 2.5) {
-          return 950;  // 2.5 小時 950元
+          return 950;
         } else if (hours === 2.0) {
-          return 750;  // 2.0 小時 750元
+          return 750;
         } else if (hours === 1.5) {
-          return 600;  // 1.5 小時 600元
+          return 600;
         } else {
-          return 400;  // 1.0 小時 400元
+          return 400; // 1.0 小時
         }
       }
     }
@@ -1046,7 +1030,7 @@
       const type = document.querySelector('input[name="booking-type"]:checked').value;
       const isGroup = (type.indexOf('團體') !== -1 || type.indexOf('包場') !== -1);
 
-      // 判斷是否大於 2026-11-15 (11/16 起算新制)
+      // 以預約使用日期為基準：大於 2026-11-15 採用新制
       const isNewRate = (selectedDate > '2026-11-15');
 
       let totalPrice = 0;
@@ -1112,7 +1096,7 @@
       }
     }
 
-    // 固定團體班：加入 1:1 圓形頭像與點擊查看介紹
+    // ⭐ 固定團體班：加入 1:1 圓形頭像與點擊彈出課程介紹
     async function loadWeeklySchedule() {
       const container = document.getElementById('weekly-schedule-container');
       container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">正在載入公開團課清單...</p>';
@@ -1140,25 +1124,25 @@
           if (courses.length > 0) {
             hasAnyCourse = true;
             const card = document.createElement('div');
-            card.className = 'bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm space-y-2';
+            card.className = 'bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-2';
             
             const listWrapper = document.createElement('div');
             listWrapper.className = 'space-y-1.5 pt-1';
 
             courses.forEach(c => {
               const row = document.createElement('div');
-              row.className = 'flex items-center justify-between p-2.5 rounded-xl bg-purple-50/70 border border-purple-100 hover:border-purple-300 hover:bg-purple-50 cursor-pointer active:scale-[0.99] transition';
+              row.className = 'flex items-center justify-between p-2 rounded-xl bg-purple-50/70 border border-purple-100 hover:border-purple-300 hover:bg-purple-50 cursor-pointer active:scale-[0.99] transition';
               
               const avatarSrc = c.teacher_img || 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=120&h=120&q=80';
 
               row.innerHTML = `
                 <div class="space-y-0.5">
                   <span class="font-black text-purple-900 text-xs block">${c.title}</span>
-                  <span class="font-eng-serif font-bold text-purple-700 bg-white px-2 py-0.5 rounded-md border border-purple-200 text-[11px] inline-block">${c.start_time} - ${c.end_time}</span>
+                  <span class="font-eng-serif font-bold text-purple-700 bg-white px-2 py-0.5 rounded-md border border-purple-200 text-[10px] inline-block">${c.start_time} - ${c.end_time}</span>
                 </div>
                 <div class="flex items-center gap-2">
-                  <span class="text-[10px] text-purple-500 font-bold bg-purple-100/60 px-1.5 py-0.5 rounded">詳情 ▸</span>
-                  <img src="${avatarSrc}" onerror="this.onerror=null; this.src='https://placehold.co/100x100/purple/white?text=Dance';" class="w-9 h-9 rounded-full object-cover border border-purple-200 shadow-2xs">
+                  <span class="text-[9.5px] text-purple-500 font-bold bg-purple-100/60 px-1.5 py-0.5 rounded">詳情 ▸</span>
+                  <img src="${avatarSrc}" onerror="this.onerror=null; this.src='https://placehold.co/100x100/purple/white?text=Dance';" class="w-8 h-8 rounded-full object-cover border border-purple-200 shadow-2xs">
                 </div>
               `;
 
@@ -1168,8 +1152,8 @@
 
             card.innerHTML = `
               <div class="flex items-center gap-2 border-b border-slate-100 pb-1.5">
-                <span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-indigo-600 text-white">${d.label}</span>
-                <span class="text-xs text-slate-400 font-medium">共 ${courses.length} 堂公開課程</span>
+                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-600 text-white">${d.label}</span>
+                <span class="text-[11px] text-slate-400 font-medium">共 ${courses.length} 堂公開課程</span>
               </div>
             `;
             card.appendChild(listWrapper);
@@ -1181,7 +1165,7 @@
           container.innerHTML = `
             <div class="text-center py-10 bg-white rounded-2xl border border-dashed border-slate-200 text-slate-400 text-xs space-y-1">
               <p class="font-bold">目前尚無常態公開團體班</p>
-              <p class="text-[11px] text-slate-400">時段皆開放租借預約</p>
+              <p class="text-[10px] text-slate-400">時段皆開放租借預約</p>
             </div>
           `;
         }
@@ -1203,7 +1187,7 @@
       document.getElementById('course-detail-modal').classList.remove('hidden');
     }
 
-    // 個人紀錄：多維度排序、時間篩選、去除重複冗餘字
+    // ⭐ 個人紀錄：多維度排序、時間篩選、去除重複冗餘字
     async function loadMyRecords() {
       const container = document.getElementById('records-container');
       container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">載入紀錄中...</p>';
@@ -1246,9 +1230,9 @@
       ['all', '7d', '30d', 'custom'].forEach(r => {
         const btn = document.getElementById(`btn-rec-range-${r}`);
         if (r === range.toLowerCase()) {
-          btn.className = 'px-2 py-1 rounded-lg font-bold text-[11px] bg-indigo-50 text-indigo-600';
+          btn.className = 'px-2 py-0.5 rounded-lg font-bold text-[10px] bg-indigo-50 text-indigo-600';
         } else {
-          btn.className = 'px-2 py-1 rounded-lg font-bold text-[11px] bg-slate-100 text-slate-600';
+          btn.className = 'px-2 py-0.5 rounded-lg font-bold text-[10px] bg-slate-100 text-slate-600';
         }
       });
 
@@ -1314,11 +1298,11 @@
 
       container.innerHTML = '';
       filtered.forEach(r => {
-        let badgeHtml = '<span class="text-[11px] px-2 py-0.5 bg-amber-100 text-amber-800 rounded-md font-bold">⏳ 審核中</span>';
+        let badgeHtml = '<span class="text-[10px] px-2 py-0.5 bg-amber-100 text-amber-800 rounded-md font-bold">⏳ 審核中</span>';
         if (r.status === '申請成功') {
-          badgeHtml = '<span class="text-[11px] px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-md font-bold">✓ 核准</span>';
+          badgeHtml = '<span class="text-[10px] px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-md font-bold">✓ 核准</span>';
         } else if (r.status === '未付款請重新申請') {
-          badgeHtml = '<span class="text-[11px] px-2 py-0.5 bg-rose-100 text-rose-700 rounded-md font-bold">✕ 退件</span>';
+          badgeHtml = '<span class="text-[10px] px-2 py-0.5 bg-rose-100 text-rose-700 rounded-md font-bold">✕ 退件</span>';
         }
 
         const cleanRoomName = String(r.room_name).replace(/（.*?）|\(.*?\)/g, '').trim();
@@ -1329,8 +1313,8 @@
         card.innerHTML = `
           <div class="flex justify-between items-center">
             <div class="flex items-center gap-1.5">
-              <span class="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">${r.booking_type || '個人練習'}</span>
-              <span class="text-[11px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">${cleanRoomName}</span>
+              <span class="text-[9.5px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">${r.booking_type || '個人練習'}</span>
+              <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">${cleanRoomName}</span>
             </div>
             ${badgeHtml}
           </div>
@@ -1338,13 +1322,13 @@
             <span class="font-bold text-slate-800 font-eng-serif">📅 ${r.booking_date}</span>
             <span class="font-black text-indigo-600 font-eng-serif text-sm">${r.start_time} - ${r.end_time}</span>
           </div>
-          ${!isDuplicatePurpose ? `<p class="text-[11px] text-slate-400 truncate pt-0.5 font-sans">備註：${r.purpose}</p>` : ''}
+          ${!isDuplicatePurpose ? `<p class="text-[10px] text-slate-400 truncate pt-0.5 font-sans">備註：${r.purpose}</p>` : ''}
         `;
         container.appendChild(card);
       });
     }
 
-    // 管理後台：多維度排序、時間篩選、俐落卡片
+    // ⭐ 管理後台：多維度排序、時間篩選、俐落卡片
     async function loadAdminBookings() {
       const container = document.getElementById('admin-bookings-container');
       container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">正在載入審核名單...</p>';
@@ -1391,9 +1375,9 @@
       ['all', '7d', '30d', 'custom'].forEach(r => {
         const btn = document.getElementById(`btn-admin-range-${r}`);
         if (r === range.toLowerCase()) {
-          btn.className = 'px-2 py-1 rounded-lg font-bold text-[11px] bg-indigo-50 text-indigo-600';
+          btn.className = 'px-2 py-0.5 rounded-lg font-bold text-[10px] bg-indigo-50 text-indigo-600';
         } else {
-          btn.className = 'px-2 py-1 rounded-lg font-bold text-[11px] bg-slate-100 text-slate-600';
+          btn.className = 'px-2 py-0.5 rounded-lg font-bold text-[10px] bg-slate-100 text-slate-600';
         }
       });
 
@@ -1460,9 +1444,9 @@
       container.innerHTML = '';
       filtered.forEach(item => {
         const isPending = (item.status === '審核中');
-        let badgeHtml = '<span class="text-[11px] px-2 py-0.5 rounded-md font-bold bg-amber-100 text-amber-800">⏳ 待審核</span>';
-        if (item.status === '申請成功') badgeHtml = '<span class="text-[11px] px-2 py-0.5 rounded-md font-bold bg-emerald-100 text-emerald-700">✓ 已核准</span>';
-        if (item.status === '未付款請重新申請') badgeHtml = '<span class="text-[11px] px-2 py-0.5 rounded-md font-bold bg-rose-100 text-rose-700">✕ 已退件</span>';
+        let badgeHtml = '<span class="text-[10px] px-2 py-0.5 rounded-md font-bold bg-amber-100 text-amber-800">⏳ 待審核</span>';
+        if (item.status === '申請成功') badgeHtml = '<span class="text-[10px] px-2 py-0.5 rounded-md font-bold bg-emerald-100 text-emerald-700">✓ 已核准</span>';
+        if (item.status === '未付款請重新申請') badgeHtml = '<span class="text-[10px] px-2 py-0.5 rounded-md font-bold bg-rose-100 text-rose-700">✕ 已退件</span>';
 
         const cleanRoomName = String(item.room_name).replace(/（.*?）|\(.*?\)/g, '').trim();
         const isDuplicatePurpose = (!item.purpose || item.purpose === item.booking_type || item.purpose === '個人練習' || item.purpose === '團體/開課包場');
@@ -1487,8 +1471,8 @@
         card.innerHTML = `
           <div class="flex justify-between items-center">
             <div class="flex items-center gap-1.5">
-              <span class="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">${item.booking_type}</span>
-              <h3 class="font-black text-slate-800 text-xs">${item.user_name} <a href="tel:${item.phone}" class="text-[11px] text-indigo-500 font-normal">📞</a></h3>
+              <span class="text-[9.5px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">${item.booking_type}</span>
+              <h3 class="font-black text-slate-800 text-xs">${item.user_name} <a href="tel:${item.phone}" class="text-[10px] text-indigo-500 font-normal">📞</a></h3>
             </div>
             ${badgeHtml}
           </div>
@@ -1496,7 +1480,7 @@
             <span>📅 ${item.booking_date}</span>
             <span class="font-bold text-indigo-600">${item.start_time} - ${item.end_time}</span>
           </div>
-          <p class="text-[11px] text-slate-500 truncate font-sans">空間：${cleanRoomName} ${!isDuplicatePurpose ? `| 備註：${item.purpose}` : ''}</p>
+          <p class="text-[10px] text-slate-500 truncate font-sans">空間：${cleanRoomName} ${!isDuplicatePurpose ? `| 備註：${item.purpose}` : ''}</p>
           ${actionButtons}
         `;
         container.appendChild(card);
@@ -1569,7 +1553,7 @@
           currentUser.isRegistered = true;
           document.getElementById('user-display').textContent = name;
           document.getElementById('verify-badge').textContent = '已認證';
-          document.getElementById('verify-badge').className = 'block text-[9px] text-emerald-600 font-semibold';
+          document.getElementById('verify-badge').className = 'block text-[8.5px] text-emerald-600 font-semibold';
           alert('實名制登記成功！');
           document.getElementById('profile-modal').classList.add('hidden');
         } else {
@@ -1609,11 +1593,11 @@
         const isSelected = (loopDateStr === selectedDate);
 
         const tab = document.createElement('button');
-        tab.className = `p-2 rounded-xl flex flex-col items-center justify-center transition-all ${
+        tab.className = `p-1.5 rounded-xl flex flex-col items-center justify-center transition-all ${
           isSelected ? 'bg-indigo-600 text-white font-bold shadow-md' : 'bg-slate-50 hover:bg-slate-100 text-slate-700'
         }`;
         tab.innerHTML = `
-          <span class="text-[11px] font-medium">週${dayLabels[i]}</span>
+          <span class="text-[10px] font-medium">週${dayLabels[i]}</span>
           <span class="text-xs mt-0.5 font-bold font-eng-serif">${loopDate.getDate()}</span>
         `;
         tab.onclick = () => {
@@ -1647,7 +1631,7 @@
         fetchAndRenderSlots();
       });
 
-      // 清除多選 (連動外觀還原)
+      // 清除多選
       document.getElementById('clear-selected-btn').addEventListener('click', () => {
         selectedSlotStarts.clear();
         fetchAndRenderSlots();
@@ -1657,7 +1641,7 @@
       // 點擊底部多選預約按鈕
       document.getElementById('open-multi-booking-modal-btn').addEventListener('click', openBookingModalWithSelection);
 
-      // 分頁切換 (含固定團體班)
+      // 分頁切換 (4個分頁平滑切換)
       const navTabs = [
         { id: 'tab-booking-view', section: 'booking-section' },
         { id: 'tab-schedule-view', section: 'schedule-section', onLoad: loadWeeklySchedule },
