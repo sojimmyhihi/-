@@ -90,36 +90,44 @@
     </div>
   </div>
 
-  <!-- ⭐ 3. 主介面 Header (寬度佔畫面一半約 50%，右側按鈕水平排列，零遮擋) -->
-  <header class="marble-bg text-slate-800 pt-4 pb-4 px-4 shadow-sm rounded-b-3xl border-b border-slate-300/80 relative overflow-hidden">
+  <!-- ⭐ 3. 主介面 Header (已放入 header-logo.png，寬度約佔 50%，右側並排零遮擋) -->
+  <header class="marble-bg text-slate-800 pt-3.5 pb-3.5 px-4 shadow-sm rounded-b-3xl border-b border-slate-300/80 relative overflow-hidden">
     <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200"></div>
 
     <div class="max-w-md mx-auto flex items-center justify-between gap-2">
-      <!-- 左側：寬度達到畫面一半 (佔約 52%)，文字/Logo 清楚大氣 -->
-      <div class="w-[52%] shrink-0">
-        <div class="flex items-center gap-1.5">
-          <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.7)] shrink-0"></span>
-          <h1 class="text-base sm:text-lg font-black tracking-tight text-slate-900 font-eng-serif leading-none truncate">
-            The Dance House <span class="text-xs text-amber-800 font-normal">Tainan</span>
-          </h1>
+      <!-- 左側：綠點 + 寬度約佔畫面一半的 header-logo.png -->
+      <div class="flex items-center gap-2 min-w-0 max-w-[55%]">
+        <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.7)] shrink-0"></span>
+        
+        <!-- header-logo.png 圖片標籤 (高約 28px~32px，寬度上限 175px，等比完整呈現) -->
+        <img src="header-logo.png" 
+             alt="The Dance House Tainan" 
+             class="h-7 sm:h-8 w-auto max-w-[165px] sm:max-w-[200px] object-contain object-left shrink-0"
+             onerror="this.style.display='none'; document.getElementById('fallback-logo-text').classList.remove('hidden');">
+
+        <!-- 備援純文字 (當圖片載入成功時會自動隱藏) -->
+        <div id="fallback-logo-text" class="hidden">
+          <div class="text-sm font-black tracking-tight text-slate-900 font-eng-serif leading-none whitespace-nowrap">
+            TheDanceHouse <span class="text-xs text-amber-800 font-normal">Tainan</span>
+          </div>
+          <p class="text-[9px] text-slate-500 font-bold tracking-[0.1em] uppercase whitespace-nowrap mt-0.5">
+            舞的店 · 空間租借與課表
+          </p>
         </div>
-        <p class="text-[9.5px] text-slate-500 font-bold tracking-[0.12em] uppercase truncate mt-1 pl-3.5">
-          舞的店 · 空間租借與課表
-        </p>
       </div>
 
-      <!-- 右側群組：個人認證按鈕 + 音樂控制鈕 (水平緊湊排列，絕不漂浮遮擋) -->
-      <div class="flex items-center gap-2 shrink-0">
+      <!-- 右側群組：會員認證按鈕 + 音樂控制鈕 (水平緊湊排列，絕不漂浮遮擋) -->
+      <div class="flex items-center gap-1.5 shrink-0">
         <!-- 會員認證按鈕 -->
         <button id="open-profile-btn" class="flex items-center gap-1.5 bg-white/95 backdrop-blur-md px-2.5 py-1.5 rounded-full border border-slate-300 shadow-xs active:scale-95 transition">
           <img id="user-avatar" src="https://via.placeholder.com/28" class="w-5 h-5 rounded-full object-cover hidden border border-slate-200">
           <div class="text-left">
-            <span id="user-display" class="block text-xs font-bold text-slate-800 max-w-[58px] truncate leading-tight">訪客</span>
+            <span id="user-display" class="block text-xs font-bold text-slate-800 max-w-[56px] truncate leading-tight">訪客</span>
             <span id="verify-badge" class="block text-[8.5px] text-amber-600 font-semibold leading-none">未認證</span>
           </div>
         </button>
 
-        <!-- 音樂切換鈕 (緊跟在個人大頭貼右側) -->
+        <!-- 音樂切換鈕 (緊貼在會員按鈕右側) -->
         <button id="toggle-music-btn" title="音樂開關" class="w-8 h-8 rounded-full bg-white/95 backdrop-blur-md shadow-xs border border-slate-200 flex items-center justify-center text-slate-600 hover:text-amber-600 active:scale-90 transition">
           <span id="music-icon" class="text-xs">🎵</span>
         </button>
@@ -688,7 +696,7 @@
       return (h || 0) * 60 + (m || 0);
     }
 
-    // 2 欄 Grid 卡片展示
+    // 2 欄 Grid 卡片展示 (預約日曆保持「🔒 固定課」，不對外公開名稱)
     function renderAvailableSlots(bookings, recurrings) {
       const container = document.getElementById('slot-container');
       container.innerHTML = '';
@@ -1124,7 +1132,7 @@
           if (courses.length > 0) {
             hasAnyCourse = true;
             const card = document.createElement('div');
-            card.className = 'bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-2';
+            card.className = 'bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm space-y-2';
             
             const listWrapper = document.createElement('div');
             listWrapper.className = 'space-y-1.5 pt-1';
@@ -1631,7 +1639,7 @@
         fetchAndRenderSlots();
       });
 
-      // 清除多選
+      // 清除多選 (連動外觀還原)
       document.getElementById('clear-selected-btn').addEventListener('click', () => {
         selectedSlotStarts.clear();
         fetchAndRenderSlots();
