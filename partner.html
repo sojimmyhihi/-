@@ -66,27 +66,31 @@
   <!-- 改用同目錄 GitHub 本地音訊，徹底解決 LINE 跨網域阻擋問題 -->
   <audio id="bg-music" loop preload="auto" playsinline webkit-playsinline src="./bg-music.mp3"></audio>
 
-  <!-- 1. 開場優雅大理石封面 -->
+  <!-- 1. 開場全螢幕封面 (奢華香檳金暈影與字體呼吸感升級) -->
   <div id="splash-screen" class="fixed inset-0 z-50 marble-bg flex flex-col justify-between items-center py-16 px-6 fade-transition cursor-pointer select-none">
-    <div class="w-full flex justify-center pt-8">
+    <div class="w-full flex justify-center pt-6">
       <div class="h-0.5 w-12 bg-amber-400/60 tracking-widest"></div>
     </div>
-    <div class="text-center space-y-4">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber-300/60 bg-amber-50/50 backdrop-blur-sm text-[11px] font-medium tracking-[0.25em] text-amber-800 uppercase font-eng-serif">
-        Tainan Dance Studio
+
+    <div class="relative flex flex-col items-center justify-center space-y-4 my-auto">
+      <!-- 圓形 Logo 加上奢華香檳金柔和暈影 -->
+      <div class="relative w-36 h-36 sm:w-44 sm:h-44 rounded-full flex items-center justify-center p-2 shadow-[0_12px_35px_rgba(217,119,6,0.18)] bg-white/90 backdrop-blur-md border border-amber-300/50">
+        <img src="brand-logo.png" alt="TheDanceHouse Tainan" class="w-full h-full object-cover rounded-full">
       </div>
-      <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-wider">
-        TheDanceHouse<br><span class="text-2xl text-amber-900 font-normal">Tainan</span>
-      </h1>
-      <p class="text-xs text-slate-500 font-eng-serif tracking-[0.35em] uppercase">
-        Partnership & Long-Term Rental
-      </p>
-      <div class="pt-2 flex justify-center">
-        <span class="inline-block w-8 h-[1px] bg-slate-300"></span>
+
+      <div class="text-center space-y-2 pt-2">
+        <!-- 藥丸標籤加入微透光與拉開字體間距 -->
+        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-amber-300/60 bg-amber-50/80 backdrop-blur-md text-[10px] font-medium tracking-[0.3em] text-amber-800 uppercase font-eng-serif shadow-xs">
+          Tainan Dance Studio
+        </div>
+        <p class="text-[11px] text-slate-500 font-eng-serif tracking-[0.35em] uppercase">
+          Studio Booking & Group Classes
+        </p>
       </div>
     </div>
-    <div class="text-center space-y-2 pulse-touch pb-6">
-      <p class="text-sm font-bold text-slate-700 tracking-widest">點擊開啟體驗</p>
+
+    <div class="text-center space-y-2 pulse-touch pb-4">
+      <p class="text-sm font-bold text-slate-700 tracking-widest">點擊開始</p>
       <p class="text-[10px] font-eng-serif tracking-[0.3em] uppercase text-slate-400">TOUCH TO START</p>
     </div>
   </div>
