@@ -106,34 +106,35 @@
 
   <!-- 3. 右上角音樂按鈕 -->
   <div class="fixed top-4 right-4 z-30">
-    <button id="toggle-music-btn" title="音樂開關" class="w-9 h-9 rounded-full bg-white/90 backdrop-blur-md shadow-md border border-slate-200 flex items-center justify-center text-slate-600 hover:text-amber-600 active:scale-90 transition">
-      <span id="music-icon" class="text-sm">🎵</span>
+    <button id="toggle-music-btn" title="音樂開關" class="w-8 h-8 rounded-full bg-white/95 backdrop-blur-md shadow-md border border-slate-200 flex items-center justify-center text-slate-600 hover:text-amber-600 active:scale-90 transition">
+      <span id="music-icon" class="text-xs">🎵</span>
     </button>
   </div>
 
-  <!-- 主介面 Header (維持原版容器與格局，僅精巧縮小圖檔大小防止碰撞) -->
-  <header class="marble-bg text-slate-800 pt-5 pb-5 px-5 shadow-sm rounded-b-3xl border-b border-slate-300/80 relative overflow-hidden">
+  <!-- 主介面 Header (⭐ 圖檔縮小為 h-3.5 sm:h-4、寬度上限 105px，右側留足安全距離，徹底杜絕碰撞遮擋) -->
+  <header class="marble-bg text-slate-800 pt-4 pb-4 px-4 shadow-sm rounded-b-3xl border-b border-slate-300/80 relative overflow-hidden">
     <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200"></div>
 
-    <div class="max-w-md mx-auto flex items-center justify-between">
-      <div class="space-y-1">
-        <div class="flex items-center gap-2">
+    <div class="max-w-md mx-auto flex items-center justify-between gap-2 pr-10">
+      <div class="space-y-0.5 min-w-0 flex-1">
+        <div class="flex items-center gap-1.5">
           <!-- 狀態小綠燈 -->
-          <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)] shrink-0"></span>
+          <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.7)] shrink-0"></span>
           
-          <!-- 頂排文字圖檔：調整為精緻緊湊高度 (h-4.5 sm:h-5)，杜絕與右側按鈕衝突 -->
-          <img src="header-logo.png" alt="The Dance House Tainan" class="h-4.5 sm:h-5 w-auto object-contain">
+          <!-- ⭐ 精準縮小圖檔：高度嚴格限制在 14px~16px，最大寬度 105px 等比縮放 -->
+          <img src="header-logo.png" alt="The Dance House Tainan" class="h-3.5 sm:h-4 w-auto max-w-[105px] sm:max-w-[125px] object-contain shrink-0">
         </div>
-        <p class="text-[9px] text-slate-500 font-bold tracking-[0.2em] uppercase pl-4.5">
+        <p class="text-[8px] sm:text-[9px] text-slate-500 font-bold tracking-[0.15em] uppercase pl-3.5 truncate">
           舞的店 · 空間租借與課表
         </p>
       </div>
 
-      <button id="open-profile-btn" class="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-300 shadow-sm active:scale-95 transition">
-        <img id="user-avatar" src="https://via.placeholder.com/28" class="w-6 h-6 rounded-full object-cover hidden border border-slate-200">
+      <!-- 右側身分認證按鈕 (鎖定不壓縮 shrink-0) -->
+      <button id="open-profile-btn" class="flex items-center gap-1.5 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full border border-slate-300 shadow-xs active:scale-95 transition shrink-0">
+        <img id="user-avatar" src="https://via.placeholder.com/28" class="w-5 h-5 rounded-full object-cover hidden border border-slate-200">
         <div class="text-left">
-          <span id="user-display" class="block text-xs font-bold text-slate-800 max-w-[85px] truncate">訪客</span>
-          <span id="verify-badge" class="block text-[9px] text-amber-600 font-semibold">未認證</span>
+          <span id="user-display" class="block text-[11px] font-bold text-slate-800 max-w-[65px] truncate leading-tight">訪客</span>
+          <span id="verify-badge" class="block text-[8px] text-amber-600 font-semibold leading-none">未認證</span>
         </div>
       </button>
     </div>
@@ -176,7 +177,7 @@
           
           <div class="relative cursor-pointer flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-50/70 border border-amber-200 text-amber-900 hover:bg-amber-100/80 transition">
             <span class="text-xs">📅</span>
-            <span id="date-picker-display" class="text-xs font-black font-eng-serif">2026-10-18</span>
+            <span id="date-picker-display" class="text-xs font-black font-eng-serif">2026-10-19</span>
             <input type="date" id="date-picker-input" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
           </div>
 
@@ -703,7 +704,7 @@
       return (h || 0) * 60 + (m || 0);
     }
 
-    // 2 欄 Grid 卡片展示 (預約日曆保持「🔒 固定課」，不對外公開細節名稱)
+    // 2 欄 Grid 卡片展示 (預約日曆保持「🔒 固定課」，不對外公開名稱)
     function renderAvailableSlots(bookings, recurrings) {
       const container = document.getElementById('slot-container');
       container.innerHTML = '';
