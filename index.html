@@ -95,17 +95,27 @@
     </div>
   </div>
 
-  <!-- 3. 主介面 Header (頂標下方的金色漸層分隔線加粗並帶微光流動感) -->
-  <header class="marble-bg text-slate-800 pt-3.5 pb-3.5 px-4 shadow-sm rounded-b-3xl border-b border-slate-300/80 relative overflow-hidden">
-    <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-200 via-amber-500 to-amber-200 shadow-[0_1px_4px_rgba(217,119,6,0.3)]"></div>
+  <!-- 3. 主介面 Header (左側：上方 Logo，下方副標文字；右側按鈕水平並排) -->
+  <header class="marble-bg text-slate-800 pt-3 pb-3 px-4 shadow-sm rounded-b-3xl border-b border-slate-300/80 relative overflow-hidden">
+    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200"></div>
 
     <div class="max-w-md mx-auto flex items-center justify-between gap-2">
-      <div class="flex items-center gap-2 min-w-0 max-w-[54%]">
-        <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.7)] shrink-0"></span>
-        <img src="header-logo.png" alt="TheDanceHouse Tainan" class="h-7 sm:h-8 w-auto max-w-[170px] object-contain object-left shrink-0">
+      <!-- 左側：上下垂直排版 (上方 Logo，下方副標文字) -->
+      <div class="flex flex-col min-w-0 max-w-[56%] space-y-1">
+        <div class="flex items-center gap-1.5">
+          <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.7)] shrink-0"></span>
+          <!-- 上方 Logo 圖檔 -->
+          <img src="header-logo.png" alt="TheDanceHouse Tainan" class="h-6 sm:h-7 w-auto max-w-[155px] object-contain object-left shrink-0">
+        </div>
+        <!-- 下方：台南舞的店 • 空間租借與課表 -->
+        <p class="text-[9.5px] text-slate-500 font-bold tracking-[0.08em] uppercase truncate pl-3.5 leading-none">
+          台南舞的店 • 空間租借與課表
+        </p>
       </div>
 
+      <!-- 右側群組：會員認證按鈕 + 音樂控制鈕 (水平緊湊並排，絕不遮擋) -->
       <div class="flex items-center gap-1.5 shrink-0">
+        <!-- 會員認證按鈕 -->
         <button id="open-profile-btn" class="flex items-center gap-1.5 bg-white/95 backdrop-blur-md px-2.5 py-1.5 rounded-full border border-slate-300 shadow-xs active:scale-95 transition">
           <img id="user-avatar" src="https://via.placeholder.com/28" class="w-5 h-5 rounded-full object-cover hidden border border-slate-200">
           <div class="text-left">
@@ -114,6 +124,7 @@
           </div>
         </button>
 
+        <!-- 音樂切換鈕 -->
         <button id="toggle-music-btn" title="音樂開關" class="w-8 h-8 rounded-full bg-white/95 backdrop-blur-md shadow-xs border border-slate-200 flex items-center justify-center text-slate-600 hover:text-amber-600 active:scale-90 transition">
           <span id="music-icon" class="text-xs">🎵</span>
         </button>
