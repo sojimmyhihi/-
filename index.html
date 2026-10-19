@@ -123,7 +123,7 @@
   </header>
 
   <main class="max-w-md mx-auto p-4 space-y-4">
-    <!-- 主導覽分頁列 (4欄等寬) -->
+    <!-- 主導覽分頁列 (4欄等寬、不折行) -->
     <div class="grid grid-cols-4 bg-slate-200/80 p-1 rounded-2xl shadow-inner text-center gap-1">
       <button id="tab-booking-view" class="py-2 text-xs font-black rounded-xl bg-white text-indigo-600 shadow-sm transition flex flex-col sm:flex-row items-center justify-center gap-0.5">
         <span>📅</span><span>預約</span>
@@ -150,7 +150,7 @@
       </select>
     </div>
 
-    <!-- ===== 分頁 1：預約空間一覽 ===== -->
+    <!-- ===== 分頁 1：預約空間一覽 (優雅雙欄網格) ===== -->
     <div id="booking-section" class="space-y-3.5">
       <!-- 日曆選擇器 + 週分頁 -->
       <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
@@ -193,7 +193,7 @@
       </div>
     </div>
 
-    <!-- ===== 分頁 2：固定團體班 (已優化：去除重複教室、右側老師大頭照、點擊查看介紹) ===== -->
+    <!-- ===== 分頁 2：固定團體班 (無重複教室名、右側頭像、點擊看簡介) ===== -->
     <div id="schedule-section" class="space-y-3 hidden">
       <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center">
         <div>
@@ -207,9 +207,10 @@
       </div>
     </div>
 
-    <!-- ===== 分頁 3：個人預約紀錄 ===== -->
+    <!-- ===== 分頁 3：個人預約紀錄 (多維度排序、時間篩選、俐落卡片) ===== -->
     <div id="records-section" class="space-y-3 hidden">
       <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
+        <!-- 狀態標籤 -->
         <div class="flex items-center justify-between gap-2">
           <div class="flex gap-1.5 flex-1">
             <button onclick="filterRecordsStatus('ALL')" id="filter-rec-all" class="flex-1 py-1 text-xs font-bold rounded-lg bg-indigo-600 text-white">全部</button>
@@ -219,10 +220,11 @@
           <button id="refresh-records-btn" class="text-xs text-indigo-600 font-bold bg-indigo-50 px-2.5 py-1 rounded-lg">🔄</button>
         </div>
 
+        <!-- 排序與時間區間 -->
         <div class="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs">
           <div class="flex items-center gap-1 text-slate-500 font-bold">
             <span>排序：</span>
-            <select id="records-sort-select" onchange="handleRecordsSortChange(this.value)" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-slate-700 outline-none">
+            <select id="records-sort-select" onchange="handleRecordsSortChange(this.value)" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-slate-700 outline-none font-bold">
               <option value="NEWEST">最新日期優先</option>
               <option value="OLDEST">最舊日期優先</option>
             </select>
@@ -236,6 +238,7 @@
           </div>
         </div>
 
+        <!-- 自訂區間面板 -->
         <div id="records-custom-date-box" class="pt-2 border-t border-dashed border-slate-200 hidden flex items-center gap-2 text-xs">
           <input type="date" id="rec-date-start" class="flex-1 bg-slate-50 border border-slate-200 rounded-lg p-1.5 text-slate-700 font-eng-serif">
           <span class="text-slate-400">至</span>
@@ -249,7 +252,7 @@
       </div>
     </div>
 
-    <!-- ===== 分頁 4：管理後台 ===== -->
+    <!-- ===== 分頁 4：管理後台 (多維度排序、時間篩選、預設待審核) ===== -->
     <div id="admin-section" class="space-y-3 hidden">
       <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
         <div class="flex items-center justify-between gap-2">
@@ -270,7 +273,7 @@
         <div class="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs">
           <div class="flex items-center gap-1 text-slate-500 font-bold">
             <span>排序：</span>
-            <select id="admin-sort-select" onchange="handleAdminSortChange(this.value)" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-slate-700 outline-none">
+            <select id="admin-sort-select" onchange="handleAdminSortChange(this.value)" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-slate-700 outline-none font-bold">
               <option value="NEWEST">最新預約優先</option>
               <option value="OLDEST">最舊預約優先</option>
             </select>
@@ -422,9 +425,6 @@
   <script>
     const LIFF_ID = '2011761541-hL5HCl1Q'; 
     const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbyV6fcIFzpwv5uUGWCb1GPcNrE7s6ETXmS7I-R6RUhiSBdhqRlSUoVomtzyFefSo7bDEg/exec';
-
-    const RATE_HALF_HOUR_INDIVIDUAL = 175;
-    const RATE_HALF_HOUR_GROUP = 225;
 
     const localScheduleCache = {};
 
@@ -686,7 +686,7 @@
       return (h || 0) * 60 + (m || 0);
     }
 
-    // 2 欄 Grid 卡片展示 (預約日曆保持「🔒 固定課」，不對外公開名稱)
+    // 2 欄 Grid 卡片展示 (預約日曆保持「🔒 固定課」，不對外公開細節名稱)
     function renderAvailableSlots(bookings, recurrings) {
       const container = document.getElementById('slot-container');
       container.innerHTML = '';
@@ -985,13 +985,58 @@
       document.getElementById('booking-modal').classList.remove('hidden');
     }
 
+    // ⭐ 核心新制計費邏輯 (2026/11/15 前為試營運，11/16 起按連續時長階梯計費)
+    function calculateIntervalPrice(hours, isGroup, isNewRate) {
+      if (!isNewRate) {
+        // 試營運優惠 (2026/11/15 含以前)
+        const ratePerHour = isGroup ? 450 : 350;
+        return hours * ratePerHour;
+      }
+
+      // 正式新制收費 (2026/11/16 起)
+      if (isGroup) {
+        // 團體 / 包場方案
+        if (hours >= 3) {
+          return hours * 450;
+        } else if (hours === 2.5) {
+          return 1200; // 2.5 小時 1200元
+        } else if (hours === 2.0) {
+          return 1000; // 2.0 小時 1000元
+        } else if (hours === 1.5) {
+          return 825;  // 1.5 小時 825元
+        } else {
+          return 550;  // 1.0 小時 550元
+        }
+      } else {
+        // 個人方案 (4人含以下)
+        if (hours >= 3) {
+          return hours * 350;
+        } else if (hours === 2.5) {
+          return 950;  // 2.5 小時 950元
+        } else if (hours === 2.0) {
+          return 750;  // 2.0 小時 750元
+        } else if (hours === 1.5) {
+          return 600;  // 1.5 小時 600元
+        } else {
+          return 400;  // 1.0 小時 400元
+        }
+      }
+    }
+
     function updateModalPrice() {
       if (!verifiedBookingData) return;
       const type = document.querySelector('input[name="booking-type"]:checked').value;
-      const halfHours = verifiedBookingData.totalSlotsCount;
-      const ratePerHalf = (type === '團體/開課包場' || type === '團體包場') ? RATE_HALF_HOUR_GROUP : RATE_HALF_HOUR_INDIVIDUAL;
-      const total = halfHours * ratePerHalf;
-      document.getElementById('modal-price').textContent = `NT$ ${total}`;
+      const isGroup = (type.indexOf('團體') !== -1 || type.indexOf('包場') !== -1);
+
+      // 判斷是否大於 2026-11-15 (11/16 起算新制)
+      const isNewRate = (selectedDate > '2026-11-15');
+
+      let totalPrice = 0;
+      verifiedBookingData.intervals.forEach(interval => {
+        totalPrice += calculateIntervalPrice(interval.hours, isGroup, isNewRate);
+      });
+
+      document.getElementById('modal-price').textContent = `NT$ ${totalPrice}`;
     }
 
     async function submitBooking() {
@@ -1049,12 +1094,9 @@
       }
     }
 
-    // ⭐ 固定團體班：加入 1:1 圓形頭像與點擊彈出課程介紹
+    // ⭐ 固定團體班：加入 1:1 圓形頭像與點擊查看介紹
     async function loadWeeklySchedule() {
       const container = document.getElementById('weekly-schedule-container');
-      const currentRoom = classrooms.find(r => String(r.id) === String(selectedRoomId));
-      const roomName = currentRoom ? currentRoom.name : '當前空間';
-
       container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">正在載入公開團課清單...</p>';
 
       try {
@@ -1089,7 +1131,6 @@
               const row = document.createElement('div');
               row.className = 'flex items-center justify-between p-2.5 rounded-xl bg-purple-50/70 border border-purple-100 hover:border-purple-300 hover:bg-purple-50 cursor-pointer active:scale-[0.99] transition';
               
-              // 老師 1:1 頭像 (若無提供則顯示預設 Icon)
               const avatarSrc = c.teacher_img || 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=120&h=120&q=80';
 
               row.innerHTML = `
@@ -1103,7 +1144,6 @@
                 </div>
               `;
 
-              // 點擊彈出課程介紹
               row.onclick = () => openCourseDetailModal(c);
               listWrapper.appendChild(row);
             });
