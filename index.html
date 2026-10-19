@@ -50,7 +50,7 @@
 
   <!-- 背景鋼琴音樂 -->
   <audio id="bg-music" loop preload="auto">
-    <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=piano-moment-9835.mp3" type="audio/mp3">
+    <source src="bg-music.mp3" type="audio/mp3">
   </audio>
 
   <!-- 1. 開場全螢幕封面 (保持原本設計) -->
@@ -90,33 +90,18 @@
     </div>
   </div>
 
-  <!-- ⭐ 3. 主介面 Header (已放入 header-logo.png，寬度約佔 50%，右側並排零遮擋) -->
+  <!-- ⭐ 3. 主介面 Header (左側使用 header-logo.png，寬度適中不破版，右側按鈕水平並排) -->
   <header class="marble-bg text-slate-800 pt-3.5 pb-3.5 px-4 shadow-sm rounded-b-3xl border-b border-slate-300/80 relative overflow-hidden">
     <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200"></div>
 
     <div class="max-w-md mx-auto flex items-center justify-between gap-2">
-      <!-- 左側：綠點 + 寬度約佔畫面一半的 header-logo.png -->
-      <div class="flex items-center gap-2 min-w-0 max-w-[55%]">
+      <!-- 左側：使用 header-logo.png，寬度設定 max-w-[165px] 剛好佔畫面一半左右，清晰不擠壓[cite: 27] -->
+      <div class="flex items-center gap-2 min-w-0 max-w-[54%]">
         <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.7)] shrink-0"></span>
-        
-        <!-- header-logo.png 圖片標籤 (高約 28px~32px，寬度上限 175px，等比完整呈現) -->
-        <img src="header-logo.png" 
-             alt="The Dance House Tainan" 
-             class="h-7 sm:h-8 w-auto max-w-[165px] sm:max-w-[200px] object-contain object-left shrink-0"
-             onerror="this.style.display='none'; document.getElementById('fallback-logo-text').classList.remove('hidden');">
-
-        <!-- 備援純文字 (當圖片載入成功時會自動隱藏) -->
-        <div id="fallback-logo-text" class="hidden">
-          <div class="text-sm font-black tracking-tight text-slate-900 font-eng-serif leading-none whitespace-nowrap">
-            TheDanceHouse <span class="text-xs text-amber-800 font-normal">Tainan</span>
-          </div>
-          <p class="text-[9px] text-slate-500 font-bold tracking-[0.1em] uppercase whitespace-nowrap mt-0.5">
-            舞的店 · 空間租借與課表
-          </p>
-        </div>
+        <img src="header-logo.png" alt="TheDanceHouse Tainan" class="h-7 sm:h-8 w-auto max-w-[165px] object-contain object-left shrink-0">
       </div>
 
-      <!-- 右側群組：會員認證按鈕 + 音樂控制鈕 (水平緊湊排列，絕不漂浮遮擋) -->
+      <!-- 右側群組：會員認證按鈕 + 音樂控制鈕 (水平緊湊並排，絕不遮擋) -->
       <div class="flex items-center gap-1.5 shrink-0">
         <!-- 會員認證按鈕 -->
         <button id="open-profile-btn" class="flex items-center gap-1.5 bg-white/95 backdrop-blur-md px-2.5 py-1.5 rounded-full border border-slate-300 shadow-xs active:scale-95 transition">
@@ -127,7 +112,7 @@
           </div>
         </button>
 
-        <!-- 音樂切換鈕 (緊貼在會員按鈕右側) -->
+        <!-- 音樂切換鈕 -->
         <button id="toggle-music-btn" title="音樂開關" class="w-8 h-8 rounded-full bg-white/95 backdrop-blur-md shadow-xs border border-slate-200 flex items-center justify-center text-slate-600 hover:text-amber-600 active:scale-90 transition">
           <span id="music-icon" class="text-xs">🎵</span>
         </button>
@@ -696,7 +681,7 @@
       return (h || 0) * 60 + (m || 0);
     }
 
-    // 2 欄 Grid 卡片展示 (預約日曆保持「🔒 固定課」，不對外公開名稱)
+    // 2 欄 Grid 卡片展示
     function renderAvailableSlots(bookings, recurrings) {
       const container = document.getElementById('slot-container');
       container.innerHTML = '';
@@ -995,50 +980,10 @@
       document.getElementById('booking-modal').classList.remove('hidden');
     }
 
-    // ⭐ 支援 11/15 新舊制切換之連續時長計費計算
-    function calculateIntervalPrice(hours, isGroup, isNewRate) {
-      if (!isNewRate) {
-        // 舊制試營運優惠 (2026/11/15 含以前)
-        const ratePerHour = isGroup ? 450 : 350;
-        return hours * ratePerHour;
-      }
-
-      // 新制收費 (2026/11/16 起)
-      if (isGroup) {
-        // 團體 / 包場方案
-        if (hours >= 3) {
-          return hours * 450;
-        } else if (hours === 2.5) {
-          return 1200; // 平滑定價
-        } else if (hours === 2.0) {
-          return 1000;
-        } else if (hours === 1.5) {
-          return 825;
-        } else {
-          return 550; // 1.0 小時
-        }
-      } else {
-        // 個人方案 (4人含以下)
-        if (hours >= 3) {
-          return hours * 350;
-        } else if (hours === 2.5) {
-          return 950;
-        } else if (hours === 2.0) {
-          return 750;
-        } else if (hours === 1.5) {
-          return 600;
-        } else {
-          return 400; // 1.0 小時
-        }
-      }
-    }
-
     function updateModalPrice() {
       if (!verifiedBookingData) return;
       const type = document.querySelector('input[name="booking-type"]:checked').value;
       const isGroup = (type.indexOf('團體') !== -1 || type.indexOf('包場') !== -1);
-
-      // 以預約使用日期為基準：大於 2026-11-15 採用新制
       const isNewRate = (selectedDate > '2026-11-15');
 
       let totalPrice = 0;
@@ -1047,6 +992,27 @@
       });
 
       document.getElementById('modal-price').textContent = `NT$ ${totalPrice}`;
+    }
+
+    function calculateIntervalPrice(hours, isGroup, isNewRate) {
+      if (!isNewRate) {
+        const ratePerHour = isGroup ? 450 : 350;
+        return hours * ratePerHour;
+      }
+
+      if (isGroup) {
+        if (hours >= 3) return hours * 450;
+        if (hours === 2.5) return 1200;
+        if (hours === 2.0) return 1000;
+        if (hours === 1.5) return 825;
+        return 550;
+      } else {
+        if (hours >= 3) return hours * 350;
+        if (hours === 2.5) return 950;
+        if (hours === 2.0) return 750;
+        if (hours === 1.5) return 600;
+        return 400;
+      }
     }
 
     async function submitBooking() {
@@ -1104,7 +1070,6 @@
       }
     }
 
-    // ⭐ 固定團體班：加入 1:1 圓形頭像與點擊彈出課程介紹
     async function loadWeeklySchedule() {
       const container = document.getElementById('weekly-schedule-container');
       container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">正在載入公開團課清單...</p>';
@@ -1195,7 +1160,6 @@
       document.getElementById('course-detail-modal').classList.remove('hidden');
     }
 
-    // ⭐ 個人紀錄：多維度排序、時間篩選、去除重複冗餘字
     async function loadMyRecords() {
       const container = document.getElementById('records-container');
       container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">載入紀錄中...</p>';
@@ -1238,9 +1202,9 @@
       ['all', '7d', '30d', 'custom'].forEach(r => {
         const btn = document.getElementById(`btn-rec-range-${r}`);
         if (r === range.toLowerCase()) {
-          btn.className = 'px-2 py-0.5 rounded-lg font-bold text-[10px] bg-indigo-50 text-indigo-600';
+          btn.className = 'px-2 py-0.5 rounded-lg font-bold text-[11px] bg-indigo-50 text-indigo-600';
         } else {
-          btn.className = 'px-2 py-0.5 rounded-lg font-bold text-[10px] bg-slate-100 text-slate-600';
+          btn.className = 'px-2 py-0.5 rounded-lg font-bold text-[11px] bg-slate-100 text-slate-600';
         }
       });
 
@@ -1273,14 +1237,12 @@
       const container = document.getElementById('records-container');
       let filtered = [...cachedMyRecords];
 
-      // 1. 狀態篩選
       if (currentRecStatus === 'PENDING') {
         filtered = filtered.filter(r => r.status === '審核中');
       } else if (currentRecStatus === 'APPROVED') {
         filtered = filtered.filter(r => r.status === '申請成功');
       }
 
-      // 2. 時間區間篩選
       const now = new Date();
       if (currentRecRange === '7D') {
         const past7 = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -1292,7 +1254,6 @@
         filtered = filtered.filter(r => r.booking_date >= recCustomStart && r.booking_date <= recCustomEnd);
       }
 
-      // 3. 排序 (最新 / 最舊)
       filtered.sort((a, b) => {
         const timeA = new Date(`${a.booking_date}T${a.start_time}:00`).getTime() || 0;
         const timeB = new Date(`${b.booking_date}T${b.start_time}:00`).getTime() || 0;
@@ -1336,7 +1297,6 @@
       });
     }
 
-    // ⭐ 管理後台：多維度排序、時間篩選、俐落卡片
     async function loadAdminBookings() {
       const container = document.getElementById('admin-bookings-container');
       container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">正在載入審核名單...</p>';
@@ -1383,9 +1343,9 @@
       ['all', '7d', '30d', 'custom'].forEach(r => {
         const btn = document.getElementById(`btn-admin-range-${r}`);
         if (r === range.toLowerCase()) {
-          btn.className = 'px-2 py-0.5 rounded-lg font-bold text-[10px] bg-indigo-50 text-indigo-600';
+          btn.className = 'px-2 py-0.5 rounded-lg font-bold text-[11px] bg-indigo-50 text-indigo-600';
         } else {
-          btn.className = 'px-2 py-0.5 rounded-lg font-bold text-[10px] bg-slate-100 text-slate-600';
+          btn.className = 'px-2 py-0.5 rounded-lg font-bold text-[11px] bg-slate-100 text-slate-600';
         }
       });
 
@@ -1418,14 +1378,12 @@
       const container = document.getElementById('admin-bookings-container');
       let filtered = [...cachedAdminList];
 
-      // 1. 狀態篩選
       if (currentAdminStatus === 'PENDING') {
         filtered = filtered.filter(item => item.status === '審核中');
       } else if (currentAdminStatus === 'APPROVED') {
         filtered = filtered.filter(item => item.status === '申請成功');
       }
 
-      // 2. 時間區間篩選
       const now = new Date();
       if (currentAdminRange === '7D') {
         const past7 = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -1437,7 +1395,6 @@
         filtered = filtered.filter(item => item.booking_date >= adminCustomStart && item.booking_date <= adminCustomEnd);
       }
 
-      // 3. 排序 (最新 / 最舊)
       filtered.sort((a, b) => {
         const timeA = new Date(`${a.booking_date}T${a.start_time}:00`).getTime() || 0;
         const timeB = new Date(`${b.booking_date}T${b.start_time}:00`).getTime() || 0;
@@ -1621,7 +1578,6 @@
     }
 
     function bindEvents() {
-      // 課程介紹彈窗關閉按鈕
       document.getElementById('close-course-modal').addEventListener('click', () => {
         document.getElementById('course-detail-modal').classList.add('hidden');
       });
@@ -1629,7 +1585,6 @@
         document.getElementById('course-detail-modal').classList.add('hidden');
       });
 
-      // 日曆連動
       document.getElementById('date-picker-input').addEventListener('change', (e) => {
         if (!e.target.value) return;
         selectedDate = e.target.value;
@@ -1639,17 +1594,14 @@
         fetchAndRenderSlots();
       });
 
-      // 清除多選 (連動外觀還原)
       document.getElementById('clear-selected-btn').addEventListener('click', () => {
         selectedSlotStarts.clear();
         fetchAndRenderSlots();
         updateBottomBar();
       });
 
-      // 點擊底部多選預約按鈕
       document.getElementById('open-multi-booking-modal-btn').addEventListener('click', openBookingModalWithSelection);
 
-      // 分頁切換 (4個分頁平滑切換)
       const navTabs = [
         { id: 'tab-booking-view', section: 'booking-section' },
         { id: 'tab-schedule-view', section: 'schedule-section', onLoad: loadWeeklySchedule },
@@ -1691,7 +1643,6 @@
       });
       document.getElementById('save-profile-btn').addEventListener('click', saveProfile);
       
-      // 教室切換連動：同時刷新預約時段與常態固定課表
       document.getElementById('classroom-select').addEventListener('change', (e) => {
         selectedRoomId = e.target.value;
         fetchAndRenderSlots();
