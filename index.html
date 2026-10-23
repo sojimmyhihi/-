@@ -50,7 +50,7 @@
 
   <!-- 背景鋼琴音樂 -->
   <audio id="bg-music" loop preload="auto">
-    <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=piano-moment-9835.mp3" type="audio/mp3">
+    <source src="bg-music.mp3" type="audio/mp3">
   </audio>
 
   <!-- 1. 開場全螢幕封面 -->
@@ -448,7 +448,7 @@
       }
     }
 
-    // ⭐ 修復點 1：補齊 loadInitialData 抓取與實名制聯動
+    // ⭐ 已修復：恢復實名制聯動與後端資料載入
     async function loadInitialData() {
       const container = document.getElementById('slot-container');
       if (container) {
@@ -463,7 +463,7 @@
         const url = `${GAS_API_URL}?action=getInitialData&date=${selectedDate}&dayOfWeek=${dayOfWeek}&lineUserId=${encodeURIComponent(currentUser.userId)}&roomId=${selectedRoomId || ''}&_t=${t}`;
         const data = await fetchWithRetry(url);
 
-        // 聯動後端回傳的會員實名制資料
+        // 聯結實名制會員資料
         if (data.member && data.member.registered) {
           currentUser.isRegistered = true;
           currentUser.realName = data.member.real_name;
@@ -512,7 +512,7 @@
       }
     }
 
-    // ⭐ 2. 課表清單渲染：右側顯示圓形縮圖
+    // ⭐ 課表清單渲染：右側顯示圓形縮圖
     async function loadWeeklySchedule() {
       const container = document.getElementById('weekly-schedule-container');
       container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">正在載入公開團課清單...</p>';
@@ -592,7 +592,7 @@
       }
     }
 
-    // ⭐ 3. 點開後彈窗載入橫式大圖 banner_img 與詳細說明
+    // ⭐ 點開後彈窗載入橫式大圖 banner_img 與詳細說明
     function openCourseDetailModal(course) {
       const modal = document.getElementById('course-detail-modal');
       if (!modal) return;
