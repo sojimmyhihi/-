@@ -50,7 +50,7 @@
 
   <!-- 背景鋼琴音樂 -->
   <audio id="bg-music" loop preload="auto">
-    <source src="bg-music.mp3" type="audio/mp3">
+    <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=piano-moment-9835.mp3" type="audio/mp3">
   </audio>
 
   <!-- 1. 開場全螢幕封面 -->
@@ -278,9 +278,29 @@
     </div>
   </div>
 
-  <!-- 其他 Modal (實名登記、預約確認等) -->
-  <div id="profile-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden"></div>
-  <div id="booking-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden"></div>
+  <!-- 實名制登記彈窗 -->
+  <div id="profile-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
+      <div class="border-b pb-2">
+        <h3 class="font-bold text-base text-slate-800">實名制身分登記</h3>
+        <p class="text-xs text-slate-500 mt-1">為保障空間使用安全，租借請填寫真實姓名與手機。</p>
+      </div>
+      <div class="space-y-3 text-xs font-bold text-slate-600">
+        <div>
+          <label class="block mb-1">真實姓名 <span class="text-rose-500">*</span></label>
+          <input type="text" id="reg-name" placeholder="請輸入真實姓名" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+        <div>
+          <label class="block mb-1">聯絡手機 <span class="text-rose-500">*</span></label>
+          <input type="tel" id="reg-phone" placeholder="例如：0910076252" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+      </div>
+      <div class="flex gap-2 pt-2">
+        <button id="close-profile-btn" class="flex-1 py-2.5 text-sm rounded-xl bg-slate-100 hover:bg-slate-200 font-bold text-slate-600">暫時關閉</button>
+        <button id="save-profile-btn" class="flex-1 py-2.5 text-sm rounded-xl bg-indigo-600 hover:bg-indigo-700 font-bold text-white shadow-md">儲存認證</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     const LIFF_ID = '2011761541-hL5HCl1Q'; 
@@ -419,9 +439,21 @@
       }
     }
 
+    function updateAdminButtonVisibility() {
+      const btn = document.getElementById('tab-admin-view');
+      if (currentUser.isAdmin === true) {
+        btn.classList.remove('hidden');
+      } else {
+        btn.classList.add('hidden');
+      }
+    }
+
+    // ⭐ 修復點 1：補齊 loadInitialData 抓取與實名制聯動
     async function loadInitialData() {
       const container = document.getElementById('slot-container');
-      container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">正在載入即時空檔...</p>';
+      if (container) {
+        container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">正在載入即時空檔...</p>';
+      }
       
       const dateObj = new Date(selectedDate);
       const dayOfWeek = dateObj.getDay() === 0 ? 7 : dateObj.getDay();
@@ -431,22 +463,41 @@
         const url = `${GAS_API_URL}?action=getInitialData&date=${selectedDate}&dayOfWeek=${dayOfWeek}&lineUserId=${encodeURIComponent(currentUser.userId)}&roomId=${selectedRoomId || ''}&_t=${t}`;
         const data = await fetchWithRetry(url);
 
+        // 聯動後端回傳的會員實名制資料
+        if (data.member && data.member.registered) {
+          currentUser.isRegistered = true;
+          currentUser.realName = data.member.real_name;
+          currentUser.phone = data.member.phone;
+          
+          const userDisplay = document.getElementById('user-display');
+          const verifyBadge = document.getElementById('verify-badge');
+          if (userDisplay) userDisplay.textContent = data.member.real_name;
+          if (verifyBadge) {
+            verifyBadge.textContent = '已認證';
+            verifyBadge.className = 'block text-[8.5px] text-emerald-600 font-semibold';
+          }
+        }
+
+        currentUser.isAdmin = !!(data.member && data.member.is_admin === true);
+        updateAdminButtonVisibility();
+
         if (data.classrooms && data.classrooms.length > 0) {
           classrooms = data.classrooms;
           const select = document.getElementById('classroom-select');
-          select.innerHTML = '';
-          
-          if (!selectedRoomId) {
-            selectedRoomId = String(classrooms[0].id).trim();
-          }
+          if (select) {
+            select.innerHTML = '';
+            if (!selectedRoomId) {
+              selectedRoomId = String(classrooms[0].id).trim();
+            }
 
-          classrooms.forEach(room => {
-            const opt = document.createElement('option');
-            opt.value = room.id;
-            opt.textContent = room.name;
-            if (String(room.id).trim() === String(selectedRoomId).trim()) opt.selected = true;
-            select.appendChild(opt);
-          });
+            classrooms.forEach(room => {
+              const opt = document.createElement('option');
+              opt.value = room.id;
+              opt.textContent = room.name;
+              if (String(room.id).trim() === String(selectedRoomId).trim()) opt.selected = true;
+              select.appendChild(opt);
+            });
+          }
         }
 
         const cacheKey = `${selectedDate}_${selectedRoomId}`;
@@ -454,11 +505,14 @@
 
         renderAvailableSlots(data.bookings || [], data.recurrings || []);
       } catch (e) {
-        container.innerHTML = '<p class="text-center text-red-500 text-xs py-8">載入稍慢，請點選日期重新整理</p>';
+        console.warn('載入初始資料錯誤:', e);
+        if (container) {
+          container.innerHTML = '<p class="text-center text-red-500 text-xs py-8">載入稍慢，請點選日期重新整理</p>';
+        }
       }
     }
 
-    // ⭐ 1. 課表清單渲染：右側顯示圓形縮圖
+    // ⭐ 2. 課表清單渲染：右側顯示圓形縮圖
     async function loadWeeklySchedule() {
       const container = document.getElementById('weekly-schedule-container');
       container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">正在載入公開團課清單...</p>';
@@ -538,7 +592,7 @@
       }
     }
 
-    // ⭐ 2. 點開後彈窗載入橫式大圖 banner_img 與詳細說明
+    // ⭐ 3. 點開後彈窗載入橫式大圖 banner_img 與詳細說明
     function openCourseDetailModal(course) {
       const modal = document.getElementById('course-detail-modal');
       if (!modal) return;
@@ -548,7 +602,6 @@
       document.getElementById('detail-course-desc').textContent = course.description || '本課程提供循序漸進的技巧指導與舞步排練，歡迎聯繫舞室報名體驗！';
       
       const bannerImg = document.getElementById('detail-banner-img');
-      // 優先讀取 banner_img 橫式大圖，若無則回退為 teacher_img
       bannerImg.src = course.banner_img || course.teacher_img || 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=800&q=80';
       bannerImg.onerror = () => { bannerImg.src = 'https://placehold.co/600x400/purple/white?text=Dance+Banner'; };
 
@@ -556,7 +609,6 @@
     }
 
     function bindEvents() {
-      // 彈窗關閉按鈕綁定
       const closeCourseModal = () => {
         document.getElementById('course-detail-modal').classList.add('hidden');
       };
@@ -574,18 +626,19 @@
         });
       }
 
-      // 分頁切換
       const navTabs = [
         { id: 'tab-booking-view', section: 'booking-section' },
         { id: 'tab-schedule-view', section: 'schedule-section', onLoad: loadWeeklySchedule },
-        { id: 'tab-my-records', section: 'records-section' },
-        { id: 'tab-admin-view', section: 'admin-section' }
+        { id: 'tab-my-records', section: 'records-section', onLoad: loadMyRecords },
+        { id: 'tab-admin-view', section: 'admin-section', onLoad: loadAdminBookings }
       ];
 
       navTabs.forEach(tab => {
         const btn = document.getElementById(tab.id);
         if (!btn) return;
         btn.addEventListener('click', () => {
+          if (tab.id === 'tab-admin-view' && !currentUser.isAdmin) return;
+
           navTabs.forEach(t => {
             const b = document.getElementById(t.id);
             const s = document.getElementById(t.section);
@@ -597,9 +650,71 @@
               s.classList.add('hidden');
             }
           });
+          updateAdminButtonVisibility();
           if (tab.onLoad) tab.onLoad();
         });
       });
+
+      document.getElementById('open-profile-btn').addEventListener('click', openProfileModal);
+      document.getElementById('close-profile-btn').addEventListener('click', () => {
+        document.getElementById('profile-modal').classList.add('hidden');
+      });
+      document.getElementById('save-profile-btn').addEventListener('click', saveProfile);
+    }
+
+    function openProfileModal() {
+      document.getElementById('reg-name').value = currentUser.realName || '';
+      document.getElementById('reg-phone').value = currentUser.phone || '';
+      document.getElementById('profile-modal').classList.remove('hidden');
+    }
+
+    async function saveProfile() {
+      const name = document.getElementById('reg-name').value.trim();
+      const phone = document.getElementById('reg-phone').value.trim();
+
+      if (!name || !phone) {
+        alert('請完整輸入真實姓名與手機號碼！');
+        return;
+      }
+
+      const saveBtn = document.getElementById('save-profile-btn');
+      saveBtn.disabled = true;
+      saveBtn.textContent = '認證中...';
+
+      try {
+        const payload = {
+          action: 'registerMember',
+          line_user_id: currentUser.userId,
+          line_name: currentUser.lineName,
+          real_name: name,
+          phone: phone
+        };
+
+        const res = await fetch(GAS_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+
+        if (result.success) {
+          currentUser.realName = name;
+          currentUser.phone = phone;
+          currentUser.isRegistered = true;
+          document.getElementById('user-display').textContent = name;
+          document.getElementById('verify-badge').textContent = '已認證';
+          document.getElementById('verify-badge').className = 'block text-[8.5px] text-emerald-600 font-semibold';
+          alert('實名制登記成功！');
+          document.getElementById('profile-modal').classList.add('hidden');
+        } else {
+          throw new Error(result.error);
+        }
+      } catch (e) {
+        alert('儲存失敗：' + e.message);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = '儲存認證';
+      }
     }
 
     function getMonday(d) {
@@ -617,8 +732,40 @@
     }
 
     function renderWeekdayTabs() {
-      // 保持原本日曆渲染
+      const container = document.getElementById('weekday-tabs');
+      if (!container) return;
+      container.innerHTML = '';
+      const dayLabels = ['一', '二', '三', '四', '五', '六', '日'];
+
+      for (let i = 0; i < 7; i++) {
+        const loopDate = new Date(currentMonday);
+        loopDate.setDate(loopDate.getDate() + i);
+        const loopDateStr = formatDate(loopDate);
+        const isSelected = (loopDateStr === selectedDate);
+
+        const tab = document.createElement('button');
+        tab.className = `p-1.5 rounded-xl flex flex-col items-center justify-center transition-all ${
+          isSelected ? 'bg-indigo-600 text-white font-bold shadow-md' : 'bg-slate-50 hover:bg-slate-100 text-slate-700'
+        }`;
+        tab.innerHTML = `
+          <span class="text-[10px] font-medium">週${dayLabels[i]}</span>
+          <span class="text-xs mt-0.5 font-bold font-eng-serif">${loopDate.getDate()}</span>
+        `;
+        tab.onclick = () => {
+          if (selectedDate === loopDateStr) return;
+          selectedDate = loopDateStr;
+          document.getElementById('date-picker-display').textContent = selectedDate;
+          document.getElementById('date-picker-input').value = selectedDate;
+          renderWeekdayTabs();
+          fetchAndRenderSlots();
+        };
+        container.appendChild(tab);
+      }
     }
+
+    function renderAvailableSlots() {}
+    function loadMyRecords() {}
+    function loadAdminBookings() {}
   </script>
 </body>
 </html>
