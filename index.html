@@ -48,9 +48,9 @@
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen pb-28 antialiased selection:bg-amber-100">
 
-  <!-- 背景鋼琴音樂 -->
+  <!-- 恢復原本指定的背景鋼琴音樂連結 -->
   <audio id="bg-music" loop preload="auto">
-    <source src="bg-music.mp3" type="audio/mp3">
+    <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=piano-moment-9835.mp3" type="audio/mp3">
   </audio>
 
   <!-- 1. 開場全螢幕封面 -->
@@ -216,6 +216,30 @@
           </div>
           <button id="refresh-records-btn" class="text-xs text-indigo-600 font-bold bg-indigo-50 px-2.5 py-1 rounded-lg">🔄</button>
         </div>
+
+        <div class="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div class="flex items-center gap-1 text-slate-500 font-bold">
+            <span>排序：</span>
+            <select id="records-sort-select" onchange="handleRecordsSortChange(this.value)" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-slate-700 outline-none">
+              <option value="NEWEST">最新日期優先</option>
+              <option value="OLDEST">最舊日期優先</option>
+            </select>
+          </div>
+
+          <div class="flex items-center gap-1">
+            <button onclick="filterRecordsRange('ALL')" id="btn-rec-range-all" class="px-2 py-1 rounded-lg font-bold text-[11px] bg-indigo-50 text-indigo-600">全部</button>
+            <button onclick="filterRecordsRange('7D')" id="btn-rec-range-7d" class="px-2 py-1 rounded-lg font-bold text-[11px] bg-slate-100 text-slate-600">一週內</button>
+            <button onclick="filterRecordsRange('30D')" id="btn-rec-range-30d" class="px-2 py-1 rounded-lg font-bold text-[11px] bg-slate-100 text-slate-600">一個月內</button>
+            <button onclick="toggleRecordsCustomDate()" id="btn-rec-range-custom" class="px-2 py-1 rounded-lg font-bold text-[11px] bg-slate-100 text-slate-600">指定區間</button>
+          </div>
+        </div>
+
+        <div id="records-custom-date-box" class="pt-2 border-t border-dashed border-slate-200 hidden flex items-center gap-2 text-xs">
+          <input type="date" id="rec-date-start" class="flex-1 bg-slate-50 border border-slate-200 rounded-lg p-1.5 text-slate-700 font-eng-serif">
+          <span class="text-slate-400">至</span>
+          <input type="date" id="rec-date-end" class="flex-1 bg-slate-50 border border-slate-200 rounded-lg p-1.5 text-slate-700 font-eng-serif">
+          <button onclick="applyRecordsCustomRange()" class="px-3 py-1.5 bg-indigo-600 text-white font-bold rounded-lg text-xs">套用</button>
+        </div>
       </div>
       <div id="records-container" class="space-y-2">
         <p class="text-center text-slate-400 text-xs py-8">正在載入紀錄...</p>
@@ -224,6 +248,46 @@
 
     <!-- ===== 分頁 4：管理後台 ===== -->
     <div id="admin-section" class="space-y-3 hidden">
+      <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex gap-1.5 flex-1">
+            <button onclick="filterAdminStatus('PENDING')" id="filter-admin-pending" class="flex-1 py-1 text-xs font-bold rounded-lg bg-amber-500 text-white shadow-xs">
+              ⏳ 待審核 (<span id="admin-pending-count">0</span>)
+            </button>
+            <button onclick="filterAdminStatus('APPROVED')" id="filter-admin-approved" class="flex-1 py-1 text-xs font-bold rounded-lg bg-slate-100 text-slate-600">
+              ✓ 已核准
+            </button>
+            <button onclick="filterAdminStatus('ALL')" id="filter-admin-all" class="flex-1 py-1 text-xs font-bold rounded-lg bg-slate-100 text-slate-600">
+              全部
+            </button>
+          </div>
+          <button id="refresh-admin-btn" class="text-xs text-indigo-600 font-bold bg-indigo-50 px-2.5 py-1 rounded-lg">🔄</button>
+        </div>
+
+        <div class="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div class="flex items-center gap-1 text-slate-500 font-bold">
+            <span>排序：</span>
+            <select id="admin-sort-select" onchange="handleAdminSortChange(this.value)" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-slate-700 outline-none">
+              <option value="NEWEST">最新預約優先</option>
+              <option value="OLDEST">最舊預約優先</option>
+            </select>
+          </div>
+
+          <div class="flex items-center gap-1">
+            <button onclick="filterAdminRange('ALL')" id="btn-admin-range-all" class="px-2 py-1 rounded-lg font-bold text-[11px] bg-indigo-50 text-indigo-600">全部</button>
+            <button onclick="filterAdminRange('7D')" id="btn-admin-range-7d" class="px-2 py-1 rounded-lg font-bold text-[11px] bg-slate-100 text-slate-600">一週內</button>
+            <button onclick="filterAdminRange('30D')" id="btn-admin-range-30d" class="px-2 py-1 rounded-lg font-bold text-[11px] bg-slate-100 text-slate-600">一個月內</button>
+            <button onclick="toggleAdminCustomDate()" id="btn-admin-range-custom" class="px-2 py-1 rounded-lg font-bold text-[11px] bg-slate-100 text-slate-600">指定區間</button>
+          </div>
+        </div>
+
+        <div id="admin-custom-date-box" class="pt-2 border-t border-dashed border-slate-200 hidden flex items-center gap-2 text-xs">
+          <input type="date" id="admin-date-start" class="flex-1 bg-slate-50 border border-slate-200 rounded-lg p-1.5 text-slate-700 font-eng-serif">
+          <span class="text-slate-400">至</span>
+          <input type="date" id="admin-date-end" class="flex-1 bg-slate-50 border border-slate-200 rounded-lg p-1.5 text-slate-700 font-eng-serif">
+          <button onclick="applyAdminCustomRange()" class="px-3 py-1.5 bg-indigo-600 text-white font-bold rounded-lg text-xs">套用</button>
+        </div>
+      </div>
       <div id="admin-bookings-container" class="space-y-2">
         <p class="text-center text-slate-400 text-xs py-8">正在載入審核名單...</p>
       </div>
@@ -243,34 +307,27 @@
     </div>
   </div>
 
-  <!-- ⭐ 課程介紹彈窗 (支援頂部橫式大圖 banner_img) -->
+  <!-- ⭐ 課程介紹彈窗 -->
   <div id="course-detail-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl max-w-sm w-full overflow-hidden shadow-2xl relative flex flex-col max-h-[90vh]">
-      
-      <!-- 頂部橫式大圖區塊 -->
       <div class="relative w-full h-48 bg-slate-900 shrink-0">
         <img id="detail-banner-img" src="" alt="課程大圖" class="w-full h-full object-cover">
         <button id="close-course-modal" class="absolute top-3 right-3 w-8 h-8 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center text-lg font-bold backdrop-blur-sm transition">&times;</button>
       </div>
-
-      <!-- 內容資訊區塊 -->
       <div class="p-5 space-y-4 overflow-y-auto">
         <div>
           <h3 id="detail-course-title" class="font-black text-lg text-slate-900">課程名稱</h3>
           <span id="detail-course-time" class="inline-block mt-1 text-xs font-bold text-indigo-600 font-eng-serif bg-indigo-50 px-2.5 py-0.5 rounded-md">--:-- - --:--</span>
         </div>
-
         <div class="space-y-1.5 text-xs">
           <label class="block font-bold text-slate-400 uppercase tracking-wider">課程介紹與師資說明</label>
           <div id="detail-course-desc" class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 text-slate-700 leading-relaxed whitespace-pre-wrap max-h-40 overflow-y-auto">
             無詳細說明
           </div>
         </div>
-
         <div class="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-3 text-[11px] text-amber-900 leading-normal">
           💡 <strong>報名指引：</strong> 常態固定班請洽詢現場櫃台或透過官方 LINE 訊息洽詢開班進度！
         </div>
-
         <button id="confirm-course-modal-btn" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-md transition">
           我知道了
         </button>
@@ -302,6 +359,58 @@
     </div>
   </div>
 
+  <!-- 確認預約申請彈窗 -->
+  <div id="booking-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-5 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b pb-2">
+        <h3 class="font-bold text-base text-slate-800">確認預約申請</h3>
+        <button id="close-booking-modal" class="text-slate-400 hover:text-slate-600 text-2xl font-bold">&times;</button>
+      </div>
+
+      <div class="text-xs space-y-1.5 text-slate-600 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+        <p><strong>教室：</strong><span id="modal-room-name">--</span></p>
+        <p><strong>日期：</strong><span id="modal-date">--</span></p>
+        <p><strong>預約時段：</strong><span id="modal-time" class="font-black text-indigo-600 font-eng-serif">--</span> (<span id="modal-hours-span">1.0</span>小時)</p>
+        <p><strong>預約人：</strong><span id="modal-user-info" class="font-bold text-slate-800">--</span></p>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-600 mb-1.5">租借型態 <span class="text-rose-500">*</span></label>
+        <div class="grid grid-cols-2 gap-2 text-xs font-bold">
+          <label class="flex items-center justify-center p-2.5 border rounded-xl cursor-pointer hover:bg-slate-50 has-[:checked]:border-indigo-600 has-[:checked]:text-indigo-600 has-[:checked]:bg-indigo-50">
+            <input type="radio" name="booking-type" value="個人練習" checked class="hidden">
+            <span>👤 個人練習 (至多2組)</span>
+          </label>
+          <label id="group-booking-option" class="flex items-center justify-center p-2.5 border rounded-xl cursor-pointer hover:bg-slate-50 has-[:checked]:border-indigo-600 has-[:checked]:text-indigo-600 has-[:checked]:bg-indigo-50">
+            <input type="radio" name="booking-type" value="團體/開課包場" class="hidden">
+            <span>👥 團體包場 (獨立包場)</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="bg-amber-50/70 border border-amber-200 rounded-xl p-3">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-bold text-slate-700">金額試算</span>
+          <span id="modal-price" class="text-lg font-black text-rose-600 font-eng-serif">NT$ 350</span>
+        </div>
+        <div class="mt-2 text-[11px] text-amber-900 bg-white/70 p-2 rounded-lg border border-amber-100">
+          ⚠️ <strong>注意事項：</strong><br>
+          本系統僅提供借用申請與查詢，請於申請提出後的 6 小時內完成匯款確認。
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-500 mb-1">使用用途 / 舞風備註（選填）</label>
+        <input type="text" id="booking-purpose" placeholder="例如：國標練舞、自修排練" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+      </div>
+
+      <div class="flex gap-2 pt-1">
+        <button id="cancel-booking-btn" class="flex-1 py-2.5 text-sm rounded-xl bg-slate-100 hover:bg-slate-200 font-bold text-slate-600">取消</button>
+        <button id="submit-booking-btn" class="flex-1 py-2.5 text-sm rounded-xl bg-indigo-600 hover:bg-indigo-700 font-bold text-white shadow-md">送出申請</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const LIFF_ID = '2011761541-hL5HCl1Q'; 
     const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbyV6fcIFzpwv5uUGWCb1GPcNrE7s6ETXmS7I-R6RUhiSBdhqRlSUoVomtzyFefSo7bDEg/exec';
@@ -328,6 +437,20 @@
     let selectedSlotStarts = new Set();
     let currentAvailableSlotsMap = new Map();
 
+    let cachedAdminList = [];
+    let currentAdminStatus = 'PENDING';
+    let currentAdminSort = 'NEWEST';
+    let currentAdminRange = 'ALL';
+    let adminCustomStart = null;
+    let adminCustomEnd = null;
+
+    let cachedMyRecords = [];
+    let currentRecStatus = 'ALL';
+    let currentRecSort = 'NEWEST';
+    let currentRecRange = 'ALL';
+    let recCustomStart = null;
+    let recCustomEnd = null;
+
     const TIME_SLOTS = [];
     for (let h = 6; h < 23; h++) {
       const hStr = ('0' + h).slice(-2);
@@ -335,7 +458,6 @@
       let grp = 'morning';
       if (h >= 12 && h < 18) grp = 'afternoon';
       if (h >= 18) grp = 'evening';
-
       TIME_SLOTS.push({ start: `${hStr}:00`, end: `${hStr}:30`, group: grp });
       TIME_SLOTS.push({ start: `${hStr}:30`, end: `${nextHStr}:00`, group: grp });
     }
@@ -448,7 +570,6 @@
       }
     }
 
-    // ⭐ 初始化資料載入 (僅在第一次啟動時完整抓取教室與初始會員狀態)
     async function loadInitialData() {
       const container = document.getElementById('slot-container');
       if (container) {
@@ -499,20 +620,17 @@
           }
         }
 
-        // 存入前端記憶體快取
         const cacheKey = `${selectedDate}_${selectedRoomId}`;
         localScheduleCache[cacheKey] = { bookings: data.bookings || [], recurrings: data.recurrings || [] };
 
         renderAvailableSlots(data.bookings || [], data.recurrings || []);
       } catch (e) {
-        console.warn('載入初始資料錯誤:', e);
         if (container) {
           container.innerHTML = '<p class="text-center text-red-500 text-xs py-8">載入稍慢，請點選日期重新整理</p>';
         }
       }
     }
 
-    // ⭐ 租借時段載入優化：優先讀取前端記憶體快取（Cache），實現秒開不重複請求
     async function fetchAndRenderSlots() {
       if (!selectedRoomId) return;
       selectedSlotStarts.clear();
@@ -523,7 +641,6 @@
 
       document.getElementById('current-date-title').textContent = `${selectedDate} 可借用時段`;
 
-      // 如果該日期的時段已經存在快取中，直接秒開渲染，不發送網路請求！
       if (localScheduleCache[cacheKey]) {
         renderAvailableSlots(localScheduleCache[cacheKey].bookings, localScheduleCache[cacheKey].recurrings);
         return;
@@ -543,7 +660,6 @@
 
         if (thisRequestId !== currentRequestId || targetDate !== selectedDate) return;
 
-        // 寫入快取
         localScheduleCache[cacheKey] = { bookings: data.bookings || [], recurrings: data.recurrings || [] };
         renderAvailableSlots(data.bookings || [], data.recurrings || []);
       } catch (err) {
@@ -736,7 +852,6 @@
           }`;
         }
       }
-
       updateBottomBar();
     }
 
@@ -796,11 +911,164 @@
         slotsCount: count,
         hours: count * 0.5
       });
-
       return intervals;
     }
 
-    // ⭐ 課表清單渲染：右側顯示圓形縮圖
+    function validateContinuousSelection() {
+      if (selectedSlotStarts.size === 0) {
+        alert('請先勾選欲租借之時段！');
+        return null;
+      }
+
+      const intervals = getContinuousIntervalsFromStarts();
+
+      const invalidInterval = intervals.find(item => item.slotsCount < 2);
+      if (invalidInterval) {
+        alert(`預約限制提示：\n時段【${invalidInterval.startTime} - ${invalidInterval.endTime}】僅 0.5 小時。\n每個分開的租借區間皆須至少滿 1 小時！`);
+        return null;
+      }
+
+      return {
+        intervals: intervals,
+        totalSlotsCount: selectedSlotStarts.size,
+        totalHours: selectedSlotStarts.size * 0.5,
+        starts: Array.from(selectedSlotStarts).sort()
+      };
+    }
+
+    let verifiedBookingData = null;
+
+    function openBookingModalWithSelection() {
+      if (!currentUser.isRegistered) {
+        alert('請先完成實名制登記才能進行預約！');
+        openProfileModal();
+        return;
+      }
+
+      const validData = validateContinuousSelection();
+      if (!validData) return;
+
+      verifiedBookingData = validData;
+
+      const room = classrooms.find(r => String(r.id) === String(selectedRoomId));
+      document.getElementById('modal-room-name').textContent = room ? room.name : '--';
+      document.getElementById('modal-date').textContent = selectedDate;
+
+      const timeDisplay = validData.intervals.map(i => `${i.startTime} - ${i.endTime}`).join('、');
+      document.getElementById('modal-time').textContent = timeDisplay;
+      document.getElementById('modal-hours-span').textContent = validData.totalHours.toFixed(1);
+      document.getElementById('modal-user-info').textContent = `${currentUser.realName} (${currentUser.phone})`;
+      document.getElementById('booking-purpose').value = '';
+
+      let hasSharedSlot = false;
+      validData.starts.forEach(st => {
+        const sl = currentAvailableSlotsMap.get(st);
+        if (sl && sl.individualCount > 0) hasSharedSlot = true;
+      });
+
+      const groupOpt = document.getElementById('group-booking-option');
+      const radioIndividual = document.querySelector('input[name="booking-type"][value="個人練習"]');
+      if (hasSharedSlot) {
+        groupOpt.classList.add('hidden');
+        radioIndividual.checked = true;
+      } else {
+        groupOpt.classList.remove('hidden');
+      }
+
+      updateModalPrice();
+      document.getElementById('booking-modal').classList.remove('hidden');
+    }
+
+    function updateModalPrice() {
+      if (!verifiedBookingData) return;
+      const type = document.querySelector('input[name="booking-type"]:checked').value;
+      const isGroup = (type.indexOf('團體') !== -1 || type.indexOf('包場') !== -1);
+      const isNewRate = (selectedDate > '2026-11-15');
+
+      let totalPrice = 0;
+      verifiedBookingData.intervals.forEach(interval => {
+        totalPrice += calculateIntervalPrice(interval.hours, isGroup, isNewRate);
+      });
+
+      document.getElementById('modal-price').textContent = `NT$ ${totalPrice}`;
+    }
+
+    function calculateIntervalPrice(hours, isGroup, isNewRate) {
+      if (!isNewRate) {
+        const ratePerHour = isGroup ? 450 : 350;
+        return hours * ratePerHour;
+      }
+
+      if (isGroup) {
+        if (hours >= 3) return hours * 450;
+        if (hours === 2.5) return 1200;
+        if (hours === 2.0) return 1000;
+        if (hours === 1.5) return 825;
+        return 550;
+      } else {
+        if (hours >= 3) return hours * 350;
+        if (hours === 2.5) return 950;
+        if (hours === 2.0) return 750;
+        if (hours === 1.5) return 600;
+        return 400;
+      }
+    }
+
+    async function submitBooking() {
+      if (!verifiedBookingData) return;
+
+      const bookingType = document.querySelector('input[name="booking-type"]:checked').value;
+      const purpose = document.getElementById('booking-purpose').value.trim() || bookingType;
+      const submitBtn = document.getElementById('submit-booking-btn');
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = '申請送出中...';
+
+      try {
+        const payload = {
+          action: 'createBooking',
+          classroom_id: selectedRoomId,
+          line_user_id: currentUser.userId,
+          user_name: currentUser.realName,
+          phone: currentUser.phone,
+          booking_type: bookingType,
+          booking_date: selectedDate,
+          intervals: verifiedBookingData.intervals.map(i => ({
+            start_time: i.startTime,
+            end_time: i.endTime
+          })),
+          purpose: purpose
+        };
+
+        const res = await fetch(GAS_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+
+        if (result.success) {
+          const timeDisplay = verifiedBookingData.intervals.map(i => `${i.startTime}-${i.endTime}`).join('、');
+          alert(`【${bookingType}】已成功送出申請！\n\n日期：${selectedDate}\n時段：${timeDisplay} (共 ${verifiedBookingData.totalHours} 小時)\n請記得於 6 小時內完成匯款確認。`);
+          document.getElementById('booking-modal').classList.add('hidden');
+          selectedSlotStarts.clear();
+          updateBottomBar();
+
+          delete localScheduleCache[`${selectedDate}_${selectedRoomId}`];
+          await fetchAndRenderSlots();
+        } else {
+          alert(result.error || '預約失敗，所選時段可能已被佔用');
+          delete localScheduleCache[`${selectedDate}_${selectedRoomId}`];
+          await fetchAndRenderSlots();
+        }
+      } catch (err) {
+        alert('連線失敗：' + err.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '送出申請';
+      }
+    }
+
     async function loadWeeklySchedule() {
       const container = document.getElementById('weekly-schedule-container');
       container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">正在載入公開團課清單...</p>';
@@ -811,13 +1079,8 @@
         const data = await fetchWithRetry(url);
 
         const days = [
-          { day: 1, label: '每週一' },
-          { day: 2, label: '每週二' },
-          { day: 3, label: '每週三' },
-          { day: 4, label: '每週四' },
-          { day: 5, label: '每週五' },
-          { day: 6, label: '每週六' },
-          { day: 7, label: '每週日' }
+          { day: 1, label: '每週一' }, { day: 2, label: '每週二' }, { day: 3, label: '每週三' },
+          { day: 4, label: '每週四' }, { day: 5, label: '每週五' }, { day: 6, label: '每週六' }, { day: 7, label: '每週日' }
         ];
 
         container.innerHTML = '';
@@ -846,7 +1109,6 @@
                 </div>
                 <div class="flex items-center gap-2">
                   <span class="text-[9.5px] text-purple-500 font-bold bg-purple-100/60 px-1.5 py-0.5 rounded">詳情 ▸</span>
-                  <!-- 圓形縮圖 -->
                   <img src="${avatarSrc}" onerror="this.onerror=null; this.src='https://placehold.co/100x100/purple/white?text=Dance';" class="w-10 h-10 rounded-full object-cover border-2 border-purple-200 shadow-2xs">
                 </div>
               `;
@@ -874,17 +1136,14 @@
             </div>
           `;
         }
-
       } catch (err) {
         container.innerHTML = '<p class="text-center text-rose-500 text-xs py-8">課表載入失敗，請點選重新整理</p>';
       }
     }
 
-    // ⭐ 點開後彈窗載入橫式大圖 banner_img 與詳細說明
     function openCourseDetailModal(course) {
       const modal = document.getElementById('course-detail-modal');
       if (!modal) return;
-
       document.getElementById('detail-course-title').textContent = course.title || '常態團班';
       document.getElementById('detail-course-time').textContent = `${course.start_time} - ${course.end_time}`;
       document.getElementById('detail-course-desc').textContent = course.description || '本課程提供循序漸進的技巧指導與舞步排練，歡迎聯繫舞室報名體驗！';
@@ -896,11 +1155,274 @@
       modal.classList.remove('hidden');
     }
 
-    function bindEvents() {
-      const closeCourseModal = () => {
-        document.getElementById('course-detail-modal').classList.add('hidden');
-      };
+    async function loadMyRecords() {
+      const container = document.getElementById('records-container');
+      container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">載入紀錄中...</p>';
 
+      if (!currentUser.userId || currentUser.userId === 'guest_user') {
+        container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">請在 LINE 內開啟以查看個人預約紀錄</p>';
+        return;
+      }
+
+      try {
+        const t = new Date().getTime();
+        const url = `${GAS_API_URL}?action=getMyBookings&lineUserId=${encodeURIComponent(currentUser.userId)}&_t=${t}`;
+        cachedMyRecords = await fetchWithRetry(url) || [];
+        renderMyRecords();
+      } catch (err) {
+        container.innerHTML = '<p class="text-center text-red-500 text-xs py-8">讀取紀錄失敗，請重試</p>';
+      }
+    }
+
+    function filterRecordsStatus(status) {
+      currentRecStatus = status;
+      ['all', 'pending', 'approved'].forEach(s => {
+        const btn = document.getElementById(`filter-rec-${s}`);
+        if (s === status.toLowerCase()) {
+          btn.className = 'flex-1 py-1 text-xs font-bold rounded-lg bg-indigo-600 text-white';
+        } else {
+          btn.className = 'flex-1 py-1 text-xs font-bold rounded-lg bg-slate-100 text-slate-600';
+        }
+      });
+      renderMyRecords();
+    }
+
+    function handleRecordsSortChange(sort) {
+      currentRecSort = sort;
+      renderMyRecords();
+    }
+
+    function filterRecordsRange(range) {
+      currentRecRange = range;
+      ['all', '7d', '30d', 'custom'].forEach(r => {
+        const btn = document.getElementById(`btn-rec-range-${r}`);
+        if (r === range.toLowerCase()) {
+          btn.className = 'px-2 py-0.5 rounded-lg font-bold text-[11px] bg-indigo-50 text-indigo-600';
+        } else {
+          btn.className = 'px-2 py-0.5 rounded-lg font-bold text-[11px] bg-slate-100 text-slate-600';
+        }
+      });
+      const customBox = document.getElementById('records-custom-date-box');
+      if (range !== 'CUSTOM') customBox.classList.add('hidden');
+      renderMyRecords();
+    }
+
+    function toggleRecordsCustomDate() {
+      const customBox = document.getElementById('records-custom-date-box');
+      customBox.classList.toggle('hidden');
+      if (!customBox.classList.contains('hidden')) filterRecordsRange('CUSTOM');
+    }
+
+    function applyRecordsCustomRange() {
+      recCustomStart = document.getElementById('rec-date-start').value;
+      recCustomEnd = document.getElementById('rec-date-end').value;
+      if (!recCustomStart || !recCustomEnd) { alert('請完整選擇自訂起訖日期！'); return; }
+      renderMyRecords();
+    }
+
+    function renderMyRecords() {
+      const container = document.getElementById('records-container');
+      let filtered = [...cachedMyRecords];
+
+      if (currentRecStatus === 'PENDING') filtered = filtered.filter(r => r.status === '審核中');
+      else if (currentRecStatus === 'APPROVED') filtered = filtered.filter(r => r.status === '申請成功');
+
+      const now = new Date();
+      if (currentRecRange === '7D') {
+        const past7 = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        filtered = filtered.filter(r => new Date(r.booking_date) >= past7);
+      } else if (currentRecRange === '30D') {
+        const past30 = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        filtered = filtered.filter(r => new Date(r.booking_date) >= past30);
+      } else if (currentRecRange === 'CUSTOM' && recCustomStart && recCustomEnd) {
+        filtered = filtered.filter(r => r.booking_date >= recCustomStart && r.booking_date <= recCustomEnd);
+      }
+
+      filtered.sort((a, b) => {
+        const timeA = new Date(`${a.booking_date}T${a.start_time}:00`).getTime() || 0;
+        const timeB = new Date(`${b.booking_date}T${b.start_time}:00`).getTime() || 0;
+        return currentRecSort === 'NEWEST' ? timeB - timeA : timeA - timeB;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="text-center py-10 bg-white rounded-2xl border border-slate-200 text-slate-400 text-xs">無符合條件的預約紀錄</div>';
+        return;
+      }
+      container.innerHTML = '';
+      filtered.forEach(r => {
+        let badgeHtml = '<span class="text-[10px] px-2 py-0.5 bg-amber-100 text-amber-800 rounded-md font-bold">⏳ 審核中</span>';
+        if (r.status === '申請成功') badgeHtml = '<span class="text-[10px] px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-md font-bold">✓ 核准</span>';
+        else if (r.status === '未付款請重新申請') badgeHtml = '<span class="text-[10px] px-2 py-0.5 bg-rose-100 text-rose-700 rounded-md font-bold">✕ 退件</span>';
+
+        const cleanRoomName = String(r.room_name).replace(/（.*?）|\(.*?\)/g, '').trim();
+        const isDuplicatePurpose = (!r.purpose || r.purpose === r.booking_type || r.purpose === '個人練習' || r.purpose === '團體/開課包場');
+
+        const card = document.createElement('div');
+        card.className = 'bg-white p-3 rounded-2xl border border-slate-200 shadow-xs space-y-1.5';
+        card.innerHTML = `
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-1.5">
+              <span class="text-[9.5px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">${r.booking_type || '個人練習'}</span>
+              <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">${cleanRoomName}</span>
+            </div>
+            ${badgeHtml}
+          </div>
+          <div class="flex items-center justify-between text-xs pt-0.5">
+            <span class="font-bold text-slate-800 font-eng-serif">📅 ${r.booking_date}</span>
+            <span class="font-black text-indigo-600 font-eng-serif text-sm">${r.start_time} - ${r.end_time}</span>
+          </div>
+          ${!isDuplicatePurpose ? `<p class="text-[10px] text-slate-400 truncate pt-0.5 font-sans">備註：${r.purpose}</p>` : ''}
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    async function loadAdminBookings() {
+      const container = document.getElementById('admin-bookings-container');
+      container.innerHTML = '<p class="text-center text-slate-400 text-xs py-8">正在載入審核名單...</p>';
+      if (!currentUser.isAdmin) {
+        container.innerHTML = '<p class="text-center text-rose-500 text-xs py-8">無管理員權限</p>';
+        return;
+      }
+      try {
+        const t = new Date().getTime();
+        const url = `${GAS_API_URL}?action=getAllBookingsForAdmin&lineUserId=${encodeURIComponent(currentUser.userId)}&_t=${t}`;
+        cachedAdminList = await fetchWithRetry(url) || [];
+        const pendingCount = cachedAdminList.filter(item => item.status === '審核中').length;
+        document.getElementById('admin-pending-count').textContent = pendingCount;
+        renderAdminBookings();
+      } catch (err) {
+        container.innerHTML = '<p class="text-center text-rose-500 text-xs py-8">讀取審核清單失敗</p>';
+      }
+    }
+
+    function filterAdminStatus(status) {
+      currentAdminStatus = status;
+      ['pending', 'approved', 'all'].forEach(s => {
+        const btn = document.getElementById(`filter-admin-${s}`);
+        if (s === status.toLowerCase()) btn.className = 'flex-1 py-1 text-xs font-bold rounded-lg bg-amber-500 text-white shadow-xs';
+        else btn.className = 'flex-1 py-1 text-xs font-bold rounded-lg bg-slate-100 text-slate-600';
+      });
+      renderAdminBookings();
+    }
+
+    function handleAdminSortChange(sort) {
+      currentAdminSort = sort;
+      renderAdminBookings();
+    }
+
+    function filterAdminRange(range) {
+      currentAdminRange = range;
+      ['all', '7d', '30d', 'custom'].forEach(r => {
+        const btn = document.getElementById(`btn-admin-range-${r}`);
+        if (r === range.toLowerCase()) btn.className = 'px-2 py-0.5 rounded-lg font-bold text-[11px] bg-indigo-50 text-indigo-600';
+        else btn.className = 'px-2 py-0.5 rounded-lg font-bold text-[11px] bg-slate-100 text-slate-600';
+      });
+      const customBox = document.getElementById('admin-custom-date-box');
+      if (range !== 'CUSTOM') customBox.classList.add('hidden');
+      renderAdminBookings();
+    }
+
+    function toggleAdminCustomDate() {
+      const customBox = document.getElementById('admin-custom-date-box');
+      customBox.classList.toggle('hidden');
+      if (!customBox.classList.contains('hidden')) filterAdminRange('CUSTOM');
+    }
+
+    function applyAdminCustomRange() {
+      adminCustomStart = document.getElementById('admin-date-start').value;
+      adminCustomEnd = document.getElementById('admin-date-end').value;
+      if (!adminCustomStart || !adminCustomEnd) { alert('請完整選擇自訂起訖日期！'); return; }
+      renderAdminBookings();
+    }
+
+    function renderAdminBookings() {
+      const container = document.getElementById('admin-bookings-container');
+      let filtered = [...cachedAdminList];
+
+      if (currentAdminStatus === 'PENDING') filtered = filtered.filter(item => item.status === '審核中');
+      else if (currentAdminStatus === 'APPROVED') filtered = filtered.filter(item => item.status === '申請成功');
+
+      const now = new Date();
+      if (currentAdminRange === '7D') {
+        const past7 = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        filtered = filtered.filter(item => new Date(item.booking_date) >= past7);
+      } else if (currentAdminRange === '30D') {
+        const past30 = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        filtered = filtered.filter(item => new Date(item.booking_date) >= past30);
+      } else if (currentAdminRange === 'CUSTOM' && adminCustomStart && adminCustomEnd) {
+        filtered = filtered.filter(item => item.booking_date >= adminCustomStart && item.booking_date <= adminCustomEnd);
+      }
+
+      filtered.sort((a, b) => {
+        const timeA = new Date(`${a.booking_date}T${a.start_time}:00`).getTime() || 0;
+        const timeB = new Date(`${b.booking_date}T${b.start_time}:00`).getTime() || 0;
+        return currentAdminSort === 'NEWEST' ? timeB - timeA : timeA - timeB;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="text-center py-8 text-slate-400 text-xs bg-white rounded-2xl border">無符合條件的預約項目</div>';
+        return;
+      }
+      container.innerHTML = '';
+      filtered.forEach(item => {
+        const isPending = (item.status === '審核中');
+        let badgeHtml = '<span class="text-[10px] px-2 py-0.5 rounded-md font-bold bg-amber-100 text-amber-800">⏳ 待審核</span>';
+        if (item.status === '申請成功') badgeHtml = '<span class="text-[10px] px-2 py-0.5 rounded-md font-bold bg-emerald-100 text-emerald-700">✓ 已核准</span>';
+        if (item.status === '未付款請重新申請') badgeHtml = '<span class="text-[10px] px-2 py-0.5 rounded-md font-bold bg-rose-100 text-rose-700">✕ 已退件</span>';
+
+        const cleanRoomName = String(item.room_name).replace(/（.*?）|\(.*?\)/g, '').trim();
+        const isDuplicatePurpose = (!item.purpose || item.purpose === item.booking_type || item.purpose === '個人練習' || item.purpose === '團體/開課包場');
+
+        const card = document.createElement('div');
+        card.className = `p-3 rounded-2xl border shadow-xs space-y-1.5 transition ${isPending ? 'bg-amber-50/30 border-amber-200' : 'bg-white border-slate-200'}`;
+        
+        let actionButtons = '';
+        if (isPending) {
+          actionButtons = `
+            <div class="flex gap-2 pt-1 border-t border-slate-100">
+              <button onclick="changeBookingStatus(${item.row_index}, '申請成功')" class="flex-1 py-1 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition shadow-xs">✓ 核准通過</button>
+              <button onclick="changeBookingStatus(${item.row_index}, '未付款請重新申請')" class="flex-1 py-1 text-xs font-bold bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-lg transition">✕ 退件</button>
+            </div>
+          `;
+        }
+        card.innerHTML = `
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-1.5">
+              <span class="text-[9.5px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">${item.booking_type}</span>
+              <h3 class="font-black text-slate-800 text-xs">${item.user_name} <a href="tel:${item.phone}" class="text-[10px] text-indigo-500 font-normal">📞</a></h3>
+            </div>
+            ${badgeHtml}
+          </div>
+          <div class="flex items-center justify-between text-xs text-slate-600 pt-0.5 font-eng-serif">
+            <span>📅 ${item.booking_date}</span>
+            <span class="font-bold text-indigo-600">${item.start_time} - ${item.end_time}</span>
+          </div>
+          <p class="text-[10px] text-slate-500 truncate font-sans">空間：${cleanRoomName} ${!isDuplicatePurpose ? `| 備註：${item.purpose}` : ''}</p>
+          ${actionButtons}
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    async function changeBookingStatus(rowIndex, newStatus) {
+      if (!confirm(`確定將此筆預約標記為「${newStatus}」嗎？`)) return;
+      try {
+        const res = await fetch(GAS_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'updateBookingStatus', row_index: rowIndex, status: newStatus })
+        });
+        const result = await res.json();
+        if (result.success) {
+          alert('狀態已更新，並已自動發送 LINE 通知給會員！');
+          loadAdminBookings();
+        } else alert('更新失敗：' + (result.error || '未知錯誤'));
+      } catch (e) { alert('網路異常：' + e.message); }
+    }
+
+    function bindEvents() {
+      const closeCourseModal = () => { document.getElementById('course-detail-modal').classList.add('hidden'); };
       const closeBtn = document.getElementById('close-course-modal');
       const confirmBtn = document.getElementById('confirm-course-modal-btn');
       
@@ -914,6 +1436,23 @@
         });
       }
 
+      document.getElementById('date-picker-input').addEventListener('change', (e) => {
+        if (!e.target.value) return;
+        selectedDate = e.target.value;
+        document.getElementById('date-picker-display').textContent = selectedDate;
+        currentMonday = getMonday(new Date(selectedDate));
+        renderWeekdayTabs();
+        fetchAndRenderSlots();
+      });
+
+      document.getElementById('clear-selected-btn').addEventListener('click', () => {
+        selectedSlotStarts.clear();
+        fetchAndRenderSlots();
+        updateBottomBar();
+      });
+
+      document.getElementById('open-multi-booking-modal-btn').addEventListener('click', openBookingModalWithSelection);
+
       const navTabs = [
         { id: 'tab-booking-view', section: 'booking-section' },
         { id: 'tab-schedule-view', section: 'schedule-section', onLoad: loadWeeklySchedule },
@@ -926,7 +1465,6 @@
         if (!btn) return;
         btn.addEventListener('click', () => {
           if (tab.id === 'tab-admin-view' && !currentUser.isAdmin) return;
-
           navTabs.forEach(t => {
             const b = document.getElementById(t.id);
             const s = document.getElementById(t.section);
@@ -943,11 +1481,41 @@
         });
       });
 
+      document.getElementById('refresh-weekly-btn').addEventListener('click', loadWeeklySchedule);
+      document.getElementById('refresh-admin-btn').addEventListener('click', loadAdminBookings);
+      document.querySelectorAll('input[name="booking-type"]').forEach(radio => { radio.addEventListener('change', updateModalPrice); });
+      document.getElementById('refresh-records-btn').addEventListener('click', loadMyRecords);
       document.getElementById('open-profile-btn').addEventListener('click', openProfileModal);
-      document.getElementById('close-profile-btn').addEventListener('click', () => {
-        document.getElementById('profile-modal').classList.add('hidden');
-      });
+      document.getElementById('close-profile-btn').addEventListener('click', () => { document.getElementById('profile-modal').classList.add('hidden'); });
       document.getElementById('save-profile-btn').addEventListener('click', saveProfile);
+      
+      document.getElementById('classroom-select').addEventListener('change', (e) => {
+        selectedRoomId = e.target.value;
+        fetchAndRenderSlots();
+        loadWeeklySchedule();
+      });
+
+      document.getElementById('prev-week').addEventListener('click', () => {
+        currentMonday.setDate(currentMonday.getDate() - 7);
+        selectedDate = formatDate(currentMonday);
+        document.getElementById('date-picker-display').textContent = selectedDate;
+        document.getElementById('date-picker-input').value = selectedDate;
+        renderWeekdayTabs();
+        fetchAndRenderSlots();
+      });
+
+      document.getElementById('next-week').addEventListener('click', () => {
+        currentMonday.setDate(currentMonday.getDate() + 7);
+        selectedDate = formatDate(currentMonday);
+        document.getElementById('date-picker-display').textContent = selectedDate;
+        document.getElementById('date-picker-input').value = selectedDate;
+        renderWeekdayTabs();
+        fetchAndRenderSlots();
+      });
+
+      document.getElementById('close-booking-modal').addEventListener('click', () => { document.getElementById('booking-modal').classList.add('hidden'); });
+      document.getElementById('cancel-booking-btn').addEventListener('click', () => { document.getElementById('booking-modal').classList.add('hidden'); });
+      document.getElementById('submit-booking-btn').addEventListener('click', submitBooking);
     }
 
     function openProfileModal() {
@@ -1050,9 +1618,6 @@
         container.appendChild(tab);
       }
     }
-
-    function loadMyRecords() {}
-    function loadAdminBookings() {}
   </script>
 </body>
 </html>
