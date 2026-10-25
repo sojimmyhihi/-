@@ -1,103 +1,87 @@
-// === GAS Web App 部署網址 ===
+// === GAS 後端部署 URL ===
 const GAS_API_URL = "https://script.google.com/macros/s/AKfycbylhpmhV38QJ54i1ysZsNSBBLfaVgvQKFFh1HSEEvVNC-C55eO_hoCCF2xkmooxdmq7/exec";
 
-// 票價設定
-const PRICE_MEMBER = 350;
-const PRICE_GUEST = 500;
+// 判斷 12/1 前後時限
+const NOW = new Date();
+const EARLY_BIRD_DEADLINE = new Date("2026-12-01T00:00:00");
+const isEarlyBird = NOW < EARLY_BIRD_DEADLINE;
 
-let counts = { member: 0, guest: 0 };
+let adultPrice = isEarlyBird ? 250 : 300;
+let dynamicMaxAdult = 25; // 預設早鳥上限
+let couponDiscount = 0;
+let counts = { adult: 0, child: 0 };
+
+// 媒體元素
+const posterImg = document.getElementById("poster-img");
+const videoJump = document.getElementById("video-jump");
+const videoMoonwalk = document.getElementById("video-moonwalk");
+const flashLayer = document.getElementById("cutscene-flash");
 const audio = document.getElementById("bg-music");
 const musicToggleBtn = document.getElementById("music-toggle");
-const mainLogo = document.getElementById("main-logo");
 
-// 1. 下雪與「金色星塵」特效
-const canvas = document.getElementById("snow-canvas");
-const ctx = canvas.getContext("2d");
-let flakes = [];
+// =================================
+// 1. 初始化票額與後台設定讀取
+// =================================
+document.addEventListener("DOMContentLoaded", async () => {
+  document.getElementById("adult-price-display").innerText = adultPrice;
 
-function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-window.addEventListener("resize", resizeCanvas);
-resizeCanvas();
+  // 12.1 之後優惠碼逾期顯示
+  if (!isEarlyBird) {
+    const couponArea = document.getElementById("coupon-area");
+    if (couponArea) {
+      couponArea.innerHTML = `<div class="hint-text fail">早鳥優惠折扣已於 2026.12.01 截止</div>`;
+    }
+  }
 
-for (let i = 0; i < 75; i++) {
-  flakes.push({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    r: Math.random() * 3.2 + 1,
-    d: Math.random() + 0.5,
-    isStar: Math.random() < 0.2 // 20% 機率為金色星塵
-  });
-}
+  // 向 GAS 後端取得最新設定與剩餘票數
+  await fetchTicketConfig();
+});
 
-function drawSnow() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
-  for (let f of flakes) {
-    ctx.beginPath();
-    ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2, true);
+async function fetchTicketConfig() {
+  try {
+    const res = await fetch(GAS_API_URL + "?action=getTicketConfig");
+    const cfg = await res.json();
+    if (!cfg.success) return;
 
-    if (f.isStar) {
-      // 金色星斑與微光暈
-      ctx.fillStyle = "rgba(247, 208, 112, 0.88)";
-      ctx.shadowBlur = 8;
-      ctx.shadowColor = "#f7d070";
+    const adultTag = document.getElementById("adult-tag");
+    const adultTitle = document.getElementById("adult-title");
+
+    if (isEarlyBird) {
+      const remaining = Math.max(0, cfg.earlyBirdLimit - cfg.soldAdultCount);
+      dynamicMaxAdult = remaining;
+      adultTitle.innerText = "全票（早鳥優惠）";
+      adultTag.className = "chip gold";
+      adultTag.innerText = `早鳥限量剩餘 ${remaining} 張`;
     } else {
-      // 純白自然雪花
-      ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
-      ctx.shadowBlur = 0;
-    }
-    ctx.fill();
-  }
-  
-  updateSnow();
-  requestAnimationFrame(drawSnow);
-}
+      adultTitle.innerText = "全票（晚鳥原價）";
+      const lateLimit = cfg.lateBirdReleased;
+      dynamicMaxAdult = lateLimit;
 
-function updateSnow() {
-  for (let f of flakes) {
-    f.y += f.d;
-    f.x += Math.sin(f.y / 30);
-    if (f.y > canvas.height) {
-      f.y = -10;
-      f.x = Math.random() * canvas.width;
+      if (lateLimit > 0 && cfg.isLateBirdOpen) {
+        adultTag.className = "chip gold";
+        adultTag.innerText = `晚鳥釋出剩餘 ${lateLimit} 張`;
+      } else {
+        adultTag.className = "chip red";
+        adultTag.innerText = "晚鳥票已售罄";
+        document.getElementById("btn-to-step3").disabled = true;
+      }
     }
+  } catch (err) {
+    console.log("票額同步失敗，沿用前端預設設定", err);
   }
 }
-drawSnow();
 
-// 2. 音樂啟動與頁面切換控制
-function startAudioAndEnter() {
+// =================================
+// 2. 音畫雙段播放控制邏輯
+// =================================
+function playBGM() {
   if (audio && audio.paused) {
-    audio.play().then(() => {
-      if (musicToggleBtn) musicToggleBtn.innerText = "🎵";
-    }).catch((err) => {
-      console.log("Audio play prevented:", err);
-    });
+    audio.play().catch(e => console.log("需點擊互動播放音訊:", e));
   }
-  goToStep(2);
-}
-
-const btnStart = document.getElementById("btn-start");
-if (btnStart) {
-  btnStart.addEventListener("click", (e) => {
-    e.stopPropagation();
-    startAudioAndEnter();
-  });
-}
-
-const step1 = document.getElementById("step-1");
-if (step1) {
-  step1.addEventListener("click", () => {
-    startAudioAndEnter();
-  });
 }
 
 if (musicToggleBtn) {
-  musicToggleBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
+  musicToggleBtn.addEventListener("click", () => {
     if (!audio) return;
     if (audio.paused) {
       audio.play();
@@ -109,7 +93,7 @@ if (musicToggleBtn) {
   });
 }
 
-// 頁面關閉 / 切換背景時自動暫停音樂
+// 離開分頁自動暫停音訊
 document.addEventListener("visibilitychange", () => {
   if (document.hidden && audio) {
     audio.pause();
@@ -117,74 +101,154 @@ document.addEventListener("visibilitychange", () => {
   }
 });
 
-window.addEventListener("pagehide", () => {
-  if (audio) audio.pause();
+// 點擊「點擊購票」啟動動畫鏈
+document.getElementById("btn-start").addEventListener("click", () => {
+  playBGM();
+  startCutsceneSequence();
 });
 
-window.addEventListener("beforeunload", () => {
-  if (audio) audio.pause();
-});
+function startCutsceneSequence() {
+  // 1. 隱藏首頁按鈕，顯示第一段影片（跳下月亮）
+  document.getElementById("step-1").classList.remove("active");
+  videoJump.classList.add("visible");
+  posterImg.classList.remove("visible");
 
-// 換頁與 Logo 縮放聯動控制
+  videoJump.currentTime = 0;
+  videoJump.play().catch(e => console.log("Video 1 play prevented", e));
+
+  // 2. 當第一段影片播畢時，觸發過場閃白與第二段影片（月球漫步）
+  videoJump.onended = () => {
+    triggerFlashTransition();
+  };
+}
+
+function triggerFlashTransition() {
+  // 閃爍過場效果
+  flashLayer.classList.add("active");
+
+  setTimeout(() => {
+    // 切換至第二段循環影片
+    videoJump.classList.remove("visible");
+    videoJump.pause();
+
+    videoMoonwalk.classList.add("visible");
+    videoMoonwalk.currentTime = 0;
+    videoMoonwalk.play().catch(e => console.log("Video 2 play prevented", e));
+
+    // 背景微暗、卡片向上淡入
+    document.body.classList.add("in-subpage");
+    flashLayer.classList.remove("active");
+    goToStep(2);
+  }, 350);
+}
+
 function goToStep(step) {
-  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".page-view").forEach(s => s.classList.remove("active"));
   const target = document.getElementById("step-" + step);
   if (target) target.classList.add("active");
-
-  if (mainLogo) {
-    if (step === 1 || step === "1") {
-      mainLogo.classList.remove("mini");
-    } else {
-      mainLogo.classList.add("mini");
-    }
-  }
 }
 
-// 3. 票數計算器
+// =================================
+// 3. 票數計算與折扣碼
+// =================================
 function changeCount(type, delta) {
-  counts[type] = Math.max(0, counts[type] + delta);
-  document.getElementById(`${type}-count`).innerText = counts[type];
-
-  const totalTickets = counts.member + counts.guest;
-  const totalPrice = (counts.member * PRICE_MEMBER) + (counts.guest * PRICE_GUEST);
-
-  document.getElementById("total-tickets").innerText = totalTickets;
-  document.getElementById("total-price").innerText = totalPrice;
-
-  document.getElementById("btn-to-step3").disabled = totalTickets === 0;
+  if (type === "child") {
+    counts.child = Math.max(0, Math.min(2, counts.child + delta));
+    document.getElementById("child-count").innerText = counts.child;
+  } else {
+    counts.adult = Math.max(0, Math.min(dynamicMaxAdult, counts.adult + delta));
+    document.getElementById("adult-count").innerText = counts.adult;
+  }
+  updateSummary();
 }
 
+function updateSummary() {
+  const totalTickets = counts.adult + counts.child;
+  const propsCount = counts.adult; // 僅全票贈送道具
+  const grossPrice = (counts.adult * adultPrice);
+  const netPrice = Math.max(0, grossPrice - couponDiscount);
+
+  document.getElementById("sum-tickets").innerText = totalTickets;
+  document.getElementById("sum-props").innerText = propsCount;
+  document.getElementById("sum-price").innerText = netPrice;
+
+  document.getElementById("btn-to-step3").disabled = (totalTickets === 0);
+}
+
+// 優惠碼 NCKUBBB 折抵 50
+const btnApplyCoupon = document.getElementById("btn-apply-coupon");
+if (btnApplyCoupon) {
+  btnApplyCoupon.addEventListener("click", () => {
+    if (!isEarlyBird) {
+      alert("早鳥優惠代碼已於 2026.12.01 截止失效！");
+      return;
+    }
+    const code = document.getElementById("coupon-code").value.trim().toUpperCase();
+    const hint = document.getElementById("coupon-hint");
+
+    if (code === "NCKUBBB") {
+      couponDiscount = 50;
+      hint.className = "hint-text ok";
+      hint.innerText = "✓ 優惠代碼套用成功！折抵 NT$ 50 元";
+    } else {
+      couponDiscount = 0;
+      hint.className = "hint-text fail";
+      hint.innerText = "✗ 無效的優惠代碼";
+    }
+    updateSummary();
+  });
+}
+
+// =================================
+// 4. 動態展開實名制名冊
+// =================================
 document.getElementById("btn-to-step3").addEventListener("click", () => {
+  renderAttendeeCards();
   goToStep(3);
 });
 
-// 4. 手機號碼格式驗證
-const phoneInput = document.getElementById("cust-phone");
-const phoneHint = document.getElementById("phone-hint");
+function renderAttendeeCards() {
+  const container = document.getElementById("dynamic-attendees");
+  container.innerHTML = "";
 
-phoneInput.addEventListener("input", (e) => {
-  const val = e.target.value.replace(/\D/g, "");
-  e.target.value = val;
-  if (val.length === 10 && /^09\d{8}$/.test(val)) {
-    phoneHint.innerText = "";
-  } else if (val.length > 0) {
-    phoneHint.innerText = "格式需為 09 開頭的 10 位數字";
-  } else {
-    phoneHint.innerText = "";
+  if (counts.adult === 0) return;
+
+  const header = document.createElement("div");
+  header.className = "block-title";
+  header.innerText = `全票實名名單（共 ${counts.adult} 位，附活動道具，當天請備妥證件）：`;
+  container.appendChild(header);
+
+  for (let i = 1; i <= counts.adult; i++) {
+    const card = document.createElement("div");
+    card.className = "attendee-card";
+    card.innerHTML = `
+      <div style="font-size:12px; color:#f7d070; margin-bottom:6px;"><strong>第 ${i} 位全票持有人</strong></div>
+      <div class="field-item">
+        <label>真實姓名 *</label>
+        <input type="text" class="att-name" placeholder="請填寫有效身分證件全名" required>
+      </div>
+      <div class="field-item">
+        <label>身分證後4碼 / 證件號 *</label>
+        <input type="text" class="att-id" maxlength="8" placeholder="現場核驗比對使用" required>
+      </div>
+    `;
+    container.appendChild(card);
   }
-});
+}
 
-// 5. 發送驗證碼
-const btnSendCode = document.getElementById("btn-send-code");
-btnSendCode.addEventListener("click", async () => {
-  const email = document.getElementById("cust-email").value.trim();
+// =================================
+// 5. 寄送驗證碼與確認送出
+// =================================
+const btnSendVerify = document.getElementById("btn-send-verify");
+btnSendVerify.addEventListener("click", async () => {
+  const email = document.getElementById("main-email").value.trim();
   if (!email || !email.includes("@")) {
     alert("請先輸入有效的電子信箱！");
     return;
   }
 
-  btnSendCode.disabled = true;
-  btnSendCode.innerText = "發送中...";
+  btnSendVerify.disabled = true;
+  btnSendVerify.innerText = "發送中...";
 
   try {
     const res = await fetch(GAS_API_URL, {
@@ -192,69 +256,77 @@ btnSendCode.addEventListener("click", async () => {
       body: JSON.stringify({ action: "sendCode", email: email })
     });
     const result = await res.json();
-
     if (result.success) {
-      alert("驗證碼已寄出，請至信箱收取（可能需要檢查垃圾郵件匣）");
-      startCountdown(60);
+      alert("驗證碼已寄出，請至信箱收取！");
+      let sec = 60;
+      const timer = setInterval(() => {
+        btnSendVerify.innerText = `${sec}s 重發`;
+        sec--;
+        if (sec < 0) {
+          clearInterval(timer);
+          btnSendVerify.disabled = false;
+          btnSendVerify.innerText = "傳送驗證碼";
+        }
+      }, 1000);
     } else {
-      alert(result.message || "發送失敗，請稍後重試");
-      btnSendCode.disabled = false;
-      btnSendCode.innerText = "傳送驗證碼";
+      alert(result.message || "發送失敗");
+      btnSendVerify.disabled = false;
+      btnSendVerify.innerText = "傳送驗證碼";
     }
-  } catch (err) {
-    alert("連線異常，請稍後再試");
-    btnSendCode.disabled = false;
-    btnSendCode.innerText = "傳送驗證碼";
+  } catch (e) {
+    alert("連線異常，請稍後再試！");
+    btnSendVerify.disabled = false;
+    btnSendVerify.innerText = "傳送驗證碼";
   }
 });
 
-function startCountdown(sec) {
-  let count = sec;
-  btnSendCode.disabled = true;
-  const timer = setInterval(() => {
-    btnSendCode.innerText = `${count}s 重發`;
-    count--;
-    if (count < 0) {
-      clearInterval(timer);
-      btnSendCode.disabled = false;
-      btnSendCode.innerText = "傳送驗證碼";
+// 送出訂單
+document.getElementById("btn-submit-order").addEventListener("click", async () => {
+  const mainName = document.getElementById("main-name").value.trim();
+  const mainPhone = document.getElementById("main-phone").value.trim();
+  const mainEmail = document.getElementById("main-email").value.trim();
+  const mainCode = document.getElementById("main-code").value.trim();
+
+  if (!mainName || !mainPhone || !mainEmail || !mainCode) {
+    alert("請完整填寫聯絡人資料與 6 位數驗證碼！");
+    return;
+  }
+
+  // 檢驗全票實名名冊
+  const attNames = document.querySelectorAll(".att-name");
+  const attIds = document.querySelectorAll(".att-id");
+  let attendees = [];
+
+  for (let i = 0; i < attNames.length; i++) {
+    const nameVal = attNames[i].value.trim();
+    const idVal = attIds[i].value.trim();
+    if (!nameVal || !idVal) {
+      alert(`請完整填寫第 ${i + 1} 位全票持有人實名姓名與證件號！`);
+      return;
     }
-  }, 1000);
-}
-
-// 6. 送出報名並核驗（加入 Confetti 節慶紙花）
-const btnSubmit = document.getElementById("btn-submit");
-btnSubmit.addEventListener("click", async () => {
-  const name = document.getElementById("cust-name").value.trim();
-  const phone = document.getElementById("cust-phone").value.trim();
-  const email = document.getElementById("cust-email").value.trim();
-  const verifyCode = document.getElementById("cust-code").value.trim();
-
-  if (!name || !phone || !email || !verifyCode) {
-    alert("請完整填寫所有欄位！");
-    return;
+    attendees.push({ name: nameVal, idLast4: idVal });
   }
 
-  if (!/^09\d{8}$/.test(phone)) {
-    alert("手機號碼格式不正確（需為 09 開頭 10 碼）");
-    return;
-  }
-
+  const btnSubmit = document.getElementById("btn-submit-order");
   btnSubmit.disabled = true;
-  btnSubmit.innerText = "報名處理中...";
+  btnSubmit.innerText = "系統劃位中...";
 
   try {
+    const payload = {
+      action: "submitMoonwalkerBooking",
+      contactName: mainName,
+      contactPhone: mainPhone,
+      contactEmail: mainEmail,
+      verifyCode: mainCode,
+      adultCount: counts.adult,
+      childCount: counts.child,
+      attendees: attendees,
+      totalAmount: parseInt(document.getElementById("sum-price").innerText)
+    };
+
     const res = await fetch(GAS_API_URL, {
       method: "POST",
-      body: JSON.stringify({
-        action: "submitRegistration",
-        memberCount: counts.member,
-        guestCount: counts.guest,
-        name: name,
-        phone: phone,
-        email: email,
-        verifyCode: verifyCode
-      })
+      body: JSON.stringify(payload)
     });
     const result = await res.json();
 
@@ -262,23 +334,23 @@ btnSubmit.addEventListener("click", async () => {
       document.getElementById("ticket-badge").innerText = "票券編號：" + result.ticketId;
       goToStep("success");
 
-      // 觸發聖誕主題紙花噴灑
+      // 噴灑金色與聖誕彩帶紙花
       if (typeof confetti === "function") {
         confetti({
-          particleCount: 90,
-          spread: 75,
+          particleCount: 100,
+          spread: 80,
           origin: { y: 0.6 },
-          colors: ['#c41e3a', '#f7d070', '#165b33', '#ffffff']
+          colors: ['#f7d070', '#d4a337', '#3b82f6', '#ffffff']
         });
       }
     } else {
-      alert(result.message);
+      alert(result.message || "報名驗證未通過");
       btnSubmit.disabled = false;
-      btnSubmit.innerText = "確認送出並領票";
+      btnSubmit.innerText = "確認送出並取票";
     }
   } catch (err) {
-    alert("報名送出失敗，請確認網路連線或稍後再試");
+    alert("連線逾時，請確認網路後重新送出！");
     btnSubmit.disabled = false;
-    btnSubmit.innerText = "確認送出並領票";
+    btnSubmit.innerText = "確認送出並取票";
   }
 });
