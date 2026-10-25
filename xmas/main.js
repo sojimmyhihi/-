@@ -8,7 +8,7 @@ const isEarlyBird = NOW < EARLY_BIRD_DEADLINE;
 
 let adultPrice = isEarlyBird ? 250 : 300;
 let dynamicMaxAdult = 25; // 預設早鳥上限
-let couponDiscount = 0;
+let isCouponApplied = false;
 let counts = { adult: 0, child: 0 };
 
 // 影音多媒體元素
@@ -25,7 +25,6 @@ const musicToggleBtn = document.getElementById("music-toggle");
 document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("adult-price-display").innerText = adultPrice;
 
-  // 12.1 之後優惠代碼逾期顯示
   if (!isEarlyBird) {
     const couponArea = document.getElementById("coupon-area");
     if (couponArea) {
@@ -33,7 +32,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  // 向 GAS 後端取得最新設定與剩餘票數
   await fetchTicketConfig();
 });
 
@@ -72,7 +70,7 @@ async function fetchTicketConfig() {
 }
 
 // =================================
-// 2. 音樂與雙段影片過場控制邏輯
+// 2. 音樂與雙段影片過場控制
 // =================================
 function playBGM() {
   if (audio && audio.paused) {
@@ -100,14 +98,12 @@ document.addEventListener("visibilitychange", () => {
   }
 });
 
-// 首頁點擊「點擊購票」觸發完整過場動畫
 document.getElementById("btn-start").addEventListener("click", () => {
   playBGM();
   startCutsceneSequence();
 });
 
 function startCutsceneSequence() {
-  // 1. 隱藏首頁按鈕，顯示第一段影片（跳下月亮）
   document.getElementById("step-1").classList.remove("active");
   videoJump.classList.add("visible");
   posterImg.classList.remove("visible");
@@ -115,18 +111,15 @@ function startCutsceneSequence() {
   videoJump.currentTime = 0;
   videoJump.play().catch(e => console.log("Video Jump play prevented:", e));
 
-  // 2. 當第一段影片播畢時，觸發過場閃白與第二段影片（月球漫步循環）
   videoJump.onended = () => {
     triggerFlashTransition();
   };
 }
 
 function triggerFlashTransition() {
-  // 閃光過場效果
   flashLayer.classList.add("active");
 
   setTimeout(() => {
-    // 隱藏第一段影片，啟動第二段無縫循環影片
     videoJump.classList.remove("visible");
     videoJump.pause();
 
@@ -134,7 +127,6 @@ function triggerFlashTransition() {
     videoMoonwalk.currentTime = 0;
     videoMoonwalk.play().catch(e => console.log("Video Moonwalk play prevented:", e));
 
-    // 背景微暗、卡片向上淡入浮現
     document.body.classList.add("in-subpage");
     flashLayer.classList.remove("active");
     goToStep(2);
@@ -154,7 +146,7 @@ function goToStep(step) {
 }
 
 // =================================
-// 3. 票數計算與結算 (必須購買至少 1 張全票陪同)
+// 3. 票數計算與結算 (每張全票折 50 元)
 // =================================
 function changeCount(type, delta) {
   if (type === "child") {
@@ -169,9 +161,13 @@ function changeCount(type, delta) {
 
 function updateSummary() {
   const totalTickets = counts.adult + counts.child;
-  const propsCount = counts.adult; // 僅全票附贈道具
-  const grossPrice = (counts.adult * adultPrice);
-  const netPrice = Math.max(0, grossPrice - couponDiscount);
+  const propsCount = counts.adult;
+  
+  // 優惠碼：每張全票折 50 元
+  const discountPerAdult = isCouponApplied ? 50 : 0;
+  const unitPrice = adultPrice - discountPerAdult;
+  const grossPrice = counts.adult * unitPrice;
+  const netPrice = Math.max(0, grossPrice);
 
   document.getElementById("sum-tickets").innerText = totalTickets;
   document.getElementById("sum-props").innerText = propsCount;
@@ -179,7 +175,6 @@ function updateSummary() {
 
   const btnNext = document.getElementById("btn-to-step3");
 
-  // 核心規則檢核：不能單獨只選兒童免票
   if (counts.adult >= 1) {
     btnNext.disabled = false;
     btnNext.innerText = "下一步：填寫實名資料";
@@ -192,7 +187,7 @@ function updateSummary() {
   }
 }
 
-// 優惠碼 NCKUBBB 折抵 50
+// 優惠碼 NCKUBBB：每張全票折 50 元
 const btnApplyCoupon = document.getElementById("btn-apply-coupon");
 if (btnApplyCoupon) {
   btnApplyCoupon.addEventListener("click", () => {
@@ -204,11 +199,11 @@ if (btnApplyCoupon) {
     const hint = document.getElementById("coupon-hint");
 
     if (code === "NCKUBBB") {
-      couponDiscount = 50;
+      isCouponApplied = true;
       hint.className = "hint-text ok";
-      hint.innerText = "✓ 優惠代碼套用成功！折抵 NT$ 50 元";
+      hint.innerText = "✓ 優惠代碼套用成功！每張全票折抵 NT$ 50 元";
     } else {
-      couponDiscount = 0;
+      isCouponApplied = false;
       hint.className = "hint-text fail";
       hint.innerText = "✗ 無效的優惠代碼";
     }
@@ -317,7 +312,6 @@ document.getElementById("btn-submit-order").addEventListener("click", async () =
     return;
   }
 
-  // 檢驗全票持有人實名名冊
   const attNames = document.querySelectorAll(".att-name");
   const attIds = document.querySelectorAll(".att-id");
   let attendees = [];
@@ -334,7 +328,7 @@ document.getElementById("btn-submit-order").addEventListener("click", async () =
 
   const btnSubmit = document.getElementById("btn-submit-order");
   btnSubmit.disabled = true;
-  btnSubmit.innerText = "系統劃位中...";
+  btnSubmit.innerText = "系統比對劃位中...";
 
   try {
     const payload = {
@@ -357,6 +351,16 @@ document.getElementById("btn-submit-order").addEventListener("click", async () =
 
     if (result.success) {
       document.getElementById("ticket-badge").innerText = "票券編號：" + result.ticketId;
+      
+      // 若為覆蓋重複報名，提示使用者
+      const overwriteChip = document.getElementById("overwrite-alert");
+      if (result.isOverwritten) {
+        alert("偵測到您曾報名過（姓名與手機末三碼相同或相同信箱），系統已自動為您覆蓋更新資料，不佔用額外名額！");
+        if (overwriteChip) overwriteChip.style.display = "block";
+      } else {
+        if (overwriteChip) overwriteChip.style.display = "none";
+      }
+
       goToStep("success");
 
       if (typeof confetti === "function") {
