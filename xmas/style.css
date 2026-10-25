@@ -8,339 +8,276 @@
 html, body {
   width: 100%;
   height: 100%;
-  overflow-x: hidden;
-}
-
-body {
-  font-family: 'Noto Sans TC', 'Montserrat', sans-serif;
-  background-color: #0b1f14;
-  background-image: radial-gradient(circle at 50% 30%, #173d29 0%, #08170e 100%);
+  background: #040813;
   color: #fff;
-  position: relative;
+  font-family: 'Montserrat', 'Noto Serif TC', serif;
+  overflow: hidden;
 }
 
-/* 下雪與星塵 Canvas */
-#snow-canvas {
+/* =================================
+   全螢幕多層影片與海報視圖
+   ================================= */
+.media-container {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  pointer-events: none;
   z-index: 1;
+  overflow: hidden;
 }
 
-/* 音樂懸浮鈕 */
+.media-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  opacity: 0;
+  transition: opacity 0.7s ease, filter 0.8s ease, transform 0.8s ease;
+  pointer-events: none;
+}
+
+.media-layer.visible {
+  opacity: 1;
+}
+
+/* 進入次頁時的背景微暗化與沉浸感 */
+body.in-subpage .media-layer.visible {
+  filter: brightness(0.4) blur(2.5px);
+  transform: scale(1.03);
+}
+
+/* 影片過場閃白與暗化遮罩 */
+.cutscene-flash {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 3;
+  transition: opacity 0.4s ease;
+}
+
+.cutscene-flash.active {
+  opacity: 0.85;
+}
+
+.dark-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(3, 7, 18, 0);
+  pointer-events: none;
+  z-index: 2;
+  transition: background 0.7s ease;
+}
+
+body.in-subpage .dark-overlay {
+  background: rgba(4, 9, 20, 0.6);
+}
+
+/* 音樂按鈕 */
 .music-btn {
   position: fixed;
   top: 18px;
   right: 18px;
   z-index: 100;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.12);
   border: 1px solid rgba(247, 208, 112, 0.4);
   backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   color: white;
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   font-size: 18px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4), 0 0 10px rgba(247, 208, 112, 0.2);
-  transition: transform 0.2s;
 }
 
-.music-btn:active {
-  transform: scale(0.9);
-}
-
-/* =====================================
-   獨立 Logo 樣式（首頁大氣放大、平滑縮放常駐）
-   ===================================== */
-.brand-logo {
-  position: fixed;
-  top: 12%;
-  left: 50%;
-  transform: translateX(-50%) scale(1);
-  z-index: 30;
-  pointer-events: none;
-  transition: all 0.55s cubic-bezier(0.25, 1, 0.5, 1);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-}
-
-.brand-logo .logo-img {
-  width: 270px !important;
-  max-width: 82vw !important;
-  height: auto !important;
-  max-height: 140px !important;
-  object-fit: contain !important;
-  filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.7))
-          drop-shadow(0 0 26px rgba(247, 208, 112, 0.3));
-}
-
-/* 第二頁及後續頁面的縮小常駐狀態 */
-.brand-logo.mini {
-  top: 14px;
-  transform: translateX(-50%) scale(0.46);
-}
-
-/* =====================================
-   跳舞像素小人（內建過濾黑底與踩拍擺動）
-   ===================================== */
-.dance-pixel-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 12px;
-  height: 70px;
-}
-
-.pixel-dancers-img {
-  height: 75px;
-  width: auto;
-  object-fit: contain;
-  image-rendering: pixelated;
-  mix-blend-mode: screen; /* 自動過濾黑色背景 */
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
-  animation: dance-sway 1.2s infinite ease-in-out;
-  transform-origin: bottom center;
-}
-
-@keyframes dance-sway {
-  0%, 100% { transform: translateY(0) rotate(-3deg); }
-  50% { transform: translateY(-6px) rotate(3deg); }
-}
-
-/* =====================================
-   主容器與精緻磨砂卡片
-   ===================================== */
-.container {
+/* =================================
+   頁面滑動與切換
+   ================================= */
+.ui-wrapper {
+  position: relative;
   width: 100%;
   height: 100%;
-  position: relative;
   z-index: 10;
 }
 
-.page {
+.page-view {
   position: absolute;
-  top: 55%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0.96);
-  width: calc(100% - 36px);
-  max-width: 380px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.35s ease, transform 0.35s ease;
-}
-
-.page.active {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
-  pointer-events: auto;
-}
-
-#step-1 {
-  top: 61%;
-}
-
-/* 卡片玻璃質感 + 四角金星芒裝飾 */
-.content {
-  position: relative;
+  top: 0;
+  left: 0;
   width: 100%;
-  background: rgba(18, 38, 28, 0.94);
-  border: 1px solid rgba(247, 208, 112, 0.45);
-  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.7),
-              inset 0 0 25px rgba(247, 208, 112, 0.06);
-  border-radius: 24px;
-  padding: 30px 22px;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  text-align: center;
-}
-
-.content::before {
-  content: '✦';
-  position: absolute;
-  top: 10px;
-  left: 14px;
-  font-size: 11px;
-  color: rgba(247, 208, 112, 0.7);
-  text-shadow: 0 0 6px rgba(247, 208, 112, 0.9);
-}
-
-.content::after {
-  content: '✦';
-  position: absolute;
-  top: 10px;
-  right: 14px;
-  font-size: 11px;
-  color: rgba(247, 208, 112, 0.7);
-  text-shadow: 0 0 6px rgba(247, 208, 112, 0.9);
-}
-
-/* 第一頁封面內容 */
-.xmas-badge {
-  display: inline-block;
-  background: #c41e3a;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  padding: 5px 14px;
-  border-radius: 20px;
-  margin-bottom: 12px;
-  box-shadow: 0 2px 8px rgba(196, 30, 58, 0.5);
-}
-
-.main-title {
-  font-size: 32px;
-  line-height: 1.35;
-  color: #f7d070;
-  text-shadow: 0 2px 10px rgba(247, 208, 112, 0.4);
-  margin-bottom: 8px;
-  font-weight: 800;
-}
-
-.subtitle {
-  color: #d1e7dd;
-  font-size: 14px;
-  letter-spacing: 1px;
-  margin-bottom: 26px;
-}
-
-/* =====================================
-   聖誕流光按鈕（Shimmer Glow Effect）
-   ===================================== */
-.btn-touch, .btn-next {
-  position: relative;
-  width: 100%;
-  max-width: 250px;
-  background: linear-gradient(135deg, #c41e3a, #99162c);
-  color: #fff;
-  border: none;
-  padding: 16px 24px;
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  border-radius: 50px;
-  cursor: pointer;
-  overflow: hidden;
-  box-shadow: 0 4px 20px rgba(196, 30, 58, 0.6), 0 0 15px rgba(247, 208, 112, 0.25);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.btn-touch::after, .btn-next:not(:disabled)::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(
-    60deg,
-    transparent 20%,
-    rgba(255, 255, 255, 0.28) 50%,
-    transparent 80%
-  );
-  transform: rotate(25deg);
-  animation: shimmer-swipe 3.5s infinite ease-in-out;
-  pointer-events: none;
-}
-
-@keyframes shimmer-swipe {
-  0% { transform: translate(-100%, -100%) rotate(25deg); }
-  35%, 100% { transform: translate(100%, 100%) rotate(25deg); }
-}
-
-.btn-touch:active, .btn-next:active {
-  transform: scale(0.97);
-}
-
-.btn-next {
-  max-width: 100%;
-  border-radius: 12px;
-  padding: 14px;
-}
-
-.btn-next:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-/* 第二頁票券選擇 */
-.step-title {
-  font-size: 24px;
-  color: #f7d070;
-  margin-bottom: 6px;
-  font-weight: 700;
-}
-
-.step-desc {
-  font-size: 13px;
-  color: #c0d4ca;
-  margin-bottom: 20px;
-}
-
-.ticket-cards {
+  height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.page-view.active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* 首頁金色閃爍按鈕 */
+.cta-anchor {
+  position: absolute;
+  bottom: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.btn-pulse-gold {
+  background: linear-gradient(135deg, #f7d070, #d4a337);
+  color: #120e06;
+  border: none;
+  padding: 14px 34px;
+  border-radius: 40px;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: pulse-gold-glow 1.8s infinite alternate ease-in-out;
+}
+
+.gold-sub {
+  font-size: 10px;
+  letter-spacing: 2px;
+  opacity: 0.8;
+  margin-top: 3px;
+}
+
+@keyframes pulse-gold-glow {
+  0% { transform: scale(0.96); box-shadow: 0 0 16px rgba(247, 208, 112, 0.4); }
+  100% { transform: scale(1.04); box-shadow: 0 0 35px rgba(247, 208, 112, 0.9); }
+}
+
+/* =================================
+   次頁可滾動磨砂卡片
+   ================================= */
+.glass-sheet {
+  width: 100%;
+  max-width: 420px;
+  max-height: 86vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background: rgba(10, 16, 28, 0.9);
+  border: 1px solid rgba(247, 208, 112, 0.4);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+  border-radius: 24px;
+  padding: 26px 20px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.title-serif {
+  font-size: 23px;
+  color: #f7d070;
+  text-align: center;
+  font-weight: 800;
+  margin-bottom: 6px;
+  letter-spacing: 1px;
+}
+
+.subtitle-serif {
+  font-size: 13px;
+  color: #c4d0e5;
+  text-align: center;
   margin-bottom: 18px;
 }
 
-.ticket-card {
-  background: rgba(255, 255, 255, 0.05);
+/* 活動特色欄 */
+.event-capsule {
+  background: rgba(247, 208, 112, 0.08);
+  border-left: 3px solid #f7d070;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* 票券項目 */
+.ticket-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.ticket-row {
+  background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 14px;
-  padding: 14px 16px;
+  border-radius: 16px;
+  padding: 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  transition: transform 0.2s ease;
 }
 
-.card-header {
-  text-align: left;
-}
-
-.badge {
+.chip {
+  display: inline-block;
   font-size: 11px;
   padding: 2px 8px;
   border-radius: 10px;
-  display: inline-block;
+  font-weight: 700;
   margin-bottom: 4px;
-  font-weight: 600;
 }
+.chip.gold { background: #d4a337; color: #111; }
+.chip.blue { background: #2563eb; color: #fff; }
+.chip.red { background: #dc2626; color: #fff; }
 
-.badge.gold { background: #d4a337; color: #1a1a1a; }
-.badge.red { background: #c41e3a; color: #fff; }
-
-.ticket-card h3 {
-  font-size: 16px;
-  color: #fff;
+.ticket-details h3 {
+  font-size: 17px;
   margin-bottom: 2px;
 }
 
-.price {
-  font-size: 17px;
-  font-weight: 700;
-  color: #f7d070;
+.bonus-text {
+  font-size: 11px;
+  color: #ffd875;
 }
+.bonus-text.muted { color: #94a3b8; }
 
-.stepper {
+.price-val {
+  font-size: 17px;
+  color: #f7d070;
+  font-weight: 800;
+  margin-top: 4px;
+}
+.price-val.free { color: #60a5fa; }
+
+.stepper-box {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(0, 0, 0, 0.3);
-  padding: 4px 10px;
-  border-radius: 20px;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 6px 12px;
+  border-radius: 30px;
 }
 
 .step-btn {
@@ -349,126 +286,207 @@ body {
   border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.3);
   background: rgba(255, 255, 255, 0.1);
-  color: white;
-  font-size: 16px;
+  color: #fff;
+  font-size: 17px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s;
 }
 
-.step-btn:active {
-  background: rgba(247, 208, 112, 0.4);
-}
-
-.count-val {
+.step-val {
   font-size: 16px;
-  font-weight: 700;
+  font-weight: bold;
   min-width: 16px;
+  text-align: center;
 }
 
-.summary-box {
-  background: rgba(0, 0, 0, 0.35);
+/* 優惠代碼輸入 */
+.coupon-container {
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.coupon-input-group {
+  display: flex;
+  gap: 8px;
+}
+
+.coupon-input-group input {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: #fff;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.btn-coupon-apply {
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  padding: 0 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.hint-text {
+  font-size: 12px;
+  margin-top: 6px;
+}
+.hint-text.ok { color: #4ade80; }
+.hint-text.fail { color: #f87171; }
+
+/* 總計明細 */
+.order-summary-box {
+  background: rgba(0, 0, 0, 0.4);
   border-radius: 12px;
   padding: 12px 16px;
+  margin-bottom: 18px;
+}
+
+.summary-item {
   display: flex;
   justify-content: space-between;
-  font-size: 14px;
-  margin-bottom: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.summary-total {
-  color: #f7d070;
-  font-weight: 700;
-}
-
-/* 第三頁表單 */
-.form-group {
-  text-align: left;
-  margin-bottom: 14px;
-}
-
-.form-group label {
-  display: block;
   font-size: 13px;
-  color: #d1e7dd;
   margin-bottom: 6px;
 }
 
-.form-group input {
+.final-line {
+  font-size: 16px;
+  margin-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  padding-top: 8px;
+}
+
+.amount-glow {
+  color: #f7d070;
+  font-weight: 800;
+  font-size: 20px;
+}
+
+/* 按鈕樣式 */
+.btn-action {
   width: 100%;
-  padding: 12px;
-  border-radius: 8px;
+  background: linear-gradient(135deg, #c41e3a, #99162c);
+  color: #fff;
+  border: none;
+  padding: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(196, 30, 58, 0.4);
+}
+
+.btn-action:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* 實名制表單 */
+.form-block {
+  margin-bottom: 18px;
+}
+
+.block-title {
+  font-size: 12px;
+  font-weight: bold;
+  color: #f7d070;
+  margin-bottom: 10px;
+  border-left: 3px solid #f7d070;
+  padding-left: 8px;
+}
+
+.field-item {
+  margin-bottom: 12px;
+}
+
+.field-item label {
+  display: block;
+  font-size: 12px;
+  color: #cbd5e1;
+  margin-bottom: 4px;
+}
+
+.field-item input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  padding: 10px 12px;
   color: #fff;
   font-size: 14px;
   outline: none;
-  transition: border 0.2s;
 }
 
-.form-group input:focus {
-  border-color: #f7d070;
-}
-
-.email-input-wrap {
+.input-merge {
   display: flex;
   gap: 8px;
 }
 
 .btn-verify {
   white-space: nowrap;
-  background: #165b33;
-  color: white;
+  background: #1e3a8a;
   border: none;
+  color: #fff;
   padding: 0 12px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 12px;
   cursor: pointer;
 }
 
-.input-hint {
-  font-size: 12px;
-  color: #ff8c8c;
-  display: block;
-  margin-top: 4px;
+.attendee-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed rgba(247, 208, 112, 0.3);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
 }
 
-.btn-group {
+.dual-btn-group {
   display: flex;
   gap: 10px;
-  margin-top: 20px;
+  margin-top: 18px;
 }
 
-.btn-back {
+.btn-secondary {
   flex: 1;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
-  padding: 12px;
-  border-radius: 8px;
-  font-size: 14px;
+  color: #fff;
+  border-radius: 10px;
   cursor: pointer;
 }
 
-.btn-group .btn-next {
+.dual-btn-group .btn-action {
   flex: 2;
 }
 
-/* 成功頁 */
-.success-icon {
-  font-size: 54px;
-  margin-bottom: 12px;
+/* 成功畫面 */
+.success-wrap {
+  text-align: center;
 }
 
-.ticket-badge {
-  margin-top: 18px;
+.big-moon {
+  font-size: 52px;
+  margin-bottom: 10px;
+}
+
+.badge-chip {
+  margin: 18px 0;
   padding: 12px;
   background: rgba(247, 208, 112, 0.15);
   border: 1px dashed #f7d070;
   border-radius: 8px;
   color: #f7d070;
-  font-weight: bold;
+  font-weight: 700;
+  font-size: 17px;
+}
+
+.footer-note {
+  font-size: 12px;
+  color: #94a3b8;
 }
