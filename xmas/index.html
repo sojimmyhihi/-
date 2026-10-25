@@ -1,139 +1,170 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🎄 聖誕狂歡活動報名</title>
-  <!-- 版本號防快取 -->
-  <link rel="stylesheet" href="style.css?v=visual_pro">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
-  <!-- 輕量彩帶特效庫 (CDN) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🌙 2026 NCKUBDC XmaxParty - Moonwalker</title>
+  <link rel="stylesheet" href="style.css?v=mw_v2">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Noto+Serif+TC:wght@500;700;900&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
-  <!-- 背景下雪與星塵 Canvas -->
-  <canvas id="snow-canvas"></canvas>
-
-  <!-- 音樂控制懸浮鈕 -->
+  <!-- 音樂控制鈕 -->
   <button id="music-toggle" class="music-btn" title="音樂開關">🎵</button>
   <audio id="bg-music" loop preload="auto">
     <source src="xmas-music.mp3" type="audio/mpeg">
   </audio>
 
-  <!-- 獨立常駐 Logo（純圖片，首頁放大、換頁自動縮小靠頂） -->
-  <div id="main-logo" class="brand-logo">
-    <img src="logo.png" alt="Logo" class="logo-img">
+  <!-- 全螢幕動態影音背景架構 -->
+  <div id="media-viewport" class="media-container">
+    <!-- 首頁海報 -->
+    <img src="poster.jpg" alt="Poster" id="poster-img" class="media-layer visible">
+
+    <!-- 影片 1：人物跳下月亮 (不循環) -->
+    <video id="video-jump" class="media-layer" playsinline muted preload="auto">
+      <source src="video-jump.mp4" type="video/mp4">
+    </video>
+
+    <!-- 影片 2：月球漫步來回 (無縫循環) -->
+    <video id="video-moonwalk" class="media-layer" playsinline muted loop preload="auto">
+      <source src="video-moonwalk.mp4" type="video/mp4">
+    </video>
+
+    <!-- 專屬過場光暈遮罩 -->
+    <div id="cutscene-flash" class="cutscene-flash"></div>
+    <div id="dark-overlay" class="dark-overlay"></div>
   </div>
 
-  <main class="container">
-    <!-- 第一頁：封面 -->
-    <section id="step-1" class="page active">
-      <div class="content cover-content">
-        <div class="xmas-badge">MERRY CHRISTMAS</div>
-        <h1 class="main-title">聖誕派對<br>狂歡夜</h1>
-        <p class="subtitle">Winter Celebration 2026</p>
-        <button id="btn-start" class="btn-touch">
-          <span>TOUCH TO START</span>
+  <main class="ui-wrapper">
+    <!-- 第一頁：主視覺全貌與點擊購票閃爍鈕 -->
+    <section id="step-1" class="page-view active">
+      <div class="cta-anchor">
+        <button id="btn-start" class="btn-pulse-gold">
+          <span class="gold-text">✦ 點擊購票 ✦</span>
+          <span class="gold-sub">JOIN THE MOONWALK</span>
         </button>
       </div>
     </section>
 
-    <!-- 第二頁：票種選擇 -->
-    <section id="step-2" class="page">
-      <div class="content">
-        <!-- 頂部跳舞小人區塊（已套用過濾黑底樣式） -->
-        <div class="dance-pixel-container">
-          <img src="pixel-dancers.gif" alt="Dancing" class="pixel-dancers-img">
+    <!-- 第二頁：票數選擇 (背景播著月球漫步，可上下滑動檢視) -->
+    <section id="step-2" class="page-view">
+      <div class="glass-sheet">
+        <h2 class="title-serif">選擇購票數量</h2>
+        <p class="subtitle-serif">加入夢醒者行列，體驗深夜舞池奇蹟</p>
+
+        <!-- 活動特色備註 -->
+        <div class="event-capsule">
+          <div>⏰ <strong>時間：</strong>2026.12.25 (五) 18:30</div>
+          <div>👗 <strong>Dress Code：</strong>請穿著睡衣風格服裝入場</div>
         </div>
 
-        <h2 class="step-title">選擇報名票種</h2>
-        <p class="step-desc">請選擇參加人數，系統將自動結算費用</p>
-
-        <div class="ticket-cards">
-          <!-- 社員票 -->
-          <div class="ticket-card member-card">
-            <div class="card-header">
-              <span class="badge gold">社員專屬</span>
-              <h3>本學期社員</h3>
-              <p class="price">$350 <small>/ 人</small></p>
+        <div class="ticket-list">
+          <!-- 全票區塊 (JS 動態切換早鳥/晚鳥) -->
+          <div class="ticket-row">
+            <div class="ticket-details">
+              <span id="adult-tag" class="chip gold">讀取票額中...</span>
+              <h3 id="adult-title">全票</h3>
+              <p class="bonus-text">🎁 每張皆附贈「專屬活動道具」乙枚</p>
+              <div class="price-val">NT$ <span id="adult-price-display">--</span></div>
             </div>
-            <div class="stepper">
-              <button class="step-btn minus" onclick="changeCount('member', -1)">-</button>
-              <span id="member-count" class="count-val">0</span>
-              <button class="step-btn plus" onclick="changeCount('member', 1)">+</button>
+            <div class="stepper-box">
+              <button class="step-btn" onclick="changeCount('adult', -1)">-</button>
+              <span id="adult-count" class="step-val">0</span>
+              <button class="step-btn" onclick="changeCount('adult', 1)">+</button>
             </div>
           </div>
 
-          <!-- 朋友票 -->
-          <div class="ticket-card guest-card">
-            <div class="card-header">
-              <span class="badge red">好友同行</span>
-              <h3>社外好朋友</h3>
-              <p class="price">$500 <small>/ 人</small></p>
+          <!-- 14 歲以下免票 -->
+          <div class="ticket-row">
+            <div class="ticket-details">
+              <span class="chip blue">親子同行</span>
+              <h3>14 歲以下兒童票</h3>
+              <p class="bonus-text muted">⚠️ 免費入場，無附贈道具（每人最多兩名）</p>
+              <div class="price-val free">免費 (NT$ 0)</div>
             </div>
-            <div class="stepper">
-              <button class="step-btn minus" onclick="changeCount('guest', -1)">-</button>
-              <span id="guest-count" class="count-val">0</span>
-              <button class="step-btn plus" onclick="changeCount('guest', 1)">+</button>
+            <div class="stepper-box">
+              <button class="step-btn" onclick="changeCount('child', -1)">-</button>
+              <span id="child-count" class="step-val">0</span>
+              <button class="step-btn" onclick="changeCount('child', 1)">+</button>
             </div>
           </div>
         </div>
 
-        <div class="summary-box">
-          <div class="summary-info">已選：<span id="total-tickets">0</span> 張票</div>
-          <div class="summary-total">總計：NT$ <span id="total-price">0</span></div>
+        <!-- 優惠折扣碼 (12.1 以前有效) -->
+        <div class="coupon-container" id="coupon-area">
+          <div class="coupon-input-group">
+            <input type="text" id="coupon-code" placeholder="輸入優惠代碼 (例: NCKUBBB)" uppercase>
+            <button type="button" id="btn-apply-coupon" class="btn-coupon-apply">套用</button>
+          </div>
+          <div id="coupon-hint" class="hint-text"></div>
         </div>
 
-        <button id="btn-to-step3" class="btn-next" disabled>填寫資料</button>
+        <!-- 結算總計 -->
+        <div class="order-summary-box">
+          <div class="summary-item">
+            <span>票券總計：</span>
+            <span><strong id="sum-tickets">0</strong> 張（附贈道具 <strong id="sum-props">0</strong> 枚）</span>
+          </div>
+          <div class="summary-item final-line">
+            <span>應付金額：</span>
+            <span class="amount-glow">NT$ <span id="sum-price">0</span></span>
+          </div>
+        </div>
+
+        <button id="btn-to-step3" class="btn-action" disabled>下一步：填寫實名資料</button>
       </div>
     </section>
 
-    <!-- 第三頁：詳細資料與 Email 驗證 -->
-    <section id="step-3" class="page">
-      <div class="content">
-        <h2 class="step-title">填寫報名資料</h2>
-        <p class="step-desc">請輸入主要聯絡人資訊以收取電子票券</p>
+    <!-- 第三頁：主要聯絡人與全票實名名單 -->
+    <section id="step-3" class="page-view">
+      <div class="glass-sheet">
+        <h2 class="title-serif">實名資料登記</h2>
+        <p class="subtitle-serif">當天請務必出示信箱 QR Code 及有效身分證件正本</p>
 
-        <form id="reg-form" onsubmit="event.preventDefault();">
-          <div class="form-group">
-            <label>主要聯絡人姓名 *</label>
-            <input type="text" id="cust-name" placeholder="請輸入姓名" required>
-          </div>
-
-          <div class="form-group">
-            <label>聯絡電話 (台灣手機 10 碼) *</label>
-            <input type="tel" id="cust-phone" inputmode="numeric" placeholder="例如：0912345678" maxlength="10" required>
-            <span class="input-hint" id="phone-hint"></span>
-          </div>
-
-          <div class="form-group">
-            <label>電子信箱 (接收電子票券) *</label>
-            <div class="email-input-wrap">
-              <input type="email" id="cust-email" placeholder="example@email.com" required>
-              <button type="button" id="btn-send-code" class="btn-verify">傳送驗證碼</button>
+        <form id="attendee-form" onsubmit="event.preventDefault();">
+          <!-- 聯絡人 -->
+          <div class="form-block">
+            <div class="block-title">主要聯絡人 (接收電子票券)</div>
+            <div class="field-item">
+              <label>姓名 *</label>
+              <input type="text" id="main-name" placeholder="請輸入聯絡人姓名" required>
+            </div>
+            <div class="field-item">
+              <label>手機號碼 (10碼) *</label>
+              <input type="tel" id="main-phone" maxlength="10" placeholder="09xxxxxxxx" required>
+            </div>
+            <div class="field-item">
+              <label>電子信箱 *</label>
+              <div class="input-merge">
+                <input type="email" id="main-email" placeholder="name@example.com" required>
+                <button type="button" id="btn-send-verify" class="btn-verify">傳送驗證碼</button>
+              </div>
+            </div>
+            <div class="field-item">
+              <label>信箱 6 位驗證碼 *</label>
+              <input type="text" id="main-code" maxlength="6" placeholder="請輸入驗證碼" required>
             </div>
           </div>
 
-          <div class="form-group">
-            <label>信箱 6 位數驗證碼 *</label>
-            <input type="text" id="cust-code" inputmode="numeric" maxlength="6" placeholder="請輸入收到的驗證碼" required>
-          </div>
+          <!-- 動態實名制名冊 -->
+          <div id="dynamic-attendees" class="form-block"></div>
 
-          <div class="btn-group">
-            <button type="button" class="btn-back" onclick="goToStep(2)">回上一步</button>
-            <button type="button" id="btn-submit" class="btn-next">確認送出並領票</button>
+          <div class="dual-btn-group">
+            <button type="button" class="btn-secondary" onclick="goToStep(2)">返回修改</button>
+            <button type="button" id="btn-submit-order" class="btn-action">確認送出並取票</button>
           </div>
         </form>
       </div>
     </section>
 
-    <!-- 完成頁 -->
-    <section id="step-success" class="page">
-      <div class="content success-content">
-        <div class="success-icon">🎟️</div>
-        <h2>報名成功！</h2>
-        <p>電子票券已寄送至您的信箱，活動當天請憑信件 QR Code 入場。</p>
-        <div id="ticket-badge" class="ticket-badge"></div>
+    <!-- 成功領票畫面 -->
+    <section id="step-success" class="page-view">
+      <div class="glass-sheet success-wrap">
+        <div class="big-moon">🌕</div>
+        <h2 class="title-serif">歡迎加入夢醒者行列！</h2>
+        <p class="subtitle-serif">入場 QR Code 電子票券已發送至您的信箱。</p>
+        <div id="ticket-badge" class="badge-chip"></div>
+        <p class="footer-note">12.25 18:30 請著睡衣風格服飾準時赴約！</p>
       </div>
     </section>
   </main>
