@@ -1,5 +1,5 @@
 // === GAS 後端部署 URL ===
-const GAS_API_URL = "https://script.google.com/macros/s/AKfycbylhpmhV38QJ54i1ysZsNSBBLfaVgvQKFFh1HSEEvVNC-C55eO_hoCCF2xkmooxdmq7/exec";
+const GAS_API_URL = "https://script.google.com/macros/s/AKfycbziZu_kkuy0vOoydjRaSqO56wJVQ7-f90-GsK3Br7wiGxikomCYf4tqqPbhRoZXifb0/exec";
 
 // 判斷 12/1 前後時限
 const NOW = new Date();
