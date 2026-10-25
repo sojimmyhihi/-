@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>🌙 2026 NCKUBDC XmaxParty - Moonwalker</title>
-  <link rel="stylesheet" href="style.css?v=mw_cutscene_pro">
+  <link rel="stylesheet" href="style.css?v=mw_clarity_v3">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Noto+Serif+TC:wght@500;700;900&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
@@ -46,7 +46,7 @@
       </div>
     </section>
 
-    <!-- 第二頁：票數選擇（高通透磨砂卡片，可上下滑動，背後持續月球漫步） -->
+    <!-- 第二頁：票數選擇（高通透磨砂卡片，可上下滑動，背後清晰透出月球漫步） -->
     <section id="step-2" class="page-view">
       <div class="glass-sheet">
         <h2 class="title-serif">選擇購票數量</h2>
@@ -157,13 +157,24 @@
       </div>
     </section>
 
-    <!-- 完成領票畫面 -->
+    <!-- 完成領票畫面 (包含付款提醒) -->
     <section id="step-success" class="page-view">
       <div class="glass-sheet success-wrap">
         <div class="big-moon">🌕</div>
         <h2 class="title-serif">歡迎加入夢醒者行列！</h2>
+        <div id="overwrite-alert" class="overwrite-chip" style="display: none;">ℹ️ 系統已自動覆蓋更新您先前的報名紀錄</div>
         <p class="subtitle-serif">入場 QR Code 電子票券已寄送至您的信箱。</p>
         <div id="ticket-badge" class="badge-chip"></div>
+
+        <!-- 付款提醒專屬卡片 -->
+        <div class="payment-notice-card">
+          <h4>⚠️ 重要付款提醒：</h4>
+          <p>1. 請於報名後 <strong>五天內</strong> 主動私訊粉專提供報名姓名與電話。</p>
+          <p>2. <strong>首次參加國標社活動者僅提供現金繳費</strong>。</p>
+          <p>3. 其餘人員可私訊老師轉帳匯款。</p>
+          <p class="deadline-warning">※ 報名資料填寫完五天後未繳費，名額將自動取消並釋出！</p>
+        </div>
+
         <p class="footer-note">12.25 18:30 請著睡衣風格服飾準時赴約！</p>
       </div>
     </section>
