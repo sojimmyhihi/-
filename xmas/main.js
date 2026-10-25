@@ -25,6 +25,16 @@ const musicToggleBtn = document.getElementById("music-toggle");
 document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("adult-price-display").innerText = adultPrice;
 
+  // 為手機 Chrome/Safari 提前配置影片屬性，繞過自動播放限制
+  [videoJump, videoMoonwalk].forEach(v => {
+    if (v) {
+      v.muted = true;
+      v.defaultMuted = true;
+      v.setAttribute("playsinline", "");
+      v.setAttribute("webkit-playsinline", "");
+    }
+  });
+
   if (!isEarlyBird) {
     const couponArea = document.getElementById("coupon-area");
     if (couponArea) {
@@ -70,7 +80,7 @@ async function fetchTicketConfig() {
 }
 
 // =================================
-// 2. 音畫雙段播放控制邏輯
+// 2. 音畫雙段播放控制邏輯 (手機 Chrome 嚴格適配版)
 // =================================
 function playBGM() {
   if (audio && audio.paused) {
@@ -105,18 +115,31 @@ document.getElementById("btn-start").addEventListener("click", () => {
 });
 
 function startCutsceneSequence() {
-  // 1. 隱藏首頁按鈕，顯示第一段影片（跳下月亮）
   document.getElementById("step-1").classList.remove("active");
+
+  if (!videoJump) {
+    triggerFlashTransition();
+    return;
+  }
+
+  // 顯示影片 1，隱藏首頁靜態海報
   videoJump.classList.add("visible");
   posterImg.classList.remove("visible");
 
+  // 手機 Chrome 關鍵：播放前強制宣告靜音並定位於第 0 秒
+  videoJump.muted = true;
+  videoJump.defaultMuted = true;
   videoJump.currentTime = 0;
-  videoJump.play().catch(e => {
-    console.log("Video 1 play prevented, fallback direct", e);
-    triggerFlashTransition();
-  });
 
-  // 2. 當第一段影片播畢時，觸發過場閃白與第二段循環影片（月球漫步）
+  const playPromise = videoJump.play();
+  if (playPromise !== undefined) {
+    playPromise.catch(error => {
+      console.warn("手機 Chrome 限制影片播放，立即啟用平滑過場備案:", error);
+      triggerFlashTransition();
+    });
+  }
+
+  // 第一段播放完畢時，觸發轉場到第二段
   videoJump.onended = () => {
     triggerFlashTransition();
   };
@@ -126,12 +149,22 @@ function triggerFlashTransition() {
   flashLayer.classList.add("active");
 
   setTimeout(() => {
-    videoJump.classList.remove("visible");
-    videoJump.pause();
+    if (videoJump) {
+      videoJump.classList.remove("visible");
+      videoJump.pause();
+    }
 
-    videoMoonwalk.classList.add("visible");
-    videoMoonwalk.currentTime = 0;
-    videoMoonwalk.play().catch(e => console.log("Video 2 play prevented", e));
+    if (videoMoonwalk) {
+      videoMoonwalk.classList.add("visible");
+      videoMoonwalk.muted = true;
+      videoMoonwalk.defaultMuted = true;
+      videoMoonwalk.currentTime = 0;
+      
+      const playPromise2 = videoMoonwalk.play();
+      if (playPromise2 !== undefined) {
+        playPromise2.catch(e => console.warn("Video 2 播放受限:", e));
+      }
+    }
 
     document.body.classList.add("in-subpage");
     flashLayer.classList.remove("active");
@@ -300,7 +333,7 @@ btnSendVerify.addEventListener("click", async () => {
 // 送出訂單
 document.getElementById("btn-submit-order").addEventListener("click", async () => {
   if (counts.adult < 1) {
-    alert("14 歲（含）以下免票兒童需至少一位成人（全票）陪同入場！");
+    alert("14 歲（含）以下免票孩童需至少一位成人（全票）陪同入場！");
     goToStep(2);
     return;
   }
