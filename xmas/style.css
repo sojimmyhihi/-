@@ -15,7 +15,7 @@ html, body {
 }
 
 /* =================================
-   全螢幕背景海報與高通透適配 (支援手機與電腦)
+   全螢幕多層影音視圖
    ================================= */
 .media-container {
   position: fixed;
@@ -36,14 +36,37 @@ html, body {
   height: 100%;
   object-fit: cover;
   object-position: center top;
-  opacity: 1;
-  transition: filter 0.8s ease, transform 0.8s ease;
+  opacity: 0;
+  transition: opacity 0.7s ease, filter 0.8s ease, transform 0.8s ease;
+  pointer-events: none;
 }
 
-/* 次頁背景保持高亮度與鮮豔度，清晰透出主視覺背景 */
-body.in-subpage .media-layer {
-  filter: brightness(0.72) saturate(1.1);
+.media-layer.visible {
+  opacity: 1;
+}
+
+/* 進入次頁時背景保持高透亮與鮮豔度，清晰透出月球漫步動作 */
+body.in-subpage .media-layer.visible {
+  filter: brightness(0.75) saturate(1.1);
   transform: scale(1.02);
+}
+
+/* 影片過場閃白與微暗遮罩 */
+.cutscene-flash {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 3;
+  transition: opacity 0.35s ease;
+}
+
+.cutscene-flash.active {
+  opacity: 0.85;
 }
 
 .dark-overlay {
@@ -52,14 +75,14 @@ body.in-subpage .media-layer {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(2, 6, 14, 0);
+  background: rgba(3, 7, 18, 0);
   pointer-events: none;
   z-index: 2;
   transition: background 0.7s ease;
 }
 
 body.in-subpage .dark-overlay {
-  background: rgba(2, 6, 14, 0.28); /* 僅極輕微暗化，確保通透度 */
+  background: rgba(2, 6, 14, 0.28);
 }
 
 /* 音樂懸浮鈕 */
@@ -158,7 +181,7 @@ body.in-subpage .dark-overlay {
 }
 
 /* =================================
-   高通透磨砂玻璃卡片 (可清晰看見背景)
+   高通透磨砂玻璃卡片 (清晰透出背後影片)
    ================================= */
 .glass-sheet {
   width: 100%;
@@ -166,7 +189,7 @@ body.in-subpage .dark-overlay {
   max-height: 86vh;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  background: rgba(8, 14, 26, 0.48); /* 關鍵低濃度底色，維持背景通透 */
+  background: rgba(8, 14, 26, 0.48);
   border: 1px solid rgba(247, 208, 112, 0.45);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(247, 208, 112, 0.08);
   border-radius: 24px;
@@ -326,7 +349,7 @@ body.in-subpage .dark-overlay {
 .hint-text.ok { color: #4ade80; }
 .hint-text.fail { color: #f87171; }
 
-/* 結算總計 */
+/* 總計明細 */
 .order-summary-box {
   background: rgba(0, 0, 0, 0.5);
   border-radius: 12px;
@@ -487,18 +510,18 @@ body.in-subpage .dark-overlay {
    ========================================================= */
 @media (min-width: 900px) {
   .media-layer {
-    object-fit: contain; /* 保證海報完整居中不被裁切 */
+    object-fit: contain;
     max-width: 720px;
     left: 50%;
     transform: translateX(-50%);
   }
 
-  body.in-subpage .media-layer {
+  body.in-subpage .media-layer.visible {
     transform: translateX(-50%) scale(1.02);
   }
 
   .cta-anchor {
-    bottom: 5.5%; /* 避開人物身軀 */
+    bottom: 5.5%;
   }
 
   .btn-pulse-gold {
