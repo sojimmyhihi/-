@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>🌙 2026 NCKUBDC XmaxParty - Moonwalker</title>
-  <link rel="stylesheet" href="style.css?v=mw_fixed_v1">
+  <link rel="stylesheet" href="style.css?v=mw_fixed_v2">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Noto+Serif+TC:wght@500;700;900&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
@@ -15,10 +15,24 @@
     <source src="xmas-music.mp3" type="audio/mpeg">
   </audio>
 
-  <!-- 全螢幕靜態主視覺海報與氛圍背景層 -->
+  <!-- 全螢幕影音與主視覺層 -->
   <div id="media-viewport" class="media-container">
-    <img src="poster.png" alt="Moonwalker Poster" id="poster-img" class="media-layer visible">
-    <div class="dark-overlay"></div>
+    <!-- 首頁海報 -->
+    <img src="poster.png" alt="Poster" id="poster-img" class="media-layer visible">
+
+    <!-- 影片 1：人物跳下月亮 (不循環) -->
+    <video id="video-jump" class="media-layer" playsinline muted preload="auto">
+      <source src="video-jump.mp4" type="video/mp4">
+    </video>
+
+    <!-- 影片 2：月球漫步來回 (無縫循環) -->
+    <video id="video-moonwalk" class="media-layer" playsinline muted loop preload="auto">
+      <source src="video-moonwalk.mp4" type="video/mp4">
+    </video>
+
+    <!-- 專屬過場光暈與微暗遮罩 -->
+    <div id="cutscene-flash" class="cutscene-flash"></div>
+    <div id="dark-overlay" class="dark-overlay"></div>
   </div>
 
   <main class="ui-wrapper">
@@ -32,7 +46,7 @@
       </div>
     </section>
 
-    <!-- 第二頁：票數選擇（高通透磨砂卡片，可上下滑動） -->
+    <!-- 第二頁：票數選擇（高通透磨砂卡片，背後播放月球漫步循環影片） -->
     <section id="step-2" class="page-view">
       <div class="glass-sheet">
         <h2 class="title-serif">選擇購票數量</h2>
@@ -65,7 +79,7 @@
             <div class="ticket-details">
               <span class="chip blue">親子同行</span>
               <h3>14 歲（含）以下兒童票</h3>
-              <p class="bonus-text muted">⚠️ 免費入場，無附贈道具（每位大人最多攜帶兩名）</p>
+              <p class="bonus-text muted">⚠️ 免費入場，無附贈道具（每位大人限額兩名）</p>
               <div class="price-val free">免費 (NT$ 0)</div>
             </div>
             <div class="stepper-box">
@@ -79,7 +93,7 @@
         <!-- 優惠代碼輸入區 -->
         <div class="coupon-container" id="coupon-area">
           <div class="coupon-input-group">
-            <input type="text" id="coupon-code" placeholder="輸入優惠代碼 (例: 1234566)" uppercase>
+            <input type="text" id="coupon-code" placeholder="輸入優惠代碼 (例: NCKUBBB)" uppercase>
             <button type="button" id="btn-apply-coupon" class="btn-coupon-apply">套用</button>
           </div>
           <div id="coupon-hint" class="hint-text"></div>
@@ -101,7 +115,7 @@
       </div>
     </section>
 
-    <!-- 第三頁：實名制名單與信箱驗證 -->
+    <!-- 第三頁：實名制名冊與主要聯絡人 -->
     <section id="step-3" class="page-view">
       <div class="glass-sheet">
         <h2 class="title-serif">實名資料登記</h2>
