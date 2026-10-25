@@ -11,21 +11,15 @@ let dynamicMaxAdult = 25; // 預設早鳥上限
 let couponDiscount = 0;
 let counts = { adult: 0, child: 0 };
 
-// 媒體元素
-const posterImg = document.getElementById("poster-img");
-const videoJump = document.getElementById("video-jump");
-const videoMoonwalk = document.getElementById("video-moonwalk");
-const flashLayer = document.getElementById("cutscene-flash");
+// 音樂與介面元素
 const audio = document.getElementById("bg-music");
 const musicToggleBtn = document.getElementById("music-toggle");
 
-// =================================
 // 1. 初始化票額與後台設定讀取
-// =================================
 document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("adult-price-display").innerText = adultPrice;
 
-  // 12.1 之後優惠碼逾期顯示
+  // 12.1 之後優惠代碼逾期顯示
   if (!isEarlyBird) {
     const couponArea = document.getElementById("coupon-area");
     if (couponArea) {
@@ -71,9 +65,7 @@ async function fetchTicketConfig() {
   }
 }
 
-// =================================
-// 2. 音畫雙段播放控制邏輯
-// =================================
+// 2. 音訊播放與頁面離開暫停
 function playBGM() {
   if (audio && audio.paused) {
     audio.play().catch(e => console.log("需點擊互動播放音訊:", e));
@@ -93,7 +85,6 @@ if (musicToggleBtn) {
   });
 }
 
-// 離開分頁自動暫停音訊
 document.addEventListener("visibilitychange", () => {
   if (document.hidden && audio) {
     audio.pause();
@@ -101,56 +92,26 @@ document.addEventListener("visibilitychange", () => {
   }
 });
 
-// 點擊「點擊購票」啟動動畫鏈
+// 首頁點擊購票：直接切換至次頁並微暗背景
 document.getElementById("btn-start").addEventListener("click", () => {
   playBGM();
-  startCutsceneSequence();
+  document.body.classList.add("in-subpage");
+  goToStep(2);
 });
-
-function startCutsceneSequence() {
-  // 1. 隱藏首頁按鈕，顯示第一段影片（跳下月亮）
-  document.getElementById("step-1").classList.remove("active");
-  videoJump.classList.add("visible");
-  posterImg.classList.remove("visible");
-
-  videoJump.currentTime = 0;
-  videoJump.play().catch(e => console.log("Video 1 play prevented", e));
-
-  // 2. 當第一段影片播畢時，觸發過場閃白與第二段影片（月球漫步）
-  videoJump.onended = () => {
-    triggerFlashTransition();
-  };
-}
-
-function triggerFlashTransition() {
-  // 閃爍過場效果
-  flashLayer.classList.add("active");
-
-  setTimeout(() => {
-    // 切換至第二段循環影片
-    videoJump.classList.remove("visible");
-    videoJump.pause();
-
-    videoMoonwalk.classList.add("visible");
-    videoMoonwalk.currentTime = 0;
-    videoMoonwalk.play().catch(e => console.log("Video 2 play prevented", e));
-
-    // 背景微暗、卡片向上淡入
-    document.body.classList.add("in-subpage");
-    flashLayer.classList.remove("active");
-    goToStep(2);
-  }, 350);
-}
 
 function goToStep(step) {
   document.querySelectorAll(".page-view").forEach(s => s.classList.remove("active"));
   const target = document.getElementById("step-" + step);
   if (target) target.classList.add("active");
+
+  if (step === 1 || step === "1") {
+    document.body.classList.remove("in-subpage");
+  } else {
+    document.body.classList.add("in-subpage");
+  }
 }
 
-// =================================
-// 3. 票數計算與折扣碼
-// =================================
+// 3. 票數計算與結算 (防呆修正：必須購買至少 1 張全票大人陪同)
 function changeCount(type, delta) {
   if (type === "child") {
     counts.child = Math.max(0, Math.min(2, counts.child + delta));
@@ -164,7 +125,7 @@ function changeCount(type, delta) {
 
 function updateSummary() {
   const totalTickets = counts.adult + counts.child;
-  const propsCount = counts.adult; // 僅全票贈送道具
+  const propsCount = counts.adult; // 僅全票附贈道具
   const grossPrice = (counts.adult * adultPrice);
   const netPrice = Math.max(0, grossPrice - couponDiscount);
 
@@ -172,7 +133,19 @@ function updateSummary() {
   document.getElementById("sum-props").innerText = propsCount;
   document.getElementById("sum-price").innerText = netPrice;
 
-  document.getElementById("btn-to-step3").disabled = (totalTickets === 0);
+  const btnNext = document.getElementById("btn-to-step3");
+
+  // 核心規則檢核：不能單獨只選兒童免票
+  if (counts.adult >= 1) {
+    btnNext.disabled = false;
+    btnNext.innerText = "下一步：填寫實名資料";
+  } else if (counts.child > 0) {
+    btnNext.disabled = true;
+    btnNext.innerText = "需至少一位全票陪同入場";
+  } else {
+    btnNext.disabled = true;
+    btnNext.innerText = "請選擇購票數量";
+  }
 }
 
 // 優惠碼 NCKUBBB 折抵 50
@@ -199,10 +172,12 @@ if (btnApplyCoupon) {
   });
 }
 
-// =================================
 // 4. 動態展開實名制名冊
-// =================================
 document.getElementById("btn-to-step3").addEventListener("click", () => {
+  if (counts.adult < 1) {
+    alert("14 歲（含）以下兒童需至少一位成人（全票）陪同入場！");
+    return;
+  }
   renderAttendeeCards();
   goToStep(3);
 });
@@ -210,8 +185,6 @@ document.getElementById("btn-to-step3").addEventListener("click", () => {
 function renderAttendeeCards() {
   const container = document.getElementById("dynamic-attendees");
   container.innerHTML = "";
-
-  if (counts.adult === 0) return;
 
   const header = document.createElement("div");
   header.className = "block-title";
@@ -236,9 +209,7 @@ function renderAttendeeCards() {
   }
 }
 
-// =================================
-// 5. 寄送驗證碼與確認送出
-// =================================
+// 5. 寄送驗證碼與送出訂單
 const btnSendVerify = document.getElementById("btn-send-verify");
 btnSendVerify.addEventListener("click", async () => {
   const email = document.getElementById("main-email").value.trim();
@@ -280,8 +251,14 @@ btnSendVerify.addEventListener("click", async () => {
   }
 });
 
-// 送出訂單
+// 確認送出
 document.getElementById("btn-submit-order").addEventListener("click", async () => {
+  if (counts.adult < 1) {
+    alert("14 歲（含）以下免票孩童需至少一位成人（全票）陪同入場！");
+    goToStep(2);
+    return;
+  }
+
   const mainName = document.getElementById("main-name").value.trim();
   const mainPhone = document.getElementById("main-phone").value.trim();
   const mainEmail = document.getElementById("main-email").value.trim();
@@ -292,7 +269,7 @@ document.getElementById("btn-submit-order").addEventListener("click", async () =
     return;
   }
 
-  // 檢驗全票實名名冊
+  // 檢驗全票持有人實名名冊
   const attNames = document.querySelectorAll(".att-name");
   const attIds = document.querySelectorAll(".att-id");
   let attendees = [];
@@ -334,7 +311,6 @@ document.getElementById("btn-submit-order").addEventListener("click", async () =
       document.getElementById("ticket-badge").innerText = "票券編號：" + result.ticketId;
       goToStep("success");
 
-      // 噴灑金色與聖誕彩帶紙花
       if (typeof confetti === "function") {
         confetti({
           particleCount: 100,
