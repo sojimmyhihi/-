@@ -15,7 +15,7 @@ html, body {
 }
 
 /* =================================
-   全螢幕多層影音視圖
+   全螢幕多層影片與海報視圖 (支援過場切換)
    ================================= */
 .media-container {
   position: fixed;
@@ -45,13 +45,13 @@ html, body {
   opacity: 1;
 }
 
-/* 進入次頁時背景保持高透亮與鮮豔度，清晰透出月球漫步動作 */
+/* 次頁背景微調：高亮通透，清楚看見背後的月球漫步 */
 body.in-subpage .media-layer.visible {
-  filter: brightness(0.75) saturate(1.1);
+  filter: brightness(0.72) saturate(1.1);
   transform: scale(1.02);
 }
 
-/* 影片過場閃白與微暗遮罩 */
+/* 影片過場閃白與暗化遮罩 */
 .cutscene-flash {
   position: absolute;
   top: 0;
@@ -75,14 +75,14 @@ body.in-subpage .media-layer.visible {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(3, 7, 18, 0);
+  background: rgba(2, 6, 14, 0);
   pointer-events: none;
   z-index: 2;
   transition: background 0.7s ease;
 }
 
 body.in-subpage .dark-overlay {
-  background: rgba(2, 6, 14, 0.28);
+  background: rgba(2, 6, 14, 0.28); /* 極輕微暗化，保持通透度 */
 }
 
 /* 音樂懸浮鈕 */
@@ -181,7 +181,7 @@ body.in-subpage .dark-overlay {
 }
 
 /* =================================
-   高通透磨砂玻璃卡片 (清晰透出背後影片)
+   高通透磨砂玻璃卡片 (可清晰看見背後影片)
    ================================= */
 .glass-sheet {
   width: 100%;
@@ -189,7 +189,7 @@ body.in-subpage .dark-overlay {
   max-height: 86vh;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  background: rgba(8, 14, 26, 0.48);
+  background: rgba(8, 14, 26, 0.48); /* 關鍵低濃度底色 */
   border: 1px solid rgba(247, 208, 112, 0.45);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(247, 208, 112, 0.08);
   border-radius: 24px;
@@ -349,7 +349,7 @@ body.in-subpage .dark-overlay {
 .hint-text.ok { color: #4ade80; }
 .hint-text.fail { color: #f87171; }
 
-/* 總計明細 */
+/* 結算總計 */
 .order-summary-box {
   background: rgba(0, 0, 0, 0.5);
   border-radius: 12px;
