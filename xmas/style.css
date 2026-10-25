@@ -15,7 +15,7 @@ html, body {
 }
 
 /* =================================
-   全螢幕多層影片與海報視圖 (RWD 雙模式)
+   全螢幕背景海報與高通透適配 (支援手機與電腦)
    ================================= */
 .media-container {
   position: fixed;
@@ -36,37 +36,14 @@ html, body {
   height: 100%;
   object-fit: cover;
   object-position: center top;
-  opacity: 0;
-  transition: opacity 0.7s ease, filter 0.8s ease, transform 0.8s ease;
-  pointer-events: none;
-}
-
-.media-layer.visible {
   opacity: 1;
+  transition: filter 0.8s ease, transform 0.8s ease;
 }
 
-/* 進入次頁時的背景微調：大幅提升亮度與通透感，清晰看見月球漫步 */
-body.in-subpage .media-layer.visible {
-  filter: brightness(0.72) saturate(1.1); /* 不再過度變暗，保持色彩鮮活 */
+/* 次頁背景保持高亮度與鮮豔度，清晰透出主視覺背景 */
+body.in-subpage .media-layer {
+  filter: brightness(0.72) saturate(1.1);
   transform: scale(1.02);
-}
-
-/* 影片過場閃白與暗化遮罩 */
-.cutscene-flash {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #ffffff;
-  opacity: 0;
-  pointer-events: none;
-  z-index: 3;
-  transition: opacity 0.4s ease;
-}
-
-.cutscene-flash.active {
-  opacity: 0.85;
 }
 
 .dark-overlay {
@@ -75,18 +52,17 @@ body.in-subpage .media-layer.visible {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(3, 7, 18, 0);
+  background: rgba(2, 6, 14, 0);
   pointer-events: none;
   z-index: 2;
   transition: background 0.7s ease;
 }
 
-/* 極輕微的暗化，確保通透度 */
 body.in-subpage .dark-overlay {
-  background: rgba(2, 6, 14, 0.28);
+  background: rgba(2, 6, 14, 0.28); /* 僅極輕微暗化，確保通透度 */
 }
 
-/* 音樂按鈕 */
+/* 音樂懸浮鈕 */
 .music-btn {
   position: fixed;
   top: 18px;
@@ -109,7 +85,7 @@ body.in-subpage .dark-overlay {
 }
 
 /* =================================
-   頁面滑動與切換
+   頁面滑動與切換容器
    ================================= */
 .ui-wrapper {
   position: relative;
@@ -177,12 +153,12 @@ body.in-subpage .dark-overlay {
 }
 
 @keyframes pulse-gold-glow {
-  0% { transform: scale(0.96); box-shadow: 0 0 15px rgba(247, 208, 112, 0.4); }
+  0% { transform: scale(0.96); box-shadow: 0 0 16px rgba(247, 208, 112, 0.4); }
   100% { transform: scale(1.04); box-shadow: 0 0 35px rgba(247, 208, 112, 0.9); }
 }
 
 /* =================================
-   次頁高通透磨砂玻璃卡片 (可清晰看見背景)
+   高通透磨砂玻璃卡片 (可清晰看見背景)
    ================================= */
 .glass-sheet {
   width: 100%;
@@ -190,8 +166,7 @@ body.in-subpage .dark-overlay {
   max-height: 86vh;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  /* 關鍵調整：提升透明度，融入光影 */
-  background: rgba(8, 14, 26, 0.48);
+  background: rgba(8, 14, 26, 0.48); /* 關鍵低濃度底色，維持背景通透 */
   border: 1px solid rgba(247, 208, 112, 0.45);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(247, 208, 112, 0.08);
   border-radius: 24px;
@@ -207,7 +182,7 @@ body.in-subpage .dark-overlay {
   font-weight: 800;
   margin-bottom: 6px;
   letter-spacing: 1px;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
 }
 
 .subtitle-serif {
@@ -215,7 +190,7 @@ body.in-subpage .dark-overlay {
   color: #d8e3f8;
   text-align: center;
   margin-bottom: 18px;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85);
 }
 
 /* 活動特色欄 */
@@ -230,7 +205,7 @@ body.in-subpage .dark-overlay {
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
 }
 
-/* 票券項目：調高通透感 */
+/* 票券項目 */
 .ticket-list {
   display: flex;
   flex-direction: column;
@@ -265,21 +240,21 @@ body.in-subpage .dark-overlay {
 .ticket-details h3 {
   font-size: 17px;
   margin-bottom: 2px;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
 }
 
 .bonus-text {
   font-size: 11px;
   color: #ffd875;
 }
-.bonus-text.muted { color: #94a3b8; }
+.bonus-text.muted { color: #cbd5e1; }
 
 .price-val {
   font-size: 17px;
   color: #f7d070;
   font-weight: 800;
   margin-top: 4px;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85);
 }
 .price-val.free { color: #60a5fa; }
 
@@ -310,7 +285,7 @@ body.in-subpage .dark-overlay {
   text-align: center;
 }
 
-/* 優惠代碼輸入 */
+/* 優惠代碼輸入區 */
 .coupon-container {
   background: rgba(0, 0, 0, 0.45);
   border-radius: 12px;
@@ -351,7 +326,7 @@ body.in-subpage .dark-overlay {
 .hint-text.ok { color: #4ade80; }
 .hint-text.fail { color: #f87171; }
 
-/* 總計明細 */
+/* 結算總計 */
 .order-summary-box {
   background: rgba(0, 0, 0, 0.5);
   border-radius: 12px;
@@ -364,7 +339,7 @@ body.in-subpage .dark-overlay {
   justify-content: space-between;
   font-size: 13px;
   margin-bottom: 6px;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
 }
 
 .final-line {
@@ -392,11 +367,13 @@ body.in-subpage .dark-overlay {
   border-radius: 12px;
   cursor: pointer;
   box-shadow: 0 4px 15px rgba(196, 30, 58, 0.5);
+  transition: opacity 0.2s;
 }
 
 .btn-action:disabled {
-  opacity: 0.35;
+  opacity: 0.45;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 /* 實名制表單 */
@@ -422,7 +399,7 @@ body.in-subpage .dark-overlay {
   font-size: 12px;
   color: #cbd5e1;
   margin-bottom: 4px;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
 }
 
 .field-item input {
@@ -506,25 +483,22 @@ body.in-subpage .dark-overlay {
 }
 
 /* =========================================================
-   電腦版／桌機／筆電 (MacBook & PC) 寬螢幕適配響應式規則
+   電腦版／桌機 (MacBook & PC) 寬螢幕適配
    ========================================================= */
 @media (min-width: 900px) {
-  /* 電腦版底層：避免海報因 cover 放大裁切人物或頂部標題 */
   .media-layer {
-    object-fit: contain; /* 保證海報/影片完整居中不被裁切 */
-    max-width: 720px;    /* 限制在最舒適的長型比例 */
+    object-fit: contain; /* 保證海報完整居中不被裁切 */
+    max-width: 720px;
     left: 50%;
     transform: translateX(-50%);
   }
 
-  body.in-subpage .media-layer.visible {
-    /* 次頁影片稍微移向左側，形成左右分屏或層次感 */
+  body.in-subpage .media-layer {
     transform: translateX(-50%) scale(1.02);
   }
 
-  /* 首頁按鈕位置：電腦版調整到底部適當留白處，絕不壓住人物身軀 */
   .cta-anchor {
-    bottom: 5.5%;
+    bottom: 5.5%; /* 避開人物身軀 */
   }
 
   .btn-pulse-gold {
@@ -532,11 +506,9 @@ body.in-subpage .dark-overlay {
     font-size: 17px;
   }
 
-  /* 次頁卡片：在寬螢幕上保持適中寬度，維持通透度 */
   .glass-sheet {
     max-width: 440px;
     max-height: 84vh;
     padding: 28px 24px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.65);
   }
 }
