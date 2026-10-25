@@ -11,15 +11,20 @@ let dynamicMaxAdult = 25; // 預設早鳥上限
 let couponDiscount = 0;
 let counts = { adult: 0, child: 0 };
 
-// 音樂與介面元素
+// 媒體元素
+const posterImg = document.getElementById("poster-img");
+const videoJump = document.getElementById("video-jump");
+const videoMoonwalk = document.getElementById("video-moonwalk");
+const flashLayer = document.getElementById("cutscene-flash");
 const audio = document.getElementById("bg-music");
 const musicToggleBtn = document.getElementById("music-toggle");
 
+// =================================
 // 1. 初始化票額與後台設定讀取
+// =================================
 document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("adult-price-display").innerText = adultPrice;
 
-  // 12.1 之後優惠代碼逾期顯示
   if (!isEarlyBird) {
     const couponArea = document.getElementById("coupon-area");
     if (couponArea) {
@@ -27,7 +32,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  // 向 GAS 後端取得最新設定與剩餘票數
   await fetchTicketConfig();
 });
 
@@ -65,7 +69,9 @@ async function fetchTicketConfig() {
   }
 }
 
-// 2. 音訊播放與頁面離開暫停
+// =================================
+// 2. 音畫雙段播放控制邏輯
+// =================================
 function playBGM() {
   if (audio && audio.paused) {
     audio.play().catch(e => console.log("需點擊互動播放音訊:", e));
@@ -92,12 +98,46 @@ document.addEventListener("visibilitychange", () => {
   }
 });
 
-// 首頁點擊購票：直接切換至次頁並微暗背景
+// 點擊「點擊購票」啟動動畫鏈
 document.getElementById("btn-start").addEventListener("click", () => {
   playBGM();
-  document.body.classList.add("in-subpage");
-  goToStep(2);
+  startCutsceneSequence();
 });
+
+function startCutsceneSequence() {
+  // 1. 隱藏首頁按鈕，顯示第一段影片（跳下月亮）
+  document.getElementById("step-1").classList.remove("active");
+  videoJump.classList.add("visible");
+  posterImg.classList.remove("visible");
+
+  videoJump.currentTime = 0;
+  videoJump.play().catch(e => {
+    console.log("Video 1 play prevented, fallback direct", e);
+    triggerFlashTransition();
+  });
+
+  // 2. 當第一段影片播畢時，觸發過場閃白與第二段循環影片（月球漫步）
+  videoJump.onended = () => {
+    triggerFlashTransition();
+  };
+}
+
+function triggerFlashTransition() {
+  flashLayer.classList.add("active");
+
+  setTimeout(() => {
+    videoJump.classList.remove("visible");
+    videoJump.pause();
+
+    videoMoonwalk.classList.add("visible");
+    videoMoonwalk.currentTime = 0;
+    videoMoonwalk.play().catch(e => console.log("Video 2 play prevented", e));
+
+    document.body.classList.add("in-subpage");
+    flashLayer.classList.remove("active");
+    goToStep(2);
+  }, 350);
+}
 
 function goToStep(step) {
   document.querySelectorAll(".page-view").forEach(s => s.classList.remove("active"));
@@ -111,7 +151,9 @@ function goToStep(step) {
   }
 }
 
-// 3. 票數計算與結算 (防呆修正：必須購買至少 1 張全票大人陪同)
+// =================================
+// 3. 票數計算與防呆（嚴格限制必須至少購買 1 張全票大人陪同）
+// =================================
 function changeCount(type, delta) {
   if (type === "child") {
     counts.child = Math.max(0, Math.min(2, counts.child + delta));
@@ -135,7 +177,7 @@ function updateSummary() {
 
   const btnNext = document.getElementById("btn-to-step3");
 
-  // 核心規則檢核：不能單獨只選兒童免票
+  // 核心規則：不能單獨只選免票兒童票
   if (counts.adult >= 1) {
     btnNext.disabled = false;
     btnNext.innerText = "下一步：填寫實名資料";
@@ -172,10 +214,12 @@ if (btnApplyCoupon) {
   });
 }
 
+// =================================
 // 4. 動態展開實名制名冊
+// =================================
 document.getElementById("btn-to-step3").addEventListener("click", () => {
   if (counts.adult < 1) {
-    alert("14 歲（含）以下兒童需至少一位成人（全票）陪同入場！");
+    alert("14 歲（含）以下免票兒童需至少一位成人（全票）陪同入場！");
     return;
   }
   renderAttendeeCards();
@@ -209,7 +253,9 @@ function renderAttendeeCards() {
   }
 }
 
+// =================================
 // 5. 寄送驗證碼與送出訂單
+// =================================
 const btnSendVerify = document.getElementById("btn-send-verify");
 btnSendVerify.addEventListener("click", async () => {
   const email = document.getElementById("main-email").value.trim();
@@ -251,10 +297,10 @@ btnSendVerify.addEventListener("click", async () => {
   }
 });
 
-// 確認送出
+// 送出訂單
 document.getElementById("btn-submit-order").addEventListener("click", async () => {
   if (counts.adult < 1) {
-    alert("14 歲（含）以下免票孩童需至少一位成人（全票）陪同入場！");
+    alert("14 歲（含）以下免票兒童需至少一位成人（全票）陪同入場！");
     goToStep(2);
     return;
   }
@@ -269,7 +315,6 @@ document.getElementById("btn-submit-order").addEventListener("click", async () =
     return;
   }
 
-  // 檢驗全票持有人實名名冊
   const attNames = document.querySelectorAll(".att-name");
   const attIds = document.querySelectorAll(".att-id");
   let attendees = [];
