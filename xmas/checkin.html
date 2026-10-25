@@ -2,14 +2,14 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🎟️ 現場驗票核銷系統</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🎟️ 2026 Moonwalker 現場驗票核銷系統</title>
   <script src="https://unpkg.com/html5-qrcode"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #121212;
+      background: #070d18;
       color: #fff;
       display: flex;
       flex-direction: column;
@@ -20,66 +20,89 @@
     h1 {
       font-size: 20px;
       margin: 12px 0 16px;
-      color: #ffd700;
+      color: #f7d070;
       text-align: center;
+      letter-spacing: 1px;
     }
     #reader {
       width: 100%;
-      max-width: 400px;
-      border-radius: 12px;
+      max-width: 420px;
+      border-radius: 16px;
       overflow: hidden;
-      border: 2px solid #333;
+      border: 2px solid rgba(247, 208, 112, 0.4);
       background: #000;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
     }
     .result-card {
       width: 100%;
-      max-width: 400px;
+      max-width: 420px;
       margin-top: 16px;
-      padding: 18px;
-      border-radius: 12px;
-      background: #1e1e1e;
-      border: 1px solid #333;
+      padding: 20px;
+      border-radius: 16px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(247, 208, 112, 0.3);
       text-align: center;
-      transition: all 0.3s;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.7);
     }
     .status-badge {
       display: inline-block;
       font-size: 18px;
       font-weight: bold;
-      padding: 8px 16px;
-      border-radius: 20px;
+      padding: 8px 20px;
+      border-radius: 30px;
       margin-bottom: 12px;
     }
-    .status-badge.success { background: #165b33; color: #fff; }
-    .status-badge.warning { background: #d97706; color: #fff; }
-    .status-badge.error { background: #c41e3a; color: #fff; }
+    .status-badge.success { background: #166534; color: #fff; }
+    .status-badge.warning { background: #b45309; color: #fff; }
+    .status-badge.error { background: #991b1b; color: #fff; }
 
     .info-list {
       text-align: left;
-      font-size: 15px;
+      font-size: 14px;
       line-height: 1.8;
-      background: rgba(255,255,255,0.05);
-      padding: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 14px;
+      border-radius: 12px;
+      margin-top: 12px;
+    }
+    .prop-alert {
+      background: rgba(247, 208, 112, 0.15);
+      border: 1px solid #f7d070;
+      color: #f7d070;
+      padding: 8px 12px;
       border-radius: 8px;
-      margin-top: 10px;
+      font-size: 15px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    .attendee-box {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed rgba(255, 255, 255, 0.2);
+    }
+    .attendee-item {
+      color: #e2e8f0;
+      font-size: 13px;
+      margin-left: 10px;
     }
     .btn-reset {
       margin-top: 16px;
       width: 100%;
-      padding: 12px;
+      padding: 14px;
       border: none;
-      background: #3b82f6;
-      color: white;
+      background: linear-gradient(135deg, #f7d070, #d4a337);
+      color: #111;
       font-size: 16px;
-      font-weight: bold;
-      border-radius: 8px;
+      font-weight: 800;
+      border-radius: 10px;
       cursor: pointer;
     }
   </style>
 </head>
 <body>
 
-  <h1>🎅 成大國標 現場驗票入口</h1>
+  <h1>🌙 2026 NCKUBDC 現場驗票入口</h1>
 
   <!-- 鏡頭掃描框 -->
   <div id="reader"></div>
@@ -99,24 +122,27 @@
     let html5QrCode;
     let isProcessing = false;
 
-    // 蜂鳴音效（使用 Web Audio API，無需外掛音效檔）
+    // Web Audio 蜂鳴提示音
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function playBeep(type) {
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.connect(gain);
       gain.connect(audioCtx.destination);
       
       if (type === "success") {
-        osc.frequency.setValueAtTime(880, audioCtx.currentTime); // 高音 A5
-        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime); // 高音 A5 成功
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
         osc.start();
-        osc.stop(audioCtx.currentTime + 0.15);
+        osc.stop(audioCtx.currentTime + 0.18);
       } else {
-        osc.frequency.setValueAtTime(300, audioCtx.currentTime); // 低音警示
-        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(280, audioCtx.currentTime); // 低音警示
+        gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
         osc.start();
-        osc.stop(audioCtx.currentTime + 0.3);
+        osc.stop(audioCtx.currentTime + 0.35);
       }
     }
 
@@ -124,7 +150,6 @@
       if (isProcessing) return;
       isProcessing = true;
 
-      // 暫停掃描相機
       html5QrCode.pause();
 
       const resultBox = document.getElementById("result-box");
@@ -143,7 +168,7 @@
           method: "POST",
           body: JSON.stringify({
             action: "checkInTicket",
-            ticketId: decodedText
+            ticketId: decodedText.trim()
           })
         });
         const res = await response.json();
@@ -154,13 +179,26 @@
           statusTag.innerText = "准予入場 ✅";
           statusMsg.innerText = res.message;
           ticketInfo.style.display = "block";
+
+          // 解析實名名單
+          let attendeeHtml = "";
+          if (res.data.attendees && res.data.attendees.length > 0) {
+            attendeeHtml = `<div class="attendee-box"><strong>📋 全票實名核對（請查驗身分證）：</strong>`;
+            res.data.attendees.forEach((att, idx) => {
+              attendeeHtml += `<div class="attendee-item">${idx + 1}. ${att.name}（證件號: ${att.idLast4}）</div>`;
+            });
+            attendeeHtml += `</div>`;
+          }
+
           ticketInfo.innerHTML = `
-            <div><strong>學員姓名：</strong>${res.data.name}</div>
+            <div class="prop-alert">🎁 請發放道具：${res.data.adultCount} 枚</div>
+            <div><strong>主要聯絡人：</strong>${res.data.name}（${res.data.phone}）</div>
             <div><strong>票券編號：</strong>${res.data.ticketId}</div>
-            <div><strong>社員人數：</strong>${res.data.memberCount} 人</div>
-            <div><strong>朋友人數：</strong>${res.data.guestCount} 人</div>
-            <div><strong>應付金額：</strong>NT$ ${res.data.totalAmount}</div>
-            <div><strong>核銷時間：</strong>${res.data.checkinTime}</div>
+            <div><strong>全票人數：</strong>${res.data.adultCount} 人</div>
+            <div><strong>14歲(含)以下免票：</strong>${res.data.childCount} 人</div>
+            <div><strong>實收金額：</strong>NT$ ${res.data.totalAmount}</div>
+            ${attendeeHtml}
+            <div style="font-size:12px; color:#94a3b8; margin-top:6px;">核銷完成時間：${res.data.checkinTime}</div>
           `;
         } else if (res.status === "ALREADY_USED") {
           playBeep("error");
@@ -168,17 +206,20 @@
           statusTag.innerText = "重複票券 ⚠️";
           statusMsg.innerText = res.message;
           ticketInfo.style.display = "block";
-          ticketInfo.innerHTML = `<div><strong>報名姓名：</strong>${res.data.name}</div>`;
+          ticketInfo.innerHTML = `
+            <div><strong>聯絡人：</strong>${res.data.name}</div>
+            <div style="color:#f87171;">⚠️ 此票券已於 <strong>${res.data.checkedTime}</strong> 核銷過！</div>
+          `;
         } else {
           playBeep("error");
           statusTag.className = "status-badge error";
           statusTag.innerText = "無效票券 ❌";
-          statusMsg.innerText = res.message;
+          statusMsg.innerText = res.message || "查無此票券紀錄";
         }
       } catch (err) {
         statusTag.className = "status-badge error";
         statusTag.innerText = "連線失敗";
-        statusMsg.innerText = "請檢查網路連線後重試";
+        statusMsg.innerText = "請檢查現場網路後重試";
       }
     }
 
@@ -192,7 +233,7 @@
     window.addEventListener("DOMContentLoaded", () => {
       html5QrCode = new Html5Qrcode("reader");
       html5QrCode.start(
-        { facingMode: "environment" }, // 使用手機後置主鏡頭
+        { facingMode: "environment" },
         {
           fps: 10,
           qrbox: { width: 250, height: 250 }
