@@ -163,7 +163,6 @@ function updateSummary() {
   const totalTickets = counts.adult + counts.child;
   const propsCount = counts.adult;
   
-  // 優惠碼：每張全票折 50 元
   const discountPerAdult = isCouponApplied ? 50 : 0;
   const unitPrice = adultPrice - discountPerAdult;
   const grossPrice = counts.adult * unitPrice;
@@ -312,23 +311,34 @@ document.getElementById("btn-submit-order").addEventListener("click", async () =
     return;
   }
 
+  // 檢驗全票名冊
   const attNames = document.querySelectorAll(".att-name");
   const attIds = document.querySelectorAll(".att-id");
   let attendees = [];
+  const localIdCheck = new Set();
 
   for (let i = 0; i < attNames.length; i++) {
     const nameVal = attNames[i].value.trim();
-    const idVal = attIds[i].value.trim();
+    const idVal = attIds[i].value.trim().toUpperCase();
+
     if (!nameVal || !idVal) {
       alert(`請完整填寫第 ${i + 1} 位全票持有人實名姓名與證件號！`);
       return;
     }
+
+    // 前端防呆：同一筆訂單不可重複填寫相同的身分證末碼
+    if (localIdCheck.has(idVal)) {
+      alert(`第 ${i + 1} 位全票持有人的證件末碼「${idVal}」與其他持有人重複，每張全票皆須為不同持有人！`);
+      return;
+    }
+    localIdCheck.add(idVal);
+
     attendees.push({ name: nameVal, idLast4: idVal });
   }
 
   const btnSubmit = document.getElementById("btn-submit-order");
   btnSubmit.disabled = true;
-  btnSubmit.innerText = "系統比對劃位中...";
+  btnSubmit.innerText = "系統比對劃位中，請勿關閉視窗...";
 
   try {
     const payload = {
@@ -352,10 +362,9 @@ document.getElementById("btn-submit-order").addEventListener("click", async () =
     if (result.success) {
       document.getElementById("ticket-badge").innerText = "票券編號：" + result.ticketId;
       
-      // 若為覆蓋重複報名，提示使用者
       const overwriteChip = document.getElementById("overwrite-alert");
       if (result.isOverwritten) {
-        alert("偵測到您曾報名過（姓名與手機末三碼相同或相同信箱），系統已自動為您覆蓋更新資料，不佔用額外名額！");
+        alert("偵測到您曾報名過，系統已為您覆蓋更新為最新資料，不佔用額外名額！");
         if (overwriteChip) overwriteChip.style.display = "block";
       } else {
         if (overwriteChip) overwriteChip.style.display = "none";
