@@ -48,7 +48,7 @@
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen pb-28 antialiased selection:bg-amber-100">
 
-  <!-- 恢復原本指定的背景鋼琴音樂連結 -->
+  <!-- 背景鋼琴音樂 -->
   <audio id="bg-music" loop preload="auto">
     <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=piano-moment-9835.mp3" type="audio/mp3">
   </audio>
@@ -80,7 +80,16 @@
     </div>
   </div>
 
-  <!-- 2. 身分確認過場動畫 -->
+  <!-- ⭐ 2. transition.mp4 自訂過場影片畫面 -->
+  <div id="transition-screen" class="fixed inset-0 z-[45] bg-black/95 flex flex-col items-center justify-center p-4 fade-transition hidden opacity-0 pointer-events-none select-none">
+    <div class="relative w-full max-w-sm flex items-center justify-center overflow-hidden rounded-2xl shadow-2xl">
+      <video id="transition-video" playsinline webkit-playsinline muted preload="auto" class="w-full h-auto max-h-[80vh] object-contain">
+        <source src="transition.mp4" type="video/mp4">
+      </video>
+    </div>
+  </div>
+
+  <!-- 3. 身分確認過場動畫 -->
   <div id="auth-loading-screen" class="fixed inset-0 z-40 bg-white/95 backdrop-blur-md flex flex-col items-center justify-center p-6 space-y-5 fade-transition hidden">
     <div class="relative w-16 h-16">
       <div class="absolute inset-0 rounded-full border-2 border-amber-200 border-t-amber-600 animate-spin"></div>
@@ -92,7 +101,7 @@
     </div>
   </div>
 
-  <!-- 3. 主介面 Header -->
+  <!-- 4. 主介面 Header -->
   <header class="marble-bg text-slate-800 pt-3 pb-3 px-4 shadow-sm rounded-b-3xl border-b border-slate-300/80 relative overflow-hidden">
     <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200"></div>
 
@@ -486,41 +495,84 @@
       setupSplashAndAudio();
     });
 
+    // ⭐ 升級：流暢銜接 封面 -> transition.mp4 影片過場 -> 認證載入畫面
     function setupSplashAndAudio() {
       const splash = document.getElementById('splash-screen');
+      const transScreen = document.getElementById('transition-screen');
+      const transVideo = document.getElementById('transition-video');
       const authLoading = document.getElementById('auth-loading-screen');
       const audio = document.getElementById('bg-music');
       const toggleBtn = document.getElementById('toggle-music-btn');
       const musicIcon = document.getElementById('music-icon');
 
       splash.addEventListener('click', async () => {
+        // 1. 解鎖並播放背景音樂
         try {
           audio.volume = 0.45;
           await audio.play();
           isMusicPlaying = true;
           toggleBtn.classList.add('music-spin');
         } catch (err) {
-          console.warn('自動播放受限:', err);
+          console.warn('背景音樂播放受限:', err);
         }
 
+        // 2. 淡出封面
         splash.style.opacity = '0';
         splash.style.pointerEvents = 'none';
-        setTimeout(() => splash.classList.add('hidden'), 800);
 
-        authLoading.classList.remove('hidden');
-        authLoading.style.opacity = '1';
+        setTimeout(async () => {
+          splash.classList.add('hidden');
 
-        try {
-          await initLineAuth();
-          await loadInitialData();
-        } catch (e) {
-          console.warn('初始化載入異常:', e);
-        }
+          // 3. 顯示並播放 transition.mp4
+          if (transScreen && transVideo) {
+            transScreen.classList.remove('hidden');
+            void transScreen.offsetWidth; // 強制重繪
+            transScreen.style.opacity = '1';
 
-        setTimeout(() => {
-          authLoading.style.opacity = '0';
-          setTimeout(() => authLoading.classList.add('hidden'), 800);
-        }, 500);
+            try {
+              transVideo.currentTime = 0;
+              await transVideo.play();
+            } catch (vErr) {
+              console.warn('過場影片自動播放略過:', vErr);
+            }
+
+            // 等待影片播放結束，或最長等待 1.5 秒超時保護
+            await new Promise(resolve => {
+              let finished = false;
+              const finishHandler = () => {
+                if (!finished) {
+                  finished = true;
+                  resolve();
+                }
+              };
+              transVideo.onended = finishHandler;
+              transVideo.onerror = finishHandler;
+              setTimeout(finishHandler, 1500);
+            });
+
+            // 淡出過場影片
+            transScreen.style.opacity = '0';
+            await new Promise(r => setTimeout(r, 400));
+            transScreen.classList.add('hidden');
+          }
+
+          // 4. 進入系統認證載入畫面，並平行獲取初始化資料
+          authLoading.classList.remove('hidden');
+          authLoading.style.opacity = '1';
+
+          try {
+            await initLineAuth();
+            await loadInitialData();
+          } catch (e) {
+            console.warn('初始化載入異常:', e);
+          }
+
+          setTimeout(() => {
+            authLoading.style.opacity = '0';
+            setTimeout(() => authLoading.classList.add('hidden'), 800);
+          }, 500);
+
+        }, 800);
       });
 
       toggleBtn.addEventListener('click', () => {
