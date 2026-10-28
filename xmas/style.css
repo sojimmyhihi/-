@@ -130,8 +130,8 @@ body.in-subpage .dark-overlay {
   justify-content: center;
   opacity: 0;
   pointer-events: none;
-  transform: translateY(20px);
-  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* 移除原本的 translateY，改用純透明度平滑過渡 */
+  transition: opacity 0.4s ease-out;
   padding: 16px;
   box-sizing: border-box;
 }
@@ -139,7 +139,6 @@ body.in-subpage .dark-overlay {
 .page-view.active {
   opacity: 1;
   pointer-events: auto;
-  transform: translateY(0);
 }
 
 /* 首頁金色閃爍按鈕 */
@@ -190,35 +189,27 @@ body.in-subpage .dark-overlay {
   max-height: 86vh;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  
-  /* 基礎透明與邊框光暈 */
-  background: rgba(8, 14, 26, 0.48);
+  background: rgba(8, 14, 26, 0.52);
   border: 1px solid rgba(247, 208, 112, 0.45);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(247, 208, 112, 0.08);
   border-radius: 24px;
   padding: 24px 18px;
   
-  /* 初始狀態（未啟用前）：完全透明、無模糊、位置稍低、微縮 */
-  opacity: 0;
-  backdrop-filter: blur(0px);
-  -webkit-backdrop-filter: blur(0px);
-  transform: translateY(22px) scale(0.97);
-  transition: 
-    opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.65s cubic-bezier(0.16, 1, 0.3, 1),
-    backdrop-filter 0.8s cubic-bezier(0.16, 1, 0.3, 1),
-    -webkit-backdrop-filter 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform, backdrop-filter;
-}
-
-/* 當第二頁或第三頁被激活（.active）時，觸發毛玻璃漸入動態 */
-.page-view.active .glass-sheet {
-  opacity: 1;
+  /* 啟用毛玻璃 */
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  transform: translateY(0) scale(1);
-  /* 延遲 0.1s 啟動，讓外層轉場更自然 */
-  transition-delay: 0.1s;
+
+  /* 核心防跳動優化：開啟硬體加速與獨立渲染圖層 */
+  transform: translate3d(0, 16px, 0);
+  opacity: 0;
+  will-change: transform, opacity;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease-out;
+}
+
+/* 當外層為 active 時，卡片才優雅微升到位 */
+.page-view.active .glass-sheet {
+  transform: translate3d(0, 0, 0);
+  opacity: 1;
 }
 
 .title-serif {
