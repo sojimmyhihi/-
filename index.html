@@ -19,7 +19,7 @@
     .font-eng-serif {
       font-family: 'Cinzel', serif;
     }
-    /* 移除垂直金黃線與左右分割光影，採用純淨均勻的柔和白底 */
+    /* 純淨柔和大理石底色，無中央垂直色差分割線 */
     .marble-bg {
       background-color: #f8fafc;
       background-image: 
@@ -45,30 +45,38 @@
       transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
     }
 
-    /* 全螢幕動態影音背景層 */
-    .media-container {
-      position: fixed;
-      inset: 0;
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
-      background-color: #000000;
-      z-index: 50;
-    }
-    .media-layer {
+    /* ⭐ 純 CSS 雙開門過場動畫樣式 */
+    .door-panel {
       position: absolute;
-      inset: 0;
-      width: 100%;
+      top: 0;
+      bottom: 0;
+      width: 50%;
       height: 100%;
-      object-fit: cover;
-      object-position: center;
-      opacity: 0;
-      transition: opacity 0.6s ease-in-out;
-      pointer-events: none;
+      z-index: 50;
+      transition: transform 0.9s cubic-bezier(0.65, 0, 0.35, 1);
+      will-change: transform;
     }
-    .media-layer.visible {
-      opacity: 1;
-      pointer-events: auto;
+    #door-left {
+      left: 0;
+      box-shadow: 6px 0 25px rgba(0, 0, 0, 0.08);
+      border-right: 1px solid rgba(212, 175, 55, 0.2);
+    }
+    #door-right {
+      right: 0;
+      box-shadow: -6px 0 25px rgba(0, 0, 0, 0.08);
+      border-left: 1px solid rgba(212, 175, 55, 0.2);
+    }
+    /* 開門動態觸發 */
+    .doors-open #door-left {
+      transform: translateX(-100%);
+    }
+    .doors-open #door-right {
+      transform: translateX(100%);
+    }
+    .doors-open #splash-content {
+      opacity: 0;
+      transform: scale(0.92);
+      pointer-events: none;
     }
   </style>
 </head>
@@ -79,10 +87,15 @@
     <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=piano-moment-9835.mp3" type="audio/mp3">
   </audio>
 
-  <!-- 1. 全螢幕動態影音背景層 (z-50) -->
-  <div id="media-viewport" class="media-container select-none">
-    <!-- 靜態背景/封面層：精確絕對居中，與影片第一幀尺寸一致 -->
-    <div id="poster-layer" class="media-layer visible marble-bg flex flex-col items-center justify-center cursor-pointer">
+  <!-- ⭐ 1. 純 CSS 雙開門動態層 (z-50) -->
+  <div id="splash-doors-container" class="fixed inset-0 z-50 overflow-hidden select-none cursor-pointer">
+    <!-- 左扇門 -->
+    <div id="door-left" class="door-panel marble-bg"></div>
+    <!-- 右扇門 -->
+    <div id="door-right" class="door-panel marble-bg"></div>
+
+    <!-- 封面文字與核心 Logo (疊於門板之上，點擊後平滑淡出) -->
+    <div id="splash-content" class="relative z-[55] w-full h-full flex flex-col items-center justify-center transition-all duration-700">
       <div class="relative flex flex-col items-center justify-center space-y-4">
         <div class="relative w-44 h-44 sm:w-48 sm:h-48 rounded-full flex items-center justify-center p-2 shadow-[0_12px_35px_rgba(217,119,6,0.18)] bg-white/90 backdrop-blur-md border border-amber-300/50">
           <img src="brand-logo.png" alt="TheDanceHouse Tainan" class="w-full h-full object-cover rounded-full">
@@ -103,14 +116,9 @@
         <p class="text-[10px] font-eng-serif tracking-[0.3em] uppercase text-slate-400">TOUCH TO START</p>
       </div>
     </div>
-
-    <!-- 影片層：全螢幕播放 transition.mp4 -->
-    <video id="video-transition" class="media-layer" playsinline webkit-playsinline muted preload="auto">
-      <source src="transition.mp4" type="video/mp4">
-    </video>
   </div>
 
-  <!-- 2. 系統載入與身分認證層 (常駐在 z-40，不設 hidden，動畫展開時墊底防止露出預約介面) -->
+  <!-- ⭐ 2. 系統載入與身分認證層 (常駐在 z-40，不設 hidden，開門時絕對只看到它，不會露底) -->
   <div id="auth-loading-screen" class="fixed inset-0 z-40 bg-white flex flex-col items-center justify-center p-6 space-y-5 fade-transition">
     <div class="relative w-16 h-16">
       <div class="absolute inset-0 rounded-full border-2 border-amber-200 border-t-amber-600 animate-spin"></div>
@@ -122,7 +130,7 @@
     </div>
   </div>
 
-  <!-- 3. 主介面 Header (底層) -->
+  <!-- 3. 主介面 Header (最底層) -->
   <header class="marble-bg text-slate-800 pt-3 pb-3 px-4 shadow-sm rounded-b-3xl border-b border-slate-300/80 relative overflow-hidden">
     <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200"></div>
 
@@ -516,18 +524,16 @@
       setupSplashAndAudio();
     });
 
-    // 流暢銜接：封面 -> transition.mp4 全螢幕影片 -> authLoading (常駐背後防閃底) -> 預約介面
+    // ⭐ 純 CSS 雙開門動畫控制器 (點擊開始 -> 雙門向左右平滑滑開 -> 露出常駐轉圈 -> 載入完成展示預約畫面)
     function setupSplashAndAudio() {
-      const viewport = document.getElementById('media-viewport');
-      const posterLayer = document.getElementById('poster-layer');
-      const videoTransition = document.getElementById('video-transition');
+      const doorsContainer = document.getElementById('splash-doors-container');
       const authLoading = document.getElementById('auth-loading-screen');
       const audio = document.getElementById('bg-music');
       const toggleBtn = document.getElementById('toggle-music-btn');
       const musicIcon = document.getElementById('music-icon');
 
-      posterLayer.addEventListener('click', async () => {
-        // 1. 解鎖音訊
+      doorsContainer.addEventListener('click', async () => {
+        // 1. 背景音樂解鎖播放
         try {
           audio.volume = 0.45;
           await audio.play();
@@ -537,44 +543,11 @@
           console.warn('背景音樂播放受限:', err);
         }
 
-        // 2. 切換圖層：淡出海報文字層，顯現影片層並開始全螢幕播放
-        posterLayer.classList.remove('visible');
-        posterLayer.style.pointerEvents = 'none';
+        // 2. 觸發左右雙門向兩側平滑滑開
+        doorsContainer.classList.add('doors-open');
+        doorsContainer.style.pointerEvents = 'none';
 
-        if (videoTransition) {
-          videoTransition.classList.add('visible');
-          try {
-            videoTransition.currentTime = 0;
-            await videoTransition.play();
-          } catch (vErr) {
-            console.warn('影片播放受限:', vErr);
-          }
-
-          // 3. 確保影片完整播放完成才進入下一步
-          await new Promise(resolve => {
-            let done = false;
-            const complete = () => {
-              if (!done) {
-                done = true;
-                resolve();
-              }
-            };
-            videoTransition.onended = complete;
-            videoTransition.onerror = complete;
-            // 安全防線：若影片格式有問題，最長等待 5 秒防卡死
-            setTimeout(complete, 5000);
-          });
-        }
-
-        // 4. 影片播完後，淡出整個動態影音層；背後即為常駐的 authLoading 旋轉畫面
-        viewport.style.transition = 'opacity 0.6s ease-in-out';
-        viewport.style.opacity = '0';
-        viewport.style.pointerEvents = 'none';
-
-        setTimeout(() => {
-          viewport.classList.add('hidden');
-        }, 600);
-
+        // 3. 雙開門滑開中，背後常駐的 authLoading 完美墊底，開始並行抓取資料
         try {
           await initLineAuth();
           await loadInitialData();
@@ -582,12 +555,17 @@
           console.warn('初始化載入異常:', e);
         }
 
-        // 5. 資料就緒，讀取層淡出，優雅展示預約畫面
+        // 4. 等雙門完全移出螢幕後，將門板容器從 DOM 隱藏
+        setTimeout(() => {
+          doorsContainer.classList.add('hidden');
+        }, 950);
+
+        // 5. 資料準備完成，讀取層淡出，優雅展示預約畫面
         setTimeout(() => {
           authLoading.style.opacity = '0';
           authLoading.style.pointerEvents = 'none';
           setTimeout(() => authLoading.classList.add('hidden'), 800);
-        }, 300);
+        }, 400);
       });
 
       toggleBtn.addEventListener('click', () => {
