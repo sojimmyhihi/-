@@ -391,3 +391,16 @@ document.getElementById("btn-submit-order").addEventListener("click", async () =
     btnSubmit.innerText = "確認送出並取票";
   }
 });
+// ==========================================
+// 解決手機虛擬鍵盤擋住輸入欄位
+// ==========================================
+document.addEventListener("focusin", (e) => {
+  if (["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName)) {
+    setTimeout(() => {
+      e.target.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
+    }, 300); // 延遲 300ms 等待手機虛擬鍵盤完全彈起
+  }
+});
