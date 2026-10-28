@@ -44,6 +44,32 @@
     .fade-transition {
       transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
     }
+
+    /* ⭐ 全螢幕動態影音背景層樣式 */
+    .media-container {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #000000;
+      z-index: 50;
+    }
+    .media-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      opacity: 0;
+      transition: opacity 0.6s ease-in-out;
+      pointer-events: none;
+    }
+    .media-layer.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
   </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen pb-28 antialiased selection:bg-amber-100">
@@ -53,43 +79,42 @@
     <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=piano-moment-9835.mp3" type="audio/mp3">
   </audio>
 
-  <!-- 1. 開場全螢幕封面 -->
-  <div id="splash-screen" class="fixed inset-0 z-50 marble-bg flex flex-col justify-between items-center py-16 px-6 fade-transition cursor-pointer select-none">
-    <div class="w-full flex justify-center pt-6">
-      <div class="h-0.5 w-12 bg-amber-400/60 tracking-widest"></div>
-    </div>
-
-    <div class="relative flex flex-col items-center justify-center space-y-4 my-auto">
-      <div class="relative w-36 h-36 sm:w-44 sm:h-44 rounded-full flex items-center justify-center p-2 shadow-[0_12px_35px_rgba(217,119,6,0.18)] bg-white/90 backdrop-blur-md border border-amber-300/50">
-        <img src="brand-logo.png" alt="TheDanceHouse Tainan" class="w-full h-full object-cover rounded-full">
+  <!-- ⭐ 全螢幕動態影音背景層 (整合首頁海報與 transition.mp4 全螢幕影片) -->
+  <div id="media-viewport" class="media-container select-none">
+    <!-- 靜態背景/海報層 -->
+    <div id="poster-layer" class="media-layer visible marble-bg flex flex-col justify-between items-center py-16 px-6 cursor-pointer">
+      <div class="w-full flex justify-center pt-6">
+        <div class="h-0.5 w-12 bg-amber-400/60 tracking-widest"></div>
       </div>
 
-      <div class="text-center space-y-2 pt-2">
-        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-amber-300/60 bg-amber-50/80 backdrop-blur-md text-[10px] font-medium tracking-[0.3em] text-amber-800 uppercase font-eng-serif shadow-xs">
-          Tainan Dance Studio
+      <div class="relative flex flex-col items-center justify-center space-y-4 my-auto">
+        <div class="relative w-36 h-36 sm:w-44 sm:h-44 rounded-full flex items-center justify-center p-2 shadow-[0_12px_35px_rgba(217,119,6,0.18)] bg-white/90 backdrop-blur-md border border-amber-300/50">
+          <img src="brand-logo.png" alt="TheDanceHouse Tainan" class="w-full h-full object-cover rounded-full">
         </div>
-        <p class="text-[11px] text-slate-500 font-eng-serif tracking-[0.35em] uppercase">
-          Studio Booking & Group Classes
-        </p>
+
+        <div class="text-center space-y-2 pt-2">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-amber-300/60 bg-amber-50/80 backdrop-blur-md text-[10px] font-medium tracking-[0.3em] text-amber-800 uppercase font-eng-serif shadow-xs">
+            Tainan Dance Studio
+          </div>
+          <p class="text-[11px] text-slate-500 font-eng-serif tracking-[0.35em] uppercase">
+            Studio Booking & Group Classes
+          </p>
+        </div>
+      </div>
+
+      <div class="text-center space-y-2 pulse-touch pb-4">
+        <p class="text-sm font-bold text-slate-700 tracking-widest">點擊開始</p>
+        <p class="text-[10px] font-eng-serif tracking-[0.3em] uppercase text-slate-400">TOUCH TO START</p>
       </div>
     </div>
 
-    <div class="text-center space-y-2 pulse-touch pb-4">
-      <p class="text-sm font-bold text-slate-700 tracking-widest">點擊開始</p>
-      <p class="text-[10px] font-eng-serif tracking-[0.3em] uppercase text-slate-400">TOUCH TO START</p>
-    </div>
+    <!-- 影片層：全螢幕播放 transition.mp4 -->
+    <video id="video-transition" class="media-layer" playsinline webkit-playsinline muted preload="auto">
+      <source src="transition.mp4" type="video/mp4">
+    </video>
   </div>
 
-  <!-- ⭐ 2. transition.mp4 自訂過場影片畫面 -->
-  <div id="transition-screen" class="fixed inset-0 z-[45] bg-black/95 flex flex-col items-center justify-center p-4 fade-transition hidden opacity-0 pointer-events-none select-none">
-    <div class="relative w-full max-w-sm flex items-center justify-center overflow-hidden rounded-2xl shadow-2xl">
-      <video id="transition-video" playsinline webkit-playsinline muted preload="auto" class="w-full h-auto max-h-[80vh] object-contain">
-        <source src="transition.mp4" type="video/mp4">
-      </video>
-    </div>
-  </div>
-
-  <!-- 3. 身分確認過場動畫 -->
+  <!-- 身分確認 / 系統載入中過場動畫 (z-40，接在全螢幕影片播畢後顯示) -->
   <div id="auth-loading-screen" class="fixed inset-0 z-40 bg-white/95 backdrop-blur-md flex flex-col items-center justify-center p-6 space-y-5 fade-transition hidden">
     <div class="relative w-16 h-16">
       <div class="absolute inset-0 rounded-full border-2 border-amber-200 border-t-amber-600 animate-spin"></div>
@@ -101,7 +126,7 @@
     </div>
   </div>
 
-  <!-- 4. 主介面 Header -->
+  <!-- 主介面 Header -->
   <header class="marble-bg text-slate-800 pt-3 pb-3 px-4 shadow-sm rounded-b-3xl border-b border-slate-300/80 relative overflow-hidden">
     <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200"></div>
 
@@ -495,18 +520,18 @@
       setupSplashAndAudio();
     });
 
-    // ⭐ 升級：流暢銜接 封面 -> transition.mp4 影片過場 -> 認證載入畫面
+    // ⭐ 全螢幕動態影音切換邏輯 (嚴格防止閃爍與縮小，影片完整播放完畢才換頁)
     function setupSplashAndAudio() {
-      const splash = document.getElementById('splash-screen');
-      const transScreen = document.getElementById('transition-screen');
-      const transVideo = document.getElementById('transition-video');
+      const viewport = document.getElementById('media-viewport');
+      const posterLayer = document.getElementById('poster-layer');
+      const videoTransition = document.getElementById('video-transition');
       const authLoading = document.getElementById('auth-loading-screen');
       const audio = document.getElementById('bg-music');
       const toggleBtn = document.getElementById('toggle-music-btn');
       const musicIcon = document.getElementById('music-icon');
 
-      splash.addEventListener('click', async () => {
-        // 1. 解鎖並播放背景音樂
+      posterLayer.addEventListener('click', async () => {
+        // 1. 解鎖音訊
         try {
           audio.volume = 0.45;
           await audio.play();
@@ -516,63 +541,59 @@
           console.warn('背景音樂播放受限:', err);
         }
 
-        // 2. 淡出封面
-        splash.style.opacity = '0';
-        splash.style.pointerEvents = 'none';
+        // 2. 切換圖層：淡出海報文字層，顯現影片層並開始全螢幕播放
+        posterLayer.classList.remove('visible');
+        posterLayer.style.pointerEvents = 'none';
 
-        setTimeout(async () => {
-          splash.classList.add('hidden');
-
-          // 3. 顯示並播放 transition.mp4
-          if (transScreen && transVideo) {
-            transScreen.classList.remove('hidden');
-            void transScreen.offsetWidth; // 強制重繪
-            transScreen.style.opacity = '1';
-
-            try {
-              transVideo.currentTime = 0;
-              await transVideo.play();
-            } catch (vErr) {
-              console.warn('過場影片自動播放略過:', vErr);
-            }
-
-            // 等待影片播放結束，或最長等待 1.5 秒超時保護
-            await new Promise(resolve => {
-              let finished = false;
-              const finishHandler = () => {
-                if (!finished) {
-                  finished = true;
-                  resolve();
-                }
-              };
-              transVideo.onended = finishHandler;
-              transVideo.onerror = finishHandler;
-              setTimeout(finishHandler, 1500);
-            });
-
-            // 淡出過場影片
-            transScreen.style.opacity = '0';
-            await new Promise(r => setTimeout(r, 400));
-            transScreen.classList.add('hidden');
-          }
-
-          // 4. 進入系統認證載入畫面，並平行獲取初始化資料
-          authLoading.classList.remove('hidden');
-          authLoading.style.opacity = '1';
-
+        if (videoTransition) {
+          videoTransition.classList.add('visible');
           try {
-            await initLineAuth();
-            await loadInitialData();
-          } catch (e) {
-            console.warn('初始化載入異常:', e);
+            videoTransition.currentTime = 0;
+            await videoTransition.play();
+          } catch (vErr) {
+            console.warn('影片播放受限:', vErr);
           }
 
-          setTimeout(() => {
-            authLoading.style.opacity = '0';
-            setTimeout(() => authLoading.classList.add('hidden'), 800);
-          }, 500);
+          // 3. 確保影片完整播放完成才進入下一步
+          await new Promise(resolve => {
+            let done = false;
+            const complete = () => {
+              if (!done) {
+                done = true;
+                resolve();
+              }
+            };
+            videoTransition.onended = complete;
+            videoTransition.onerror = complete;
+            // 安全防線：若影片格式有問題，最長等待 5 秒防卡死
+            setTimeout(complete, 5000);
+          });
+        }
 
-        }, 800);
+        // 4. 影片播完後，淡出整個動態影音層並顯示資料讀取介面
+        viewport.style.transition = 'opacity 0.6s ease-in-out';
+        viewport.style.opacity = '0';
+        viewport.style.pointerEvents = 'none';
+
+        // 顯示載入轉圈並拉取資料
+        authLoading.classList.remove('hidden');
+        authLoading.style.opacity = '1';
+
+        setTimeout(() => {
+          viewport.classList.add('hidden');
+        }, 600);
+
+        try {
+          await initLineAuth();
+          await loadInitialData();
+        } catch (e) {
+          console.warn('初始化載入異常:', e);
+        }
+
+        setTimeout(() => {
+          authLoading.style.opacity = '0';
+          setTimeout(() => authLoading.classList.add('hidden'), 800);
+        }, 500);
       });
 
       toggleBtn.addEventListener('click', () => {
