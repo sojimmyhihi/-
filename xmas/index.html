@@ -88,7 +88,23 @@
               <button class="step-btn" onclick="changeCount('child', 1)">+</button>
             </div>
           </div>
-
+          
+         <!-- (新增) 活動專屬代幣 -->
+          <div class="ticket-row">
+            <div class="ticket-details">
+              <span class="chip red">重大優勢</span>
+              <h3>活動專屬代幣</h3>
+              <p class="bonus-text muted">⚠️ 提示：活動代幣將在活動當天為您取得重大優勢！（每筆限購 15 枚）</p>
+              <div class="price-val">NT$ 50 <span style="font-size: 12px; color: #94a3b8; font-weight: normal;">/ 枚</span></div>
+            </div>
+            <div class="stepper-box">
+              <button class="step-btn" onclick="changeCount('token', -1)">-</button>
+              <span id="token-count" class="step-val">0</span>
+              <button class="step-btn" onclick="changeCount('token', 1)">+</button>
+            </div>
+          </div>
+        </div> <!-- ticket-list 結束 -->
+        
         <!-- 優惠代碼輸入區 -->
         <div class="coupon-container" id="coupon-area">
           <div class="coupon-input-group">
