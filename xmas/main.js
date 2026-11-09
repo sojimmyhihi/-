@@ -9,7 +9,9 @@ const isEarlyBird = NOW < EARLY_BIRD_DEADLINE;
 let adultPrice = isEarlyBird ? 250 : 300;
 let dynamicMaxAdult = 25; // 預設早鳥上限
 let isCouponApplied = false;
-let counts = { adult: 0, child: 0 };
+
+// 1. 票數狀態加入 token (代幣)
+let counts = { adult: 0, child: 0, token: 0 }; 
 
 // 影音多媒體元素
 const posterImg = document.getElementById("poster-img");
@@ -20,7 +22,7 @@ const audio = document.getElementById("bg-music");
 const musicToggleBtn = document.getElementById("music-toggle");
 
 // =================================
-// 1. 初始化票額與後台設定讀取
+// 初始化票額與後台設定讀取
 // =================================
 document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("adult-price-display").innerText = adultPrice;
@@ -70,7 +72,7 @@ async function fetchTicketConfig() {
 }
 
 // =================================
-// 2. 音樂與雙段影片過場控制
+// 音樂與雙段影片過場控制
 // =================================
 function playBGM() {
   if (audio && audio.paused) {
@@ -146,12 +148,15 @@ function goToStep(step) {
 }
 
 // =================================
-// 3. 票數計算與結算 (每張全票折 50 元)
+// 2. 票數計算與結算 (包含代幣加購與每張全票折 50 元)
 // =================================
 function changeCount(type, delta) {
   if (type === "child") {
     counts.child = Math.max(0, Math.min(2, counts.child + delta));
     document.getElementById("child-count").innerText = counts.child;
+  } else if (type === "token") {
+    counts.token = Math.max(0, Math.min(15, counts.token + delta)); // 限制最多 15 枚代幣
+    document.getElementById("token-count").innerText = counts.token;
   } else {
     counts.adult = Math.max(0, Math.min(dynamicMaxAdult, counts.adult + delta));
     document.getElementById("adult-count").innerText = counts.adult;
@@ -163,13 +168,21 @@ function updateSummary() {
   const totalTickets = counts.adult + counts.child;
   const propsCount = counts.adult;
   
+  // 計算票價 (保有你原本的邏輯：每張全票皆可折 50 元)
   const discountPerAdult = isCouponApplied ? 50 : 0;
   const unitPrice = adultPrice - discountPerAdult;
-  const grossPrice = counts.adult * unitPrice;
+  
+  // 總金額 = (全票張數 * 折扣後單價) + (代幣數量 * 50)
+  const grossPrice = (counts.adult * unitPrice) + (counts.token * 50);
   const netPrice = Math.max(0, grossPrice);
 
   document.getElementById("sum-tickets").innerText = totalTickets;
   document.getElementById("sum-props").innerText = propsCount;
+  
+  // 更新代幣顯示 (若 HTML 有對應 ID 則更新)
+  const tokenDisplay = document.getElementById("sum-tokens");
+  if(tokenDisplay) tokenDisplay.innerText = counts.token;
+  
   document.getElementById("sum-price").innerText = netPrice;
 
   const btnNext = document.getElementById("btn-to-step3");
@@ -177,7 +190,7 @@ function updateSummary() {
   if (counts.adult >= 1) {
     btnNext.disabled = false;
     btnNext.innerText = "下一步：填寫實名資料";
-  } else if (counts.child > 0) {
+  } else if (counts.child > 0 || counts.token > 0) { // 防呆：不能只買兒童票或代幣
     btnNext.disabled = true;
     btnNext.innerText = "需至少一位全票陪同入場";
   } else {
@@ -186,7 +199,7 @@ function updateSummary() {
   }
 }
 
-// 優惠碼 NCKUBBB：每張全票折 50 元
+// 優惠碼 NCKUBBB：每張全票折 50 元 (原邏輯完整保留)
 const btnApplyCoupon = document.getElementById("btn-apply-coupon");
 if (btnApplyCoupon) {
   btnApplyCoupon.addEventListener("click", () => {
@@ -311,7 +324,7 @@ document.getElementById("btn-submit-order").addEventListener("click", async () =
     return;
   }
 
-  // 檢驗全票名冊
+  // 檢驗全票名冊 (包含你原本寫的 frontend 防重覆檢核)
   const attNames = document.querySelectorAll(".att-name");
   const attIds = document.querySelectorAll(".att-id");
   let attendees = [];
@@ -326,7 +339,6 @@ document.getElementById("btn-submit-order").addEventListener("click", async () =
       return;
     }
 
-    // 前端防呆：同一筆訂單不可重複填寫相同的身分證末碼
     if (localIdCheck.has(idVal)) {
       alert(`第 ${i + 1} 位全票持有人的證件末碼「${idVal}」與其他持有人重複，每張全票皆須為不同持有人！`);
       return;
@@ -340,6 +352,7 @@ document.getElementById("btn-submit-order").addEventListener("click", async () =
   btnSubmit.disabled = true;
   btnSubmit.innerText = "系統比對劃位中，請勿關閉視窗...";
 
+  // 3. Payload 加上 tokenCount
   try {
     const payload = {
       action: "submitMoonwalkerBooking",
@@ -349,6 +362,7 @@ document.getElementById("btn-submit-order").addEventListener("click", async () =
       verifyCode: mainCode,
       adultCount: counts.adult,
       childCount: counts.child,
+      tokenCount: counts.token, // 將代幣數量送給後端
       attendees: attendees,
       totalAmount: parseInt(document.getElementById("sum-price").innerText)
     };
@@ -362,6 +376,7 @@ document.getElementById("btn-submit-order").addEventListener("click", async () =
     if (result.success) {
       document.getElementById("ticket-badge").innerText = "票券編號：" + result.ticketId;
       
+      // 保留你原本的資料覆蓋提示晶片
       const overwriteChip = document.getElementById("overwrite-alert");
       if (result.isOverwritten) {
         alert("偵測到您曾報名過，系統已為您覆蓋更新為最新資料，不佔用額外名額！");
@@ -391,8 +406,9 @@ document.getElementById("btn-submit-order").addEventListener("click", async () =
     btnSubmit.innerText = "確認送出並取票";
   }
 });
+
 // ==========================================
-// 解決手機虛擬鍵盤擋住輸入欄位
+// 解決手機虛擬鍵盤擋住輸入欄位 (原邏輯保留)
 // ==========================================
 document.addEventListener("focusin", (e) => {
   if (["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName)) {
@@ -401,6 +417,6 @@ document.addEventListener("focusin", (e) => {
         behavior: "smooth",
         block: "center"
       });
-    }, 300); // 延遲 300ms 等待手機虛擬鍵盤完全彈起
+    }, 300);
   }
 });
