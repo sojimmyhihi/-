@@ -11,6 +11,7 @@ let dynamicMaxAdult = 25;
 let isCouponApplied = false;
 let counts = { adult: 0, child: 0 };
 let isEmailVerified = false;
+
 // 影音多媒體元素
 const posterImg = document.getElementById("poster-img");
 const videoJump = document.getElementById("video-jump");
@@ -248,7 +249,7 @@ function renderAttendeeCards() {
 }
 
 // =================================
-// 5. 寄送驗證碼與送出訂單
+// 5. 寄送驗證碼、即時驗證與送出訂單
 // =================================
 const btnSendVerify = document.getElementById("btn-send-verify");
 btnSendVerify.addEventListener("click", async () => {
@@ -271,6 +272,10 @@ btnSendVerify.addEventListener("click", async () => {
       alert("驗證碼已寄出，請至信箱收取！");
       let sec = 60;
       const timer = setInterval(() => {
+        if (isEmailVerified) {
+          clearInterval(timer);
+          return;
+        }
         btnSendVerify.innerText = `${sec}s 重發`;
         sec--;
         if (sec < 0) {
@@ -291,6 +296,89 @@ btnSendVerify.addEventListener("click", async () => {
   }
 });
 
+// 若使用者修改信箱，重置驗證狀態
+document.getElementById("main-email").addEventListener("input", () => {
+  if (isEmailVerified) {
+    isEmailVerified = false;
+    const hint = document.getElementById("verify-hint");
+    if (hint) {
+      hint.className = "hint-text fail";
+      hint.innerText = "信箱已變更，請重新驗證";
+    }
+    const btnCheck = document.getElementById("btn-check-verify");
+    if (btnCheck) {
+      btnCheck.disabled = false;
+      btnCheck.innerText = "驗證";
+    }
+  }
+});
+
+// 點擊「驗證」按鈕即時向後端核對驗證碼
+const btnCheckVerify = document.getElementById("btn-check-verify");
+if (btnCheckVerify) {
+  btnCheckVerify.addEventListener("click", async () => {
+    const email = document.getElementById("main-email").value.trim();
+    const code = document.getElementById("main-code").value.trim();
+    const hint = document.getElementById("verify-hint");
+
+    if (!email || !email.includes("@")) {
+      if (hint) {
+        hint.className = "hint-text fail";
+        hint.innerText = "✗ 請先輸入有效的電子信箱";
+      }
+      return;
+    }
+
+    if (!code || code.length !== 6) {
+      if (hint) {
+        hint.className = "hint-text fail";
+        hint.innerText = "✗ 請輸入 6 位數驗證碼";
+      }
+      return;
+    }
+
+    btnCheckVerify.disabled = true;
+    btnCheckVerify.innerText = "驗證中...";
+
+    try {
+      const res = await fetch(GAS_API_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "verifyCode", email: email, code: code })
+      });
+      const result = await res.json();
+
+      if (result.success) {
+        isEmailVerified = true;
+        if (hint) {
+          hint.className = "hint-text ok";
+          hint.innerText = "✓ 信箱驗證成功！請繼續填寫下方資料";
+        }
+        btnCheckVerify.innerText = "已驗證 ✓";
+        // 鎖定信箱與驗證碼欄位，避免送出前誤改
+        document.getElementById("main-email").readOnly = true;
+        document.getElementById("main-code").readOnly = true;
+        btnSendVerify.disabled = true;
+        btnSendVerify.innerText = "已驗證";
+      } else {
+        isEmailVerified = false;
+        if (hint) {
+          hint.className = "hint-text fail";
+          hint.innerText = "✗ " + (result.message || "驗證碼錯誤或已逾時");
+        }
+        btnCheckVerify.disabled = false;
+        btnCheckVerify.innerText = "驗證";
+      }
+    } catch (e) {
+      if (hint) {
+        hint.className = "hint-text fail";
+        hint.innerText = "✗ 連線異常，請稍後再試";
+      }
+      btnCheckVerify.disabled = false;
+      btnCheckVerify.innerText = "驗證";
+    }
+  });
+}
+
 // 確認送出訂單
 document.getElementById("btn-submit-order").addEventListener("click", async () => {
   if (counts.adult < 1) {
@@ -306,6 +394,11 @@ document.getElementById("btn-submit-order").addEventListener("click", async () =
 
   if (!mainName || !mainPhone || !mainEmail || !mainCode) {
     alert("請完整填寫聯絡人資料與 6 位數驗證碼！");
+    return;
+  }
+
+  if (!isEmailVerified) {
+    alert("請先點擊驗證碼旁的「驗證」按鈕完成信箱驗證！");
     return;
   }
 
