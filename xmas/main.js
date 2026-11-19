@@ -10,7 +10,7 @@ let adultPrice = isEarlyBird ? 250 : 300;
 let dynamicMaxAdult = 25;
 let isCouponApplied = false;
 let counts = { adult: 0, child: 0 };
-
+let isEmailVerified = false;
 // 影音多媒體元素
 const posterImg = document.getElementById("poster-img");
 const videoJump = document.getElementById("video-jump");
